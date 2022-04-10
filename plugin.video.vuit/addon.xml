@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.vuit" name="VUit" version="2021.10.31" provider-name="MetalChris">
+    <requires>
+        <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+        <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+        <import addon="script.module.html5lib" version="0.999.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource"
+               library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <license>GPL 2.0</license>
+        <summary lang="en">Free live and on demand local TV</summary>
+        <description lang="en">VUit is your home for free, live, local TV streamed from any device. Watch live and on-demand news, weather and sports from your favorite local stations at home and across the country. Plus, catch original short films, live sporting events, award-winning documentaries, daily business programs and entertaining video podcasts, all in one place. *Matrix Version*</description>
+        <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+        <language></language>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website>https://www.vuit.com/</website>
+        <email></email>
+        <source></source>
+        <news>v.2020.10.31[CR]- Initial release.</news>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

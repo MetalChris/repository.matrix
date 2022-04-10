@@ -1,0 +1,8 @@
+Version 0.0.1
+- Initial release
+
+Version 1.03
+- Fixes for website changes
+
+Version 2020.04.12
+- Code cleanup

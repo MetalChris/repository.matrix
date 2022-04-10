@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.powernationtv" name="PowerNation TV" version="2022.03.05" provider-name="MetalChris, zymbiosis">
+    <requires>
+    <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+    <import addon="script.module.requests" version="2.9.1"/>
+    <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+    <import addon="script.module.html5lib" version="0.999.0"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource"
+               library="addon.py">
+        <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <platform>all</platform>
+        <license>GPL 2.0 or Later</license>
+        <summary lang="en">PowerNation TV is the source of how-to television for auto enthusiasts.</summary>
+        <description lang="en">PowerNation TV brings you in-depth how-to shows to cater to your automotive interests, featuring Xtreme Off-Road, Detroit Muscle, Truck Tech, Engine Power and more!  Currently this add-on provides access to the free episodes only.  *Matrix Version*</description>
+        <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+        <language></language>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website>http://www.powernationtv.com</website>
+        <email></email>
+        <source>https://github.com/MetalChris/repository.metalchris/tree/master/plugin.video.powernationtv</source>
+        <news>Version 2022.03.04 - Fixed missing dependency in addon.xml file.</news>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot01.png</screenshot>
+        <screenshot>resources/media/screenshot02.png</screenshot>
+        <screenshot>resources/media/screenshot03.png</screenshot>
+        <screenshot>resources/media/screenshot04.png</screenshot>
+    </assets>
+    </extension>
+</addon>

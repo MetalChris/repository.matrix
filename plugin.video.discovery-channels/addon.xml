@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.discovery-channels" name="Discovery Channels" version="2021.11.19" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+    <import addon="script.module.requests" version="2.9.1"/>
+    <import addon="script.module.mechanize" version="0.2.6"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Watch a selection of FREE full episodes and short videos</summary>
+    <description lang="en">Watch FREE full episodes and short videos from the various Discovery channels including Discovery, Investigation Discovery, Destination America, Discovery Life and more. *Matrix Version*</description>
+    <disclaimer lang="en">Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum></forum>
+    <website>http://www.discovery.com</website>
+    <email></email>
+    <source>https://github.com/MetalChris/repository.metalchris/tree/master/plugin.video.discovery-channels</source>
+    <news>v 2021.11.19 - Fix Log Level</news>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot001.png</screenshot>
+        <screenshot>resources/media/screenshot002.png</screenshot>
+        <screenshot>resources/media/screenshot003.png</screenshot>
+        <screenshot>resources/media/screenshot004.png</screenshot>
+        <screenshot>resources/media/screenshot005.png</screenshot>
+    </assets>
+  </extension>
+</addon>

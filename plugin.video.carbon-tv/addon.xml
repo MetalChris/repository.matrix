@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.carbon-tv" name="CarbonTV" version="2021.11.19" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.24.0"/> -->
+    <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+    <import addon="script.module.html5lib" version="0.999.0"/>
+    <import addon="script.module.requests" version="2.9.1"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">CarbonTV</summary>
+    <description lang="en">Watch video clips and full episodes from CarbonTV, the premier online video destination for premium outdoor themed shows and engaging personalities.  *Matrix Version*</description>
+    <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+    <language>en</language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum>http://forum.kodi.tv/showthread.php?tid=267580</forum>
+    <website>http://www.carbontv.com</website>
+    <email></email>
+    <source>https://raw.githubusercontent.com/MetalChris/repository.metalchris/master/plugin.video.carbon-tv/addon.py</source>
+    <news>Version 2021.11.19 - Fix Log Level</news>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot011.png</screenshot>
+        <screenshot>resources/media/screenshot015.png</screenshot>
+        <screenshot>resources/media/screenshot016.png</screenshot>
+        <screenshot>resources/media/screenshot017.png</screenshot>
+        <screenshot>resources/media/screenshot019.png</screenshot>
+        <screenshot>resources/media/screenshot020.png</screenshot>
+        <screenshot>resources/media/screenshot021.png</screenshot>
+    </assets>
+  </extension>
+</addon>

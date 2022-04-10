@@ -1,0 +1,25 @@
+Version 2018.12.01
+- Fix login (again)
+- Fixes for other website changes
+
+Version 2018.10.16
+- Fix for login
+
+Version 2018.10.14
+- Fixes for website changes
+
+Version 0.0.5
+- Implement setResolvedUrl which fixes 'Play From Here'
+
+Version 0.0.4
+- Added hack to mark videos watched
+
+Version 0.0.3
+- Fix for change in stream url format
+- Minor code cleanup and changes
+
+Version 0.0.2
+- Update for website changes (02-11-2017)
+
+Version 0.0.1
+- Initial release

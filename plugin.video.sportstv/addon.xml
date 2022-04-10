@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.sportstv" name="Sports.TV" version="2022.04.08" provider-name="MetalChris">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.six" />
+    <import addon="script.module.kodi-six" />
+    <import addon="script.module.beautifulsoup4" version="4.2.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Enjoy over 60 free channels across the world of sports.</summary>
+    <description lang="en">Enjoy over 60 free channels across the world of sports. Pac12 Insider, HBCUGo.TV, World Poker Tour, Pursuit Up TV, Swerve Sports, SportsGrid, For the Fans, Fight Network, Impact Wrestling, Black Belt TV, MMA TV, Campus Lore, Allied Esports, Outside TV, NHRA TV, and Racing America are just some of the channels available right now. </description>
+    <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum></forum>
+    <website>https://www.sports.tv/</website>
+    <email></email>
+    <source></source>
+    <news>v.2022.04.08[CR]- Fixes for website changes.</news>
+    <assets>
+        <icon>/resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>

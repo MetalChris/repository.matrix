@@ -1,0 +1,36 @@
+Version 2019.11.30
+ - Update for website changes
+
+Version 2019.10.26
+ - Update for website changes
+
+Version 2019.09.30
+ - Update for website changes
+
+Version 2019.02.03
+ - Update for website changes
+
+Version 2018.02.25
+- Update for website changes
+
+Version 2017.10.21
+- Update to sorting by sport when some events have more meta tags than others
+
+Version 2017.10.15
+- Sort Event Schedule by sport
+
+Version 2017.10.10
+- Fix for events without descriptive meta tag
+- More code cleanup
+
+Version 2017.09.18
+- Minor code cleanup
+
+Version 2017.09.13
+- Fix missing dependency in addon.xml
+
+Version 2017.09.09
+- Fix for Event Schedule when total exceeds limit of 100
+
+Version 2017.09.04
+- Initial release

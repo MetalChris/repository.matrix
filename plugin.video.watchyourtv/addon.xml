@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.watchyourtv" name="WatchYour.TV" version="2021.01.11" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.20.0"/> -->
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Watch FREE USA TV Channels Live with Recorded 7 Days DVR (Catch-Up).</summary>
+    <description lang="en">Watch FREE USA TV Channels Live with Recorded 7 Days DVR (Catch-Up). Never Miss Any Program. watchyour.tv is an over-the-top television streaming service with the most comprehensive USA based content.</description>
+    <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum></forum>
+    <website>https://www.watchyour.tv/</website>
+    <email></email>
+    <source></source>
+    <news>v.2022.01.11[CR]- Fix for API change for live channels.</news>
+    <assets>
+        <icon>/resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>

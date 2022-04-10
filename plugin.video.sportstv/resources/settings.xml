@@ -1,0 +1,16 @@
+<settings>
+        <category label="Logging">
+        <setting id='log_notice' type ="bool" label="30000" help = "">
+          <level>0</level>
+	        <default>false</default>
+	        <control type="toggle"/>
+          </setting>
+        </category>
+        <category label="Sort">
+        <setting id='sort' type ="bool" label="30002" help = "">
+          <level>0</level>
+	        <default>false</default>
+	        <control type="toggle"/>
+          </setting>
+        </category>
+</settings>

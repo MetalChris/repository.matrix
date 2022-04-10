@@ -1,0 +1,161 @@
+# Kodi Media Center language file
+# Addon Name: Discovery Channels
+# Addon id: plugin.video.discovery-channels
+# Addon Provider: MetalChris
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30003"
+msgid "Stream Quality"
+msgstr ""
+
+msgctxt "#30004"
+msgid "540p"
+msgstr ""
+
+msgctxt "#30005"
+msgid "720p"
+msgstr ""
+
+msgctxt "#30006"
+msgid "1080p"
+msgstr ""
+
+msgctxt "#30009"
+msgid "Discovery Channel"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Animal Planet"
+msgstr ""
+
+msgctxt "#30011"
+msgid "Science Channel"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Investigation Discovery"
+msgstr ""
+
+msgctxt "#30013"
+msgid "American Heroes"
+msgstr ""
+
+msgctxt "#30014"
+msgid "Discovery Life"
+msgstr ""
+
+msgctxt "#30015"
+msgid "Destination America"
+msgstr ""
+
+msgctxt "#30016"
+msgid "Motor Trend"
+msgstr ""
+
+msgctxt "#30017"
+msgid "DIY Network"
+msgstr ""
+
+msgctxt "#30018"
+msgid "HGTV"
+msgstr ""
+
+msgctxt "#30019"
+msgid "Food Network"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Travel Channel"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Cooking Channel"
+msgstr ""
+
+msgctxt "#30120"
+msgid "Force Views"
+msgstr ""
+
+msgctxt "#30200"
+msgid "Html5lib"
+msgstr ""
+
+msgctxt "#30201"
+msgid "XBMC.PLAYER"
+msgstr ""
+
+msgctxt "#30202"
+msgid "RESOLVE URL"
+msgstr ""
+
+msgctxt "#30205"
+msgid "html.parser"
+msgstr ""
+
+msgctxt "#30210"
+msgid "Parser"
+msgstr ""
+
+msgctxt "#30211"
+msgid "Player"
+msgstr ""
+
+msgctxt "#30215"
+msgid "None"
+msgstr ""
+
+msgctxt "#30220"
+msgid "Force View"
+msgstr ""
+
+msgctxt "#30221"
+msgid "Thumbnail"
+msgstr ""
+
+msgctxt "#30222"
+msgid "List"
+msgstr ""
+
+msgctxt "#30224"
+msgid "Media Info 2"
+msgstr ""
+
+msgctxt "#30225"
+msgid "Media Info"
+msgstr ""
+
+msgctxt "#30227"
+msgid "Media Info 3"
+msgstr ""
+
+msgctxt "#30230"
+msgid "Confluence View"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Kodi Log"
+msgstr ""
+
+msgctxt "#30118"
+msgid "Enable Log Notifications"
+msgstr ""
+
+msgctxt "#30119"
+msgid "First Run"
+msgstr ""
+
+msgctxt "#30121"
+msgid "Create Userdata Folder"
+msgstr ""

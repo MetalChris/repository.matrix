@@ -1,0 +1,81 @@
+# Kodi Media Center language file
+# Addon Name: Discovery Channels
+# Addon id: plugin.video.powernationtv
+# Addon Provider: MetalChris
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30001"
+msgid "Subscription Details"
+msgstr ""
+
+msgctxt "#30002"
+msgid "Paid Subscription"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Enable Paid Account"
+msgstr ""
+
+msgctxt "#30200"
+msgid "User Account"
+msgstr ""
+
+msgctxt "#30201"
+msgid "Username"
+msgstr ""
+
+msgctxt "#30202"
+msgid "Password"
+msgstr ""
+
+msgctxt "#30203"
+msgid "Hide Login Message"
+msgstr ""
+
+msgctxt "#30020"
+msgid "Force Views"
+msgstr ""
+
+msgctxt "#30021"
+msgid "Thumbnail"
+msgstr ""
+
+msgctxt "#30022"
+msgid "List"
+msgstr ""
+
+msgctxt "#30024"
+msgid "Media Info 2"
+msgstr ""
+
+msgctxt "#30025"
+msgid "Media Info"
+msgstr ""
+
+msgctxt "#30027"
+msgid "Media Info 3"
+msgstr ""
+
+msgctxt "#30030"
+msgid "Confluence View"
+msgstr ""
+
+msgctxt "#30117"
+msgid "Kodi Log"
+msgstr ""
+
+msgctxt "#30040"
+msgid "Enable Log Notifications"
+msgstr ""

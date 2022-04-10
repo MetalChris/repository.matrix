@@ -1,0 +1,16 @@
+<settings>
+    <!-- <category label="Login">
+    <setting label="30001" type="lsep"/>
+    <setting type="sep" />
+    <setting id="username" type="text" label="30201" default="" enable="!eq(-1,false)"/>
+    <setting id="password" type="text" label="30202" default="" option="hidden" enable="!eq(-2,false)"/>
+    <setting type="sep" />
+    <setting label="Register for a free account at https://tinyurl.com/y6xyttme" type="lsep"/>
+  </category> -->
+    <category label="Kodi Log">
+    <setting label="Enable this option before submitting a debug log." type="lsep"/>
+    <setting type="sep" />
+    <setting id='log_notice' type ="bool" label="30240" default="false"/>
+    <setting type="sep" />
+    </category>
+</settings>

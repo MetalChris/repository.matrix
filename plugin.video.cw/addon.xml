@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.cw" name="CW TV Network" version="2021.11.27+matrix.1" provider-name="MetalChris, QianyuLi">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.six" />
+    <import addon="script.module.kodi-six" />
+    <import addon="script.module.mechanize" version="0.2.6"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Watch full episodes and video clips from the CW and the CW Seed</summary>
+    <description lang="en">The CW Television Network is an American English language broadcast television network that is operated by The CW Network, LLC, a joint venture between CBS Corporation and Warner Bros. Entertainment. The "CW" name is an acronym derived from the first letters of the names of its two parent corporations (CBS and Warner Bros.).</description>
+    <disclaimer lang="en">No support at TVAddons</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2 or later)</license>
+    <forum></forum>
+    <website>https://www.cwtv.com/</website>
+    <email></email>
+    <source>https://github.com/MetalChris/repository.metalchris/tree/master/plugin.video.cw</source>
+    <news>Version 2021.11.27[CR] - Fix artwork, and fix option to choose stream bitrate.[CR]Version 2021.11.26[CR] - Python 3 Migration by QianyuLi</news>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot001.png</screenshot>
+        <screenshot>resources/media/screenshot002.png</screenshot>
+        <screenshot>resources/media/screenshot003.png</screenshot>
+        <screenshot>resources/media/screenshot004.png</screenshot>
+        <screenshot>resources/media/screenshot005.png</screenshot>
+    </assets>
+  </extension>
+</addon>

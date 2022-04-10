@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.nfpf" name="National Film Preservation Foundation" version="2021.10.11" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.20.0"/> -->
+    <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+    <import addon="script.module.html5lib" version="0.999.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">Provides access to American films for study, education, and exhibition.</summary>
+    <description lang="en">The National Film Preservation Foundation is the nonprofit organization created by the U.S. Congress to help save America's film heritage. We support activities nationwide that preserve American films and improve film access for study, education, and exhibition.  Our top priority is saving American films that would be unlikely to survive without public support. *Matrix Version*</description>
+    <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum></forum>
+    <website>https://www.filmpreservation.org</website>
+    <email></email>
+    <source>https://github.com/MetalChris/repository.metalchris/tree/master/plugin.video.caa</source>
+    <news>v.2017.11.26[CR]- Initial release</news>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot001.png</screenshot>
+        <screenshot>resources/media/screenshot002.png</screenshot>
+        <screenshot>resources/media/screenshot003.png</screenshot>
+        <screenshot>resources/media/screenshot004.png</screenshot>
+        <screenshot>resources/media/screenshot005.png</screenshot>
+    </assets>
+  </extension>
+</addon>

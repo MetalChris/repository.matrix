@@ -1,0 +1,121 @@
+# Kodi Media Center language file
+# Addon Name: Internet Archive [Video]
+# Addon id: plugin.video.internetarchive
+# Addon Provider: MetalChris
+msgid ""
+msgstr ""
+"Project-Id-Version: Kodi Addons\n"
+"Report-Msgid-Bugs-To: https://forum.kodi.tv/\n"
+"POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: Kodi Translation Team\n"
+"Language-Team: Team-Kodi\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language: en_GB\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgctxt "#30000"
+msgid "Internet Archive [Video]"
+msgstr ""
+
+msgctxt "#33002"
+msgid "Default"
+msgstr ""
+
+msgctxt "#30003"
+msgid "Search"
+msgstr ""
+
+msgctxt "#33004"
+msgid "Date Added"
+msgstr ""
+
+msgctxt "#33005"
+msgid "Title"
+msgstr ""
+
+msgctxt "#33006"
+msgid "Views"
+msgstr ""
+
+msgctxt "#33007"
+msgid "Sort By"
+msgstr ""
+
+msgctxt "#30010"
+msgid "Select a location to download files."
+msgstr ""
+
+msgctxt "#30011"
+msgid "Download Location"
+msgstr ""
+
+msgctxt "#30012"
+msgid "Display Ongoing Download Status Notification"
+msgstr ""
+
+msgctxt "#30013"
+msgid "Download Buffer Size"
+msgstr ""
+
+msgctxt "#30021"
+msgid "-download"
+msgstr ""
+
+msgctxt "#30022"
+msgid "titleSorter"
+msgstr ""
+
+msgctxt "#30023"
+msgid "-date"
+msgstr ""
+
+msgctxt "#30024"
+msgid "creatorSorter"
+msgstr ""
+
+msgctxt "#30030"
+msgid "4096"
+msgstr ""
+
+msgctxt "#30031"
+msgid "8192"
+msgstr ""
+
+msgctxt "#30032"
+msgid "16384"
+msgstr ""
+
+msgctxt "#30033"
+msgid "32768"
+msgstr ""
+
+msgctxt "#30034"
+msgid "65536"
+msgstr ""
+
+msgctxt "#30035"
+msgid "131072"
+msgstr ""
+
+msgctxt "#30036"
+msgid "262144"
+msgstr ""
+
+msgctxt "#30037"
+msgid "524288"
+msgstr ""
+
+msgctxt "#30038"
+msgid "1048576"
+msgstr ""
+
+msgctxt "#30039"
+msgid "2097152"
+msgstr ""
+
+msgctxt "#30060"
+msgid "Enable Log Notices"
+msgstr ""

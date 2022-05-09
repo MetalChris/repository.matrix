@@ -7,8 +7,10 @@
 # 11.25.2021
 
 from six.moves import urllib_parse, urllib_request, urllib_error, http_client
-from kodi_six import xbmc, xbmcplugin, xbmcaddon, xbmcgui
-import re, os
+from kodi_six import xbmc, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs
+import re
+import os
+import random
 import sys
 from bs4 import BeautifulSoup
 import json
@@ -18,10 +20,12 @@ if sys.version_info >= (3, 4, 0):
     import html
     _html_parser = html
     PY2 = False
+    translatePath = xbmcvfs.translatePath
 else:
     from six.moves import html_parser
     _html_parser = html_parser.HTMLParser()
     PY2 = True
+    translatePath = xbmc.translatePath
 
 
 settings = xbmcaddon.Addon(id="plugin.video.internetarchive")
@@ -40,18 +44,17 @@ addon = xbmcaddon.Addon(id="plugin.video.internetarchive")
 addonname = addon.getAddonInfo('name')
 baseurl = 'https://archive.org/'
 movieurl = 'https://archive.org/details/movies'
-__resource__   = xbmc.translatePath( os.path.join( _addon_path, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
+__resource__ = translatePath(os.path.join(_addon_path, 'resources', 'lib'))  # .encode("utf-8") ).decode("utf-8")
 
 sys.path.append(__resource__)
-
 
 from uas import *
 
 log_notice = settings.getSetting(id="log_notice")
 if log_notice != 'false':
-    log_level = 1
+    log_level = xbmc.LOGNOTICE if PY2 else xbmc.LOGINFO
 else:
-    log_level = 0
+    log_level = xbmc.LOGDEBUG
 xbmc.log('LOG_NOTICE: ' + str(log_notice), level=log_level)
 xbmc.log('DSORT: ' + str(dsort), level=log_level)
 
@@ -66,23 +69,24 @@ addon_handle = int(sys.argv[1])
 confluence_views = [551, 500, 501, 502, 503, 504, 508, 515]
 # xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[4])+")")
 
-##### Sort Stuff #####
-#https://archive.org/details/Film_Noir?sort=-addeddate&page=2
-#?sort=-addeddate 1
-#?sort=titleSorter 2
+# ##### Sort Stuff #####
+# https://archive.org/details/Film_Noir?sort=-addeddate&page=2
+# ?sort=-addeddate 1
+# ?sort=titleSorter 2
 
 if dsort == '0':
-    sort_value = ''
+    sort_value = '?sort=-week'
 if dsort == '1':
     sort_value = '?sort=-addeddate'
 if dsort == '2':
     sort_value = '?sort=titleSorter'
 
+
 # 60
-def ia_categories():
-    mode = 62
+def ia_categories(url):
     try:
-        data = urllib_request.urlopen(movieurl).read()
+        # data = urllib_request.urlopen(movieurl).read()
+        data = get_html(url)
     except urllib_error.HTTPError as e:
         xbmc.log('Error Type= ' + str(type(e)), level=log_level)  # not catch
         xbmc.log('Error Args= ' + str(e.args), level=log_level)
@@ -97,9 +101,10 @@ def ia_categories():
         # dialog = xbmcgui.Dialog()
         xbmcgui.Dialog().ok(addonname, line1 + ' Please Try Again')
         return
-    add_directory2('*Search', baseurl, 65, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
+    add_directory2('*Search', baseurl, 65, defaultfanart, defaulticon, plot='')
     soup = BeautifulSoup(data, 'html.parser')
-    for item in soup.find_all(attrs={'class': 'collection-title C C2'}):
+    for item in soup.find_all('div', {'class': 'collection-title C C2'}):
+        mode = 62
         for link in item.find_all('a'):
             l = link.get('href')  # noqa
             # xbmc.log('LINK: ' + str(link),level=log_level)
@@ -110,7 +115,6 @@ def ia_categories():
                 mode = 64
                 url = l + '&page=1'
             if title == 'Occupy Wall Street':
-                mode = 62
                 url = l + '&page=1'
             else:
                 url = l
@@ -140,18 +144,25 @@ def ia_categories():
                 if title == 'TV News':
                     mode = 62
                     url = 'https://archive.org/details/tvnews'
-                if 'Just' in title:
-                    mode = 62
+                elif 'Collections' in title:
+                    mode = 61
 
-            ##### Add the sort method here #####
+            # ##### Add the sort method here #####
 
-            url = url + sort_value + '&page=1' # +default+
+            url = url + sort_value + '&page=1'  # +default+
             title = title.strip()
-            xbmc.log('TITLE: ' + str(title), level=log_level)
+            xbmc.log('TITLE: {0}  - MODE: {1}'.format(title, mode), level=log_level)
             # xbmc.log('IA URL= ' + str(url), level=log_level)
             add_directory2(title, url, mode, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
             xbmcplugin.addSortMethod(int(sys.argv[1]), xbmcplugin.SORT_METHOD_LABEL)
     # xbmcplugin.setContent(int(sys.argv[1]), 'episodes')
+
+    r = re.search(r'<a\s*href="([^"]+)[^.]+class="page-next"', data)
+    if r:
+        url = baseurl[:-1] + r.group(1)
+        xbmc.log('IA Next Page URL= ' + str(url), level=log_level)
+        add_directory2('*Next Page', url, 60, defaultfanart, defaulticon, plot='')
+
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=True)
 
 
@@ -195,10 +206,10 @@ def ia_sub_cat(url):
 # 62
 def ia_sub2_video(url):
     page = (url)[-1]
-    #page = re.search(r'(\d+)\D+$', url).group(1)
-    xbmc.log('PAGE: ' + str(page),level=log_level)
+    # page = re.search(r'(\d+)\D+$', url).group(1)
+    xbmc.log('PAGE: ' + str(page), level=log_level)
     thisurl = url.split("?")[0]
-    xbmc.log('thisurl= ' + str(thisurl),level=log_level)
+    xbmc.log('thisurl= ' + str(thisurl), level=log_level)
     req = urllib_request.Request(url)
     try:
         data = urllib_request.urlopen(req, timeout=10)
@@ -248,7 +259,7 @@ def ia_sub2_video(url):
             except KeyError:
                 continue
     page = int(page) + 1
-    #thisurl = thisurl.rpartition('&')[0]
+    # thisurl = thisurl.rpartition('&')[0]
     url = thisurl + sort_value + '&page=' + str(page)  # '?&sort='+default+'&page=' + str(page)
     xbmc.log('IA Next Page URL= ' + str(url), level=log_level)
     add_directory2('Next Page', url, 62, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
@@ -272,6 +283,28 @@ def get_links(name, url):
         if total > 1:
             get_files(total, data)
             sys.exit()
+        elif total == 1:
+            jd = json.loads(get_html(url.replace('/details/', '/metadata/')))
+            sources = [i for i in jd.get('files') if 'height' in i.keys() and '.jpg' not in i.get('name')]
+            if len(sources) > 1:
+                sources.sort(key=lambda item: (int(item.get('height')), item.get('source'), int(item.get('size'))), reverse=True)
+                srcs = ['{0} ({1} {2}p) {3}'.format(
+                    i.get('name').split('.')[-1],
+                    i.get('source'),
+                    i.get('height'),
+                    get_printable_size(int(i.get('size')))
+                ) for i in sources]
+                ret = xbmcgui.Dialog().select('Choose Source', srcs)
+                if ret == -1:
+                    return False
+            else:
+                ret = 0
+            surl = 'https://{0}{1}/{2}'.format(
+                random.choice(jd.get('workable_servers')),
+                jd.get('dir'),
+                urllib_parse.quote(sources[ret].get('name').encode('utf-8') if PY2 else sources[ret].get('name'))
+            )
+            play(name, surl)
     match = re.compile('<meta property="og:video" content="(.+?)"').findall(html)
     xbmc.log('MATCH: ' + str(match), level=log_level)
     if str(match) == '[]':
@@ -293,11 +326,40 @@ def get_links(name, url):
         ia_clipstream(url)
 
 
+def get_printable_size(byte_size):
+    BASE_SIZE = 1024.00
+    MEASURE = ["B", "KB", "MB", "GB", "TB", "PB"]
+
+    def _fix_size(size, size_index):
+        if not size:
+            return "0"
+        elif size_index == 0:
+            return str(size)
+        else:
+            return "{:.2f}".format(size)
+
+    current_size = byte_size
+    size_index = 0
+
+    while current_size >= BASE_SIZE and len(MEASURE) != size_index:
+        current_size = current_size / BASE_SIZE
+        size_index = size_index + 1
+
+    size = _fix_size(current_size, size_index)
+    measure = MEASURE[size_index]
+    return size + measure
+
+
 def get_files(total, data):
-    for i in range(total):
-        title = str(data[i]['title']).replace("\u0027", "'")
-        image = 'https://archive.org' + data[i]['image']
-        url = 'https://archive.org' + data[i]['sources'][0]['file']
+    # for i in range(total):
+    for i in data:
+        title = i.get('title').replace("\u0027", "'")
+        if i.get('image'):
+            image = 'https://archive.org' + i.get('image')
+        else:
+            image = defaultimage
+        url = 'https://archive.org' + i['sources'][0]['file']
+        xbmc.log('STREAM: {0}, URL: {1}'.format(title, url), level=log_level)
         add_directory3(title, url, 999, defaultfanart, image, plot='')
     xbmcplugin.endOfDirectory(addon_handle)
 
@@ -335,10 +397,10 @@ def downloader(url):
     match = re.compile('<meta property="og:video" content="(.+?)">').findall(str(html))
     xbmc.log('MATCH: ' + str(match), level=log_level)
     xbmc.log('MATCH[0]: ' + str(match[0]), level=log_level)
-    #url = resolve_http_redirect(match[0])
-    url = match[0].replace(' ','%20')
+    # url = resolve_http_redirect(match[0])
+    url = match[0].replace(' ', '%20')
     xbmc.log('FINAL URL: ' + str(url), level=log_level)
-    file_name = url.split('/')[-1].replace('%20',' ')
+    file_name = url.split('/')[-1].replace('%20', ' ')
     dlsn = settings.getSetting(id="status")
     bsize = settings.getSetting(id="bsize")
     # xbmc.log('bfr Size= ' + str(bsize),level=log_level)
@@ -360,25 +422,25 @@ def downloader(url):
     file_size = float(response.headers['Content-Length'])
     xbmc.log('FILE_SIZE: ' + str(file_size), level=log_level)
     with open(path + file_name, 'wb') as f:
-        #response = urllib_request.urlretrieve(url)
+        # response = urllib_request.urlretrieve(url)
         response = requests.get(url, stream=True)
-        #total = int(response.headers.get('Content-Length'))
-        #total = file_size
-        MB = round(float(file_size/(1024*1024)),2)
+        # total = int(response.headers.get('Content-Length'))
+        # total = file_size
+        MB = round(float(file_size / (1024 * 1024)), 2)
         xbmc.log('TOTAL: ' + str(MB), level=log_level)
         if file_size is None:
             f.write(response.content)
         else:
             downloaded = 0
             file_size = int(file_size)
-            for data in response.iter_content(chunk_size=max(int(file_size/1000), 1024*1024)):
+            for data in response.iter_content(chunk_size=max(int(file_size / 1000), 1024 * 1024)):
                 downloaded += len(data)
                 f.write(data)
-                done = int(100*downloaded/file_size)
-                #xbmc.log('DONE: ' + str(done), level=log_level)
+                done = int(100 * downloaded / file_size)
+                # xbmc.log('DONE: ' + str(done), level=log_level)
                 if dlsn != 'false':
-                    xbmcgui.Dialog().notification('IA [Video] Download in Progress', str(done) + '% of ' + str(MB) + ' MB' , xbmcgui.NOTIFICATION_INFO, 10000, False)
-                    #xbmcgui.Dialog().notification('IA [Video] Download in Progress', str(done) + '% of ' + str(float(total/1000) / 1024*1024) + ' MB', xbmcgui.NOTIFICATION_INFO, 10000, False)
+                    xbmcgui.Dialog().notification('IA [Video] Download in Progress', str(done) + '% of ' + str(MB) + ' MB', xbmcgui.NOTIFICATION_INFO, 10000, False)
+                    # xbmcgui.Dialog().notification('IA [Video] Download in Progress', str(done) + '% of ' + str(float(total/1000) / 1024*1024) + ' MB', xbmcgui.NOTIFICATION_INFO, 10000, False)
                 else:
                     break
     xbmcgui.Dialog().notification('IA [Video]', 'Download Completed.', xbmcgui.NOTIFICATION_INFO, 5000, False)
@@ -490,8 +552,8 @@ def ia_u911_day_net(name, url):
 def ia_nsa(url):
     data = get_html(url)
     page = (url)[-1]
-    #page = re.search(r'(\d+)\D+$', url).group(1)
-    xbmc.log('PAGE: ' + str(page),level=log_level)
+    # page = re.search(r'(\d+)\D+$', url).group(1)
+    xbmc.log('PAGE: ' + str(page), level=log_level)
     match = re.compile('<video src="(.+?)"').findall(data)
     for link in match:
         url = 'https://archive.org' + link
@@ -518,7 +580,7 @@ def ia_search():
         search = urllib_parse.quote_plus(keyb.getText())
         xbmc.log('SEARCH: ' + search, level=log_level)
         # https://archive.org/search.php?query=%28commodore%29%20AND%20mediatype%3A%28movies%29
-        url = 'https://archive.org/search.php?query=%28' + search + '%29%20AND%20mediatype%3A%28movies%29' + sort_value + '&page=1' #+ '?sort=-addeddate'
+        url = 'https://archive.org/search.php?query=' + search + '%20AND%20mediatype%3Amovies'  # + sort_value[1:] #+ '&page=1' #+ '?sort=-addeddate'
         # url = 'https://archive.org/search.php?query=' + search + '&and[]=mediatype%3A%22movies%22&page=1'
         xbmc.log('SEARCH_URL: ' + url, level=log_level)
         ia_search_video(url)
@@ -529,16 +591,15 @@ def ia_search():
 
 # 66
 def ia_search_video(url):
-    #page = re.search(r'(\d+)\D+$', url).group(1)
-    #xbmc.log('PAGE: ' + str(page),level=log_level)
-    page = (url)[-1]
-    xbmc.log('PAGE: ' + str(page),level=log_level)
+    # page = re.search(r'(\d+)\D+$', url).group(1)
+    # xbmc.log('PAGE: ' + str(page),level=log_level)
+    # xbmc.log('PAGE: ' + str(page),level=log_level)
     thisurl = url.split("?")[0]
-    xbmc.log('THISURL: ' + str(thisurl),level=log_level)
-    #try: data = urllib_request.urlopen(url).read()
+    xbmc.log('THISURL: ' + str(thisurl), level=log_level)
+    # try: data = urllib_request.urlopen(url).read()
 
     data = get_html(url)
-    soup = BeautifulSoup(data, 'html.parser');i=0
+    soup = BeautifulSoup(data, 'html.parser')
     # xbmc.log('SOUP= ' + str(soup),level=log_level)
     for item in soup.find_all(attrs={'class': 'item-ttl'}):
         # for link in item.find_all('a'):
@@ -552,11 +613,10 @@ def ia_search_video(url):
             add_directory3(title, purl, 67, defaultfanart, image, plot='')
         except KeyError:
             continue
-        i = i + 1
-    if i > 13:
-        page = str(int(page) + 1)
-        # thisurl = thisurl.replace('?&sort='+sval+'','')
-        url = thisurl + sort_value + '&page=' + page
+
+    r = re.search(r'<a\s*href="([^"]+)[^.]+class="page-next"', data)
+    if r:
+        url = baseurl[:-1] + r.group(1)
         xbmc.log('IA Next Page URL= ' + str(url), level=log_level)
         add_directory2('Next Page', url, 66, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
@@ -576,10 +636,10 @@ def plot_info(url):
     soup = BeautifulSoup(html, 'html.parser')
     descript = soup.find('div', {'id': 'descript'})
     plot = striphtml(str(descript))
-    #plot = str(re.compile('<meta property="og:description" content="(.+?)"').findall(html))[2:-2]
+    # plot = str(re.compile('<meta property="og:description" content="(.+?)"').findall(html))[2:-2]
     dialog = xbmcgui.Dialog()
     dialog.textviewer('Plot Info', plot)
-    #xbmcgui.Dialog().ok('Plot Info', plot)
+    # xbmcgui.Dialog().ok('Plot Info', plot)
 
 
 def add_directory3(name, url, mode, fanart, thumbnail, plot):
@@ -640,21 +700,21 @@ def add_directory(name, url, mode, fanart, thumbnail, plot):
 def get_html(url):
     req = urllib_request.Request(url)
     req.add_header('User-Agent', ua)
-    xbmc.log('USER AGENT: ' + str(ua),level=log_level)
+    xbmc.log('USER AGENT: ' + str(ua), level=log_level)
 
     try:
-        response = urllib_request.urlopen(req)
+        response = urllib_request.urlopen(req, timeout=30)
         html = response.read()
         response.close()
     except urllib_error.HTTPError:
         response = False
         html = False
     except socket.timeout as e:
-        xbmc.log('*** SOCKET TIMEOUT ***' + str(e.args),level=log_level)
+        xbmc.log('*** SOCKET TIMEOUT ***' + str(e.args), level=log_level)
         xbmcgui.Dialog().ok('Internet Archive [Video]', 'Socket Timeout: ' + str(e.args) + '\n\nCaused by slow response from Archive.org')
         sys.exit()
     except urllib_error.URLError as e:
-        xbmc.log('*** CONNECTION ERROR ***',level=log_level)
+        xbmc.log('*** CONNECTION ERROR ***', level=log_level)
         xbmcgui.Dialog().ok('Internet Archive [Video]', 'Connection Error: ' + str(e.args) + '\n\nCheck your connection')
         sys.exit()
     return html.decode('utf-8')
@@ -729,7 +789,7 @@ xbmc.log("Name: " + str(name), level=log_level)
 
 if mode is None or url is None or len(url) < 1:
     xbmc.log("Generate Main Menu", level=log_level)
-    ia_categories()
+    ia_categories(movieurl)
 elif mode == 1:
     xbmc.log("Indexing Videos", level=log_level)
     index(url)
@@ -740,7 +800,8 @@ elif mode == 6:
     get_episodes(url)
 elif mode == 60:
     xbmc.log("Get IA Video Categories", level=log_level)
-    ia_video(url)
+    # ia_video(url)
+    ia_categories(url)
 elif mode == 61:
     xbmc.log("Get IA Video Sub Categories", level=log_level)
     ia_sub_cat(url)

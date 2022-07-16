@@ -4,9 +4,9 @@
 # Written by MetalChris
 # Released under GPL(v2 or later)
 
-#2021.10.10
+#2022.07.10
 
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, string, os, platform, re, xbmcplugin, sys
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, string, os, platform, re, xbmcvfs, sys
 import json
 import requests
 import urllib.parse
@@ -14,6 +14,8 @@ import html.parser
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import html5lib
+import mechanize
+import http.cookiejar
 
 
 #live = 'aHR0cDovL29veWFsYWhkMi1mLmFrYW1haWhkLm5ldC9pL25ld3NtYXgwMl9kZWxpdmVyeUAxMTk1NjgvbWFzdGVyLm0zdTg/aGRjb3JlPTIuMTAuMyZnPVdVVFlWRlNWSUVVWQ=='
@@ -23,6 +25,7 @@ getv = 'aHR0cDovL3d3dy5uZXdzbWF4dHYuY29tL29veWFsYXNlcnZpY2Uuc3ZjL2dldHBvcHVsYXJ2
 artbase = 'special://home/addons/plugin.video.newsmax/resources/media/'
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
+addon_path_profile = xbmcvfs.translatePath(_addon.getAddonInfo('profile'))
 selfAddon = xbmcaddon.Addon(id='plugin.video.newsmax')
 self = xbmcaddon.Addon(id='plugin.video.newsmax')
 translation = selfAddon.getLocalizedString
@@ -31,6 +34,18 @@ settings = xbmcaddon.Addon(id="plugin.video.newsmax")
 addon = xbmcaddon.Addon()
 addonname = addon.getAddonInfo('name')
 #confluence_views = [500,501,502,503,504,508]
+__resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
+
+sys.path.append(__resource__)
+
+from uas import *
+
+CookieJar = http.cookiejar.LWPCookieJar(os.path.join(addon_path_profile, 'cookies.lwp'))
+br = mechanize.Browser()
+br.set_handle_robots(False)
+br.set_handle_equiv(False)
+br.addheaders = [('User-agent', ua)]
+br.addheaders = [('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8')]
 
 plugin = "Newsmax TV"
 
@@ -63,8 +78,8 @@ def index():
 
 #10
 def get_live(url):
-	response = get_html(url)
-	soup = BeautifulSoup(response,'html5lib')
+	page = get_page(url)
+	soup = BeautifulSoup(page,'html5lib')
 	stream = re.compile('src: "(.+?)",').findall(str(soup))
 	xbmc.log('STREAM: ' + str(stream),level=log_level)
 	PLAY('Newsmax TV Live', stream[0])
@@ -73,9 +88,9 @@ def get_live(url):
 
 #15
 def shows(url):
-	response = get_html(url)
-	soup = BeautifulSoup(response,'html5lib').find_all('div',{'class':'col-md-9'})[1:]
-	images = BeautifulSoup(response,'html5lib').find_all('img',{'class':'img-responsive'})
+	page = get_page(url)
+	soup = BeautifulSoup(page,'html5lib').find_all('div',{'class':'col-md-9'})[1:]
+	images = BeautifulSoup(page,'html5lib').find_all('img',{'class':'img-responsive'})
 	for item, image in zip(soup, images):
 		title = item.find('h1').string.encode('utf-8')
 		url = baseurl + str(item.find('a')['href'])
@@ -85,14 +100,14 @@ def shows(url):
 
 #20
 def videos(url):
-	response = get_html(url)
-	soup = BeautifulSoup(response,'html5lib')#.find_all('h6')[1:31]
+	page = get_page(url)
+	soup = BeautifulSoup(page,'html5lib')#.find_all('h6')[1:31]
 	endpoint = re.compile("endpoint: '(.+?)',").findall(str(soup))
 	xbmc.log('ENDPOINT: ' + str(endpoint),level=log_level)
 	eurl = baseurl + str(endpoint[0])
-	response = get_html(eurl)
-	xbmc.log('RESPONSE: ' + str(len(response)),level=log_level)
-	data = json.loads(response)#.encode('ascii', 'ignore')#.decode('utf-8')#.encode('ascii', 'ignore')
+	page = get_page(eurl)
+	xbmc.log('RESPONSE: ' + str(len(page)),level=log_level)
+	data = json.loads(page)#.encode('ascii', 'ignore')#.decode('utf-8')#.encode('ascii', 'ignore')
 	data = '[{' + data.split(',',1)[-1] + ']'
 	xbmc.log('DATA: ' + str(data)[0:100],level=log_level)
 	titles = re.compile('"Name":(.+?),').findall(str(data))
@@ -108,32 +123,13 @@ def videos(url):
 	for title, DownloadUrl, FlavorParamsId, ThumbnailUrl in zip(titles, DownloadUrls, FlavorParamsIds, ThumbnailUrls):
 		title = title.strip('"')
 		DownloadUrl = DownloadUrl.strip('"')# baseurl + str(item.find('a')['href'])
-		ParamsId = FlavorParamsId.split(',')[-1]# url.rsplit('/')[-1]
+		ParamsId = FlavorParamsId.split(',')[-2]# url.rsplit('/')[-1]
 		#xbmc.log('PARAMSID: ' + str(FlavorParamsIds),level=log_level)
 		url = DownloadUrl[:-1] + ParamsId
 		ThumbnailUrl = ThumbnailUrl[1:] + '&width=300&height=175'
 		#xbmc.log('ThumbnailUrl: ' + str(ThumbnailUrl),level=log_level)
 		addDir2(title,url,99,ThumbnailUrl,defaultfanart)
 	xbmcplugin.endOfDirectory(addon_handle)
-
-
-#25
-def get(name,url):
-	name = name.lower()
-	url = url + name
-	response = get_html(url)
-	response = striphtml(response)
-	response = response.replace('\\','')
-	names = re.compile('name":"(.+?)"').findall(response)
-	embeds = re.compile('embed_code":"(.+?)"').findall(response)
-	for title, video_id in zip(names, embeds):
-		title = (title)
-		url = baseurl
-		jsob = pre.decode('base64') + video_id + post.decode('base64')
-		xbmc.log('Newsmax JSON: ' + str(jsob),level=log_level)
-		add_directory(title,jsob,30,defaultfanart,defaultimage,plot='')
-	xbmcplugin.endOfDirectory(addon_handle)
-
 
 #30
 def streams(name,url):
@@ -152,13 +148,13 @@ def striphtml(data):
 	p = re.compile(r'<.*?>')
 	return p.sub('', data)
 
-
+#999
 def play(url):
 	xbmc.log('URL: ' + str(url),level=log_level)
+	#item = xbmcgui.ListItem(path=url + '&m3u8=yes')
 	item = xbmcgui.ListItem(path=url)
 	item.setProperty('IsPlayable', 'true')
-	item.setProperty('IsFolder', 'false')
-	return xbmcplugin.setResolvedUrl(int(sys.argv[1]), succeeded=True, listitem=item)
+	return xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, item)
 
 #99
 def PLAY(name,url):
@@ -176,6 +172,18 @@ def PLAY(name,url):
 		continue
 	sys.exit()
 	xbmcplugin.endOfDirectory(addon_handle)
+
+
+def get_page(url):
+	br.set_handle_robots( False )
+	br.set_cookiejar(CookieJar)
+	response = br.open(url)
+	for cookie in CookieJar:
+		xbmc.log('COOKIE: ' + str(cookie),level=log_level)
+		CookieJar.set_cookie(cookie)
+	CookieJar.save(ignore_discard=True)
+	page = response.get_data()#.encode('utf-8')
+	return page
 
 
 def add_directory(name,url,mode,fanart,thumbnail,plot):
@@ -212,6 +220,8 @@ def add_directory2(name,url,mode,fanart,thumbnail,plot):
 def get_html(url):
 	req = urllib.request.Request(url)
 	req.add_header('User-Agent','User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:44.0) Gecko/20100101 Firefox/44.0')
+	req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8')
+	req.add_header('Host','www.newsmaxtv.com')
 
 	try:
 		response = urllib.request.urlopen(req)
@@ -341,4 +351,7 @@ elif mode==30:
 elif mode==99:
 	xbmc.log("Newsmax Play Stream",level=log_level)
 	PLAY(name,url)
+elif mode==999:
+	xbmc.log("Newsmax Play Show",level=log_level)
+	play(url)
 xbmcplugin.endOfDirectory(int(sys.argv[1]))

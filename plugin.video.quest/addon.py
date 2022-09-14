@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2) or Later
 
-# 2022.04.01
+# 2022.09.13
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, re, sys, xbmcvfs, os
 import json
@@ -126,16 +126,16 @@ def get_seasons(url):
 def single(data):
 	xbmc.log('SINGLE',level=log_level);i=0;e=0
 	xbmc.log('DATA: ' + str(len(data)),level=log_level)
-	total = len(data['modules'][1]['contentData'][0]['seasons'][0]['episodes'])
+	total = len(data['modules'][2]['contentData'][0]['seasons'][0]['episodes'])
 	xbmc.log('TOTAL: ' + str(total),level=log_level)
 	for episode in range(total):
-		title = data['modules'][1]['contentData'][0]['seasons'][0]['episodes'][e]['title']
+		title = data['modules'][2]['contentData'][0]['seasons'][0]['episodes'][e]['title']
 		title = " ".join(word.capitalize() for word in title.split())
 		xbmc.log('TITLE: ' + str(title),level=log_level)
-		plot = data['modules'][1]['contentData'][0]['seasons'][0]['episodes'][e]['gist']['description']
-		video_id = data['modules'][1]['contentData'][0]['seasons'][0]['episodes'][e]['id']
+		plot = data['modules'][2]['contentData'][0]['seasons'][0]['episodes'][e]['gist']['description']
+		video_id = data['modules'][2]['contentData'][0]['seasons'][0]['episodes'][e]['id']
 		url = 'https://prod-api.viewlift.com/entitlement/video/status?id=' + video_id + '&deviceType=web_browser&contentConsumption=web'
-		thumbnail = data['modules'][1]['contentData'][0]['seasons'][0]['episodes'][e]['gist']['imageGist']['_16x9']
+		thumbnail = data['modules'][2]['contentData'][0]['seasons'][0]['episodes'][e]['gist']['imageGist']['_16x9']
 		key = thumbnail.rpartition('/')[-1].split('.')[0]
 		m3u8 = 'https://cdn-ue1-prod.tsv2.amagi.tv/avod/viewlift-tegna-justice/' + key + '/' + key + '.m3u8'
 		url = 'plugin://plugin.video.quest?mode=20&url=' + urllib.parse.quote_plus(str(url))
@@ -157,16 +157,16 @@ def get_episodes(name, url):
 	xbmc.log('DATA: ' + str(len(data)),level=log_level)
 	module = int(url.split('-')[-1])#int(name.split(' ')[-1]) - 1
 	xbmc.log('MODULE: ' + str(module),level=log_level)
-	total = len(data['modules'][1]['contentData'][0]['seasons'][module]['episodes'])
+	total = len(data['modules'][2]['contentData'][0]['seasons'][module]['episodes'])
 	xbmc.log('TOTAL: ' + str(total),level=log_level)
 	for episode in range(total):
-		title = data['modules'][1]['contentData'][0]['seasons'][module]['episodes'][e]['title']
+		title = data['modules'][2]['contentData'][0]['seasons'][module]['episodes'][e]['title']
 		title = " ".join(word.capitalize() for word in title.split())
 		xbmc.log('TITLE: ' + str(title),level=log_level)
-		plot = data['modules'][1]['contentData'][0]['seasons'][module]['episodes'][e]['gist']['description']
-		video_id = data['modules'][1]['contentData'][0]['seasons'][module]['episodes'][e]['id']
+		plot = data['modules'][2]['contentData'][0]['seasons'][module]['episodes'][e]['gist']['description']
+		video_id = data['modules'][2]['contentData'][0]['seasons'][module]['episodes'][e]['id']
 		url = 'https://prod-api.viewlift.com/entitlement/video/status?id=' + video_id + '&deviceType=web_browser&contentConsumption=web'
-		thumbnail = data['modules'][1]['contentData'][0]['seasons'][module]['episodes'][e]['gist']['imageGist']['_16x9']
+		thumbnail = data['modules'][2]['contentData'][0]['seasons'][module]['episodes'][e]['gist']['imageGist']['_16x9']
 		key = thumbnail.rpartition('/')[-1].split('.')[0]
 		m3u8 = 'https://cdn-ue1-prod.tsv2.amagi.tv/avod/viewlift-tegna-justice/' + key + '/' + key + '.m3u8'
 		url = 'plugin://plugin.video.quest?mode=20&url=' + urllib.parse.quote_plus(str(url))

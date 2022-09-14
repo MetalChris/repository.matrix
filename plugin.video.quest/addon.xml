@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.quest" name="Quest" version="2022.04.01" provider-name="MetalChris">
+<addon id="plugin.video.quest" name="Quest" version="2022.09.13" provider-name="MetalChris">
     <requires>
         <!-- <import addon="xbmc.python" version="2.1.0"/> -->
         <import addon="script.module.requests" version="2.9.1"/>
@@ -21,7 +21,7 @@
         <website>https://www.questtv.com/</website>
         <email></email>
         <source></source>
-        <news>v.2022.04.01[CR]- Initial Release for Matrix</news>
+        <news>v.2022.09.13[CR]- Update for API changes</news>
         <assets>
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>

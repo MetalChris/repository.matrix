@@ -14,6 +14,7 @@ import random
 import sys
 from bs4 import BeautifulSoup
 import json
+import math
 import requests
 import socket
 if sys.version_info >= (3, 4, 0):
@@ -48,7 +49,7 @@ __resource__ = translatePath(os.path.join(_addon_path, 'resources', 'lib'))  # .
 
 sys.path.append(__resource__)
 
-from uas import *
+from resources.lib.uas import ua
 
 log_notice = settings.getSetting(id="log_notice")
 if log_notice != 'false':
@@ -579,9 +580,7 @@ def ia_search():
     if (keyb.isConfirmed()):
         search = urllib_parse.quote_plus(keyb.getText())
         xbmc.log('SEARCH: ' + search, level=log_level)
-        # https://archive.org/search.php?query=%28commodore%29%20AND%20mediatype%3A%28movies%29
-        url = 'https://archive.org/search.php?query=' + search + '%20AND%20mediatype%3Amovies'  # + sort_value[1:] #+ '&page=1' #+ '?sort=-addeddate'
-        # url = 'https://archive.org/search.php?query=' + search + '&and[]=mediatype%3A%22movies%22&page=1'
+        url = 'https://archive.org/services/search/beta/page_production/?service_backend=metadata&user_query={0}+AND+mediatype%3Amovies&hits_per_page=50&page=1&aggregations=false'.format(search)
         xbmc.log('SEARCH_URL: ' + url, level=log_level)
         ia_search_video(url)
     else:
@@ -591,34 +590,25 @@ def ia_search():
 
 # 66
 def ia_search_video(url):
-    # page = re.search(r'(\d+)\D+$', url).group(1)
-    # xbmc.log('PAGE: ' + str(page),level=log_level)
-    # xbmc.log('PAGE: ' + str(page),level=log_level)
     thisurl = url.split("?")[0]
     xbmc.log('THISURL: ' + str(thisurl), level=log_level)
-    # try: data = urllib_request.urlopen(url).read()
+    data = json.loads(get_html(url)).get('response').get('body').get('hits', {})
+    for hit in data.get('hits'):
+        item = hit.get('fields', {})
+        item_id = item.get('identifier')
+        title = item.get('title')
+        plot = item.get('description')
+        image = 'https://archive.org/services/img/{0}'.format(item_id)
+        purl = 'https://archive.org/details/{0}'.format(item_id)
+        add_directory3(title, purl, 67, defaultfanart, image, plot=plot)
 
-    data = get_html(url)
-    soup = BeautifulSoup(data, 'html.parser')
-    # xbmc.log('SOUP= ' + str(soup),level=log_level)
-    for item in soup.find_all(attrs={'class': 'item-ttl'}):
-        # for link in item.find_all('a'):
-        l = item.find('a')['href']  # noqa
-        purl = 'https://archive.org' + l
-        title = (item.find('a')['title'])
-        if len(title) < 1:
-            continue
-        image = 'https://archive.org' + item.find('img')['source']
-        try:
-            add_directory3(title, purl, 67, defaultfanart, image, plot='')
-        except KeyError:
-            continue
+    curr_page = int(urllib_parse.parse_qs(urllib_parse.urlparse(url).query).get('page')[0])
+    last_page = math.ceil(data.get('total', 1) / 50)
+    if curr_page < last_page:
+        nurl = url.replace('page={0}'.format(curr_page), 'page={0}'.format(curr_page + 1))
+        xbmc.log('IA Next Page URL= ' + str(nurl), level=log_level)
+        add_directory2('Next Page... (Currently in Page {0} of {1})'.format(curr_page, last_page), nurl, 66, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
 
-    r = re.search(r'<a\s*href="([^"]+)[^.]+class="page-next"', data)
-    if r:
-        url = baseurl[:-1] + r.group(1)
-        xbmc.log('IA Next Page URL= ' + str(url), level=log_level)
-        add_directory2('Next Page', url, 66, artbase + 'fanart.jpg', artbase + 'icon.png', plot='')
     xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 

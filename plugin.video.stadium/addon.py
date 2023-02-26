@@ -6,7 +6,7 @@
 
 #2021.10.09
 
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, string, calendar, re, sys, os
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs, string, calendar, re, sys, os
 from bs4 import BeautifulSoup
 from html.parser import HTMLParser
 import json
@@ -18,7 +18,7 @@ import mechanize
 
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
-addon_path_profile = xbmc.translatePath(_addon.getAddonInfo('profile'))
+addon_path_profile = xbmcvfs.translatePath(_addon.getAddonInfo('profile'))
 
 selfAddon = xbmcaddon.Addon(id='plugin.video.stadium')
 translation = selfAddon.getLocalizedString

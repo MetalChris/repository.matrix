@@ -1,11 +1,9 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris
-# Released under GPL(v2) or Later
-# 2021.11.19
+# Written by MetalChris Released under GPL(v2) or Later 2023.02.20
 
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, re, sys, os
+import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs, re, sys, os
 from urllib.request import urlopen
 from bs4 import BeautifulSoup
 import html5lib
@@ -16,7 +14,7 @@ import json
 artbase = 'special://home/addons/plugin.video.carbon-tv/resources/media/'
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
-addon_path_profile = xbmc.translatePath(_addon.getAddonInfo('profile'))
+addon_path_profile = xbmcvfs.translatePath(_addon.getAddonInfo('profile'))
 selfAddon = xbmcaddon.Addon(id='plugin.video.carbon-tv')
 self = xbmcaddon.Addon(id='plugin.video.carbon-tv')
 translation = selfAddon.getLocalizedString
@@ -25,7 +23,7 @@ settings = xbmcaddon.Addon(id="plugin.video.carbon-tv")
 addon = xbmcaddon.Addon()
 addonname = addon.getAddonInfo('name')
 xbmc_monitor = xbmc.Monitor()
-__resource__   = xbmc.translatePath( os.path.join( _addon_path, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
+__resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
 
 sys.path.append(__resource__)
 #import uas

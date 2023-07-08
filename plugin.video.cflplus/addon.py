@@ -4,7 +4,7 @@
 # Written by MetalChris 07.05.2023
 # Released under GPL(v2 or later)
 
-from six.moves import urllib_parse, urllib_error, http_client
+from six.moves import urllib_parse, http_client
 from kodi_six import xbmc, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs
 import urllib, re, sys, os
 from bs4 import BeautifulSoup

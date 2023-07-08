@@ -31,7 +31,7 @@ usexbmc = selfAddon.getSetting('watchinxbmc')
 settings = xbmcaddon.Addon(id="plugin.video.cflplus")
 addon = xbmcaddon.Addon()
 addonname = addon.getAddonInfo('name')
-__resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 'lib'))#.encode("utf-8") ).decode("utf-8")
+__resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 'lib'))
 
 sys.path.append(__resource__)
 
@@ -53,8 +53,6 @@ plugin = "CFL Video"
 defaultimage = 'special://home/addons/plugin.video.cflplus/icon.png'
 defaultfanart = 'special://home/addons/plugin.video.cflplus/resources/media/fanart.jpg'
 defaulticon = 'special://home/addons/plugin.video.cflplus/icon.png'
-#fanart = 'special://home/addons/plugin.video.cflplus/media/FBCL-20120713121328.jpg'
-#cflfanart = 'special://home/addons/plugin.video.cflplus/resources/media/FBCL-20120713121328.jpg'
 pubId = '4401740954001'
 
 local_string = xbmcaddon.Addon(id='plugin.video.cflplus').getLocalizedString
@@ -74,13 +72,10 @@ def cfl(baseurl):
 	response = br.open('https://www.cfl.ca/plus/')
 	xbmc.log(str(response.code), level=log_level)
 	html = response.get_data()
-	soup = BeautifulSoup(html, 'html.parser')#.find("division",{"class":"item-title"})#[0]
-	#xbmc.log('SOUP: ' + str(soup), level=log_level)
+	soup = BeautifulSoup(html, 'html.parser')
 	for anchor in soup.find_all("a"):
 		if not anchor.find('div', {'class':'item-title'}):
 			continue
-	#for anchor in soup.find_all("div",{"class":"grid-col-4 section-item"}):
-	#for anchor in soup.find_all("div",{"class":"grid-row collapse full-height section-row"}):
 		title = anchor.find("div",{"class":"item-title"}).text.strip()
 		xbmc.log('TITLE: ' + str(title), level=log_level)
 		plot = anchor.find("div",{"class":"item-description"}).text.strip()
@@ -89,10 +84,8 @@ def cfl(baseurl):
 		xbmc.log('IMAGE: ' + str(img), level=log_level)
 		image = (re.compile("\'(.+?)\'").findall(str(img))[0])
 		xbmc.log('IMAGE: ' + str(image), level=log_level)
-		#url = anchor.find(bytes("a")).text
 		xbmc.log('ANCHOR: ' + str(anchor)[:100], level=log_level)
 		game_url = re.compile('href="(.+?)"').findall(str(anchor))[0]
-		#game_url = anchor.find('a')['href']#.text
 		xbmc.log('URL: ' + str(game_url), level=log_level)
 		url = 'plugin://plugin.video.cflplus?mode=53&url=' + urllib_parse.quote_plus(game_url)
 		xbmc.log('URL: ' + str(url), level=log_level)
@@ -112,23 +105,19 @@ def get_stream(url):
 	html = response.get_data()
 	videoId = (re.compile('videoId=(.+?)&amp').findall(str(html))[0])
 	xbmc.log('videoId: ' + str(videoId), level=log_level)
-	#url = 'http://players.brightcove.net/4401740954001/default_default/index.html?videoId=' + str(videoId)
 	url = 'https://edge.api.brightcove.com/playback/v1/accounts/4401740954001/videos/' + str(videoId)
 	xbmc.log('URL: ' + str(url), level=log_level)
 	br.set_handle_robots( False )
-	#response = br.open(url)
 	res = requests.get(url, headers={'Accept':'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ'})
 	xbmc.log('RESPONSE: ' + str(res.text), level=log_level)
 	data = res.json()
 	xbmc.log('JSON: ' + str(len(data)), level=log_level)
 	xbmc.log('JSON: ' + str(data), level=log_level)
-	#if str(res.text).find('ACCESS_DENIED'):
 	if 'sources' in str(res.text):
-		m3u8 = (data['sources'][0]['src'])#.replace('playlist.m3u8', 'profile_3/chunklist.m3u8')
+		m3u8 = (data['sources'][0]['src'])
 		if quality != '4':
 			m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
 		xbmc.log('M3U8: ' + str(m3u8), level=log_level)
-		#play(name,m3u8)
 		PLAY(m3u8)
 		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 	else:

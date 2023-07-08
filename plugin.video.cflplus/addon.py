@@ -4,13 +4,11 @@
 # Written by MetalChris 07.05.2023
 # Released under GPL(v2 or later)
 
-from six.moves import urllib_parse, urllib_request, urllib_error, http_client
+from six.moves import urllib_parse, urllib_error, http_client
 from kodi_six import xbmc, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs
-import OpenSSL, urllib, re, sys, os
+import urllib, re, sys, os
 from bs4 import BeautifulSoup
-import html5lib
 import mechanize
-import json
 import requests
 
 if sys.version_info >= (3, 4, 0):
@@ -129,7 +127,6 @@ def get_stream(url):
 		m3u8 = (data['sources'][0]['src'])#.replace('playlist.m3u8', 'profile_3/chunklist.m3u8')
 		if quality != '4':
 			m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
-		name = data['name']
 		xbmc.log('M3U8: ' + str(m3u8), level=log_level)
 		#play(name,m3u8)
 		PLAY(m3u8)
@@ -138,7 +135,6 @@ def get_stream(url):
 		xbmc.log(('ACCESS_DENIED'), level=log_level)
 		xbmcgui.Dialog().ok(addonname, 'This game is not available in your area.')
 		sys.exit('Not Available')
-		xbmcplugin.endOfDirectory(pluginhandle)
 
 def na():
 	xbmcgui.Dialog().ok(addonname, 'This game is not available in your area.')
@@ -262,15 +258,9 @@ xbmc.log("Name: " + str(name), level=log_level)
 if mode == None or url == None or len(url) < 1:
 	xbmc.log("Generate Main Menu", level=log_level)
 	cfl(baseurl)
-elif mode == 1:
-	xbmc.log("Indexing Videos", level=log_level)
-	INDEX(url)
 elif mode == 99:
 	play(name,url)
 	xbmc.log("Play Video", level=log_level)
-elif mode == 10:
-	xbmc.log("Get CFL Stream", level=log_level)
-	stream(url)
 elif mode == 53:
 	xbmc.log("CFL Get Stream", level=log_level)
 	get_stream(url)

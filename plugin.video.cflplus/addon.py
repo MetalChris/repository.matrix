@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 07.05.2023
+# Written by MetalChris 07.07.2023
 # Released under GPL(v2 or later)
 
 from six.moves import urllib_parse
@@ -150,22 +150,10 @@ def PLAY(url):
 	xbmcplugin.endOfDirectory(pluginhandle)
 
 
-def get_sec(duration):
-	l = duration.split(':')
-	return int(l[0]) * 60 + int(l[1])
-
-
-def play(name,url):
-	xbmc.log('URL: ' + str(url), level=xbmc.LOGDEBUG)
-	listitem = xbmcgui.ListItem(name)
-	listitem.setArt({'thumb':artbase + 'cfl.jpg'})
-	xbmc.Player().play( url, listitem )
-	sys.exit("Stop Video")
-
-
 def striphtml(data):
 	p = re.compile(r'<.*?>')
 	return p.sub('', data)
+
 
 def get_html(url):
 	req = urllib.request.Request(url)

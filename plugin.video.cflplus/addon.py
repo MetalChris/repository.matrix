@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 07.07.2023
+# Written by MetalChris 07.09.2023
 # Released under GPL(v2 or later)
 
 from six.moves import urllib_parse
@@ -50,9 +50,9 @@ xbmc.log('QUALITY: ' + str(quality), level=log_level)
 
 plugin = "CFL Video"
 
-defaultimage = 'special://home/addons/plugin.video.cflplus/icon.png'
+defaultimage = 'special://home/addons/plugin.video.cflplus/resources/media/icon.png'
 defaultfanart = 'special://home/addons/plugin.video.cflplus/resources/media/fanart.jpg'
-defaulticon = 'special://home/addons/plugin.video.cflplus/icon.png'
+defaulticon = 'special://home/addons/plugin.video.cflplus/resources/media/icon.png'
 pubId = '4401740954001'
 
 local_string = xbmcaddon.Addon(id='plugin.video.cflplus').getLocalizedString
@@ -82,8 +82,12 @@ def cfl(baseurl):
 		xbmc.log('PLOT: ' + str(plot), level=log_level)
 		img = anchor.find("div",{"class":"item-image"})#.text.strip()
 		xbmc.log('IMAGE: ' + str(img), level=log_level)
-		image = (re.compile("\'(.+?)\'").findall(str(img))[0])
-		xbmc.log('IMAGE: ' + str(image), level=log_level)
+		if img is None:
+			image = defaulticon
+			xbmc.log('IMAGE: ' + str(image), level=log_level)
+		else:
+			image = (re.compile("\'(.+?)\'").findall(str(img))[0])
+			xbmc.log('IMAGE: ' + str(image), level=log_level)
 		xbmc.log('ANCHOR: ' + str(anchor)[:100], level=log_level)
 		game_url = re.compile('href="(.+?)"').findall(str(anchor))[0]
 		xbmc.log('URL: ' + str(game_url), level=log_level)
@@ -91,7 +95,8 @@ def cfl(baseurl):
 		xbmc.log('URL: ' + str(url), level=log_level)
 		li = xbmcgui.ListItem(title)
 		li.setProperty('IsPlayable', 'true')
-		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,"genre":"Sports"})
+		xbmcplugin.setContent(pluginhandle, 'episodes')
+		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,"genre":"Sports","plot":plot})
 		li.setArt({'thumb':image,'fanart':artbase + 'fanart.jpg'})
 		xbmcplugin.addDirectoryItem(handle=pluginhandle, url=url, listitem=li, isFolder=False)
 	xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
@@ -123,11 +128,7 @@ def get_stream(url):
 	else:
 		xbmc.log(('ACCESS_DENIED'), level=log_level)
 		xbmcgui.Dialog().ok(addonname, 'This game is not available in your area.')
-		sys.exit('Not Available')
-
-def na():
-	xbmcgui.Dialog().ok(addonname, 'This game is not available in your area.')
-	sys.exit('Not Available')
+		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 
 #99
 def PLAY(url):
@@ -160,8 +161,6 @@ def get_html(url):
 	return html
 
 
-
-
 def get_params():
 	param = []
 	paramstring = sys.argv[2]
@@ -179,31 +178,6 @@ def get_params():
 				param[splitparams[0]] = splitparams[1]
 
 	return param
-
-
-def addDir(name, url, mode, thumbnail, fanart, infoLabels=True):
-	u = sys.argv[0] + "?url=" + urllib.parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.parse.quote_plus(name)
-	ok = True
-	liz = xbmcgui.ListItem(name)
-	liz.setInfo(type="Video", infoLabels={"Title": name})
-	liz.setArt({'thumb':thumbnail,'fanart':fanart})
-	liz.setProperty('IsPlayable', 'true')
-	if not fanart:
-		fanart=defaultfanart
-	liz.setProperty('fanart_image',fanart)
-	ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
-	return ok
-
-
-
-def unescape(s):
-	p = htmllib.HTMLParser(None)
-	p.save_bgn()
-	p.feed(s)
-	return p.save_end()
-
-
-
 
 params = get_params()
 url = None

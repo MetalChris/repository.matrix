@@ -1,5 +1,34 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <addons>
+<addon id="plugin.video.foxweather" name="FOX Weather" version="2023.07.01" provider-name="MetalChris">
+  <requires>
+    <import addon="xbmc.python" version="2.20.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">FOX Weather</summary>
+    <description lang="en">Stream 24/7 from American's Weather Center. Stay up-to-date on local & national weather updates with America's Weather team. Watch the live stream to discover the latest weather conditions in your area with FOX.</description>
+    <disclaimer lang="en">For support go to my github. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2) or Later</license>
+    <forum></forum>
+    <website>http://www.foxweather.com</website>
+    <email></email>
+    <source></source>
+    <news>v.2019.02.03[CR] - Updates for website changes.[CR]v.2018.05.05[CR] - Minor tweaks[CR]v.2018.04.29[CR]- Initial release</news>
+    <assets>
+        <icon>icon.png</icon>
+        <fanart>fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot001.png</screenshot>
+        <screenshot>resources/media/screenshot002.png</screenshot>
+        <screenshot>resources/media/screenshot003.png</screenshot>
+    </assets>
+  </extension>
+</addon>
+
 <addon id="plugin.video.nfpf" name="National Film Preservation Foundation" version="2021.10.11" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
@@ -443,7 +472,7 @@ v4.2.7
     </extension>
 </addon>
 
-<addon id="plugin.video.cflplus" name="CFL+" version="2023.07.01" provider-name="MetalChris">
+<addon id="plugin.video.cflplus" name="CFL+" version="2023.07.02" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -475,7 +504,7 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2023.07.01" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2023.07.02" provider-name="MetalChris">
     <extension point="xbmc.addon.repository" name="Official MetalChris Matrix Repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>

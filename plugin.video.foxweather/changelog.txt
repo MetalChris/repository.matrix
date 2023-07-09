@@ -1,0 +1,8 @@
+Version 2019.02.03
+ - Updates for website changes.
+
+Version 2018.05.05
+ - Minor tweaks
+
+Version 2018.04.29
+ - Initial release

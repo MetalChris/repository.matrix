@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.audio.nhl-radio" name="NHL Radio" version="2024.01.28" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>audio</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">NHL Radio</summary>
+    <description lang="en">Listen to NHL games.  No subscription required!</description>
+    <disclaimer lang="en"></disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2 or later)</license>
+    <forum></forum>
+    <website>https://www.nhl.com</website>
+    <email></email>
+    <source></source>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>

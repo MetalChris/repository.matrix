@@ -1,0 +1,22 @@
+NHL Scoreboard API
+
+https://api-web.nhle.com/v1/scoreboard/now
+
+Radio Link API
+
+https://api-web.nhle.com/v1_1/gamecenter/2023020774/landing
+
+Condensed Game 
+
+https://edge.api.brightcove.com/playback/v1/accounts/6415718365001/videos/6345744288112
+
+3 Minute Recap
+
+https://edge.api.brightcove.com/playback/v1/accounts/6415718365001/videos/6346521046112?ad_config_id=2ce7571d-ad70-4144-9caf-0a67b387e0ab
+
+https://ssaimanifest.prod.boltdns.net/us-east-1/playback/once/v1/hls/v4/clear/6415718365001/2ce7571d-ad70-4144-9caf-0a67b387e0ab/d94aa0f2-0dc0-4506-a7cd-d8a5621123aa/2772307b-f0c8-46d2-ba9e-f0b775b27a11/content.m3u8?bc_token=NjVjNmMxZDBfMTE4N2FkYzllNGZlMDhlNjkzYmU2ZWU4M2QzOWViNTZkMmE5NmRiNzFlNTBlZTVjNzkxMDgwMzMyMjZhNTE1Yw%3D%3D
+
+
+
+
+

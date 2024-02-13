@@ -1,12 +1,11 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.01.28
+# Written by MetalChris 2024.01.29
 # Released under GPL(v2 or later)
 
-import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, re, sys, xbmcvfs, os
+import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
 import json
-import requests
 import time
 
 today = time.strftime("%Y-%m-%d")
@@ -50,7 +49,7 @@ xbmc.log('UTC Offset: ' + str(-time.timezone),level=log_level)
 #3
 def all_games():
 	response = get_html(base)
-	data = json.loads(response);i=0;m=0
+	data = json.loads(response);i=0
 	total = len(data['gamesByDate']);t=0#[0]['contentData'])
 	xbmc.log('TOTAL: ' + str(total),level=log_level);titles=[];x=0;i=0
 	#games = len(data['gamesByDate'][t]['games'])
@@ -73,9 +72,9 @@ def all_games():
 			continue
 		awayTeam = (data['gamesByDate'][t]['games'][x]['awayTeam']['name']['default'])
 		homeTeam = (data['gamesByDate'][t]['games'][x]['homeTeam']['name']['default'])
-		id = (data['gamesByDate'][t]['games'][x]['id'])
-		xbmc.log('GAME ID: ' + str(id),level=log_level)
-		url = 'https://api-web.nhle.com/v1_1/gamecenter/' + str(id) + '/landing'
+		gid = (data['gamesByDate'][t]['games'][x]['id'])
+		xbmc.log('GAME ID: ' + str(gid),level=log_level)
+		url = 'https://api-web.nhle.com/v1_1/gamecenter/' + str(gid) + '/landing'
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'FUT':
 			url = 'Future'
 		title = awayTeam + ' @ ' + homeTeam
@@ -101,7 +100,7 @@ def all_games():
 			else:
 				period = ordinal(data['gamesByDate'][t]['games'][x]['period'])
 				title = title + ' [' + str(period) + ' Period]'
-		if not title in titles:
+		if title not in titles:
 			titles.append(title);x=x+1
 		xbmc.log('TITLE: ' + str(title),level=log_level)
 		xbmc.log('GAMES: ' + str(len(titles)),level=log_level)
@@ -120,10 +119,9 @@ def get_streams(url):
 		xbmc.log('Game Has Not Started',level=log_level)
 		sys.exit(1)
 	response = get_html(url)
-	data = json.loads(response);i=0;s=0
-	id = (data['id'])
-	xbmc.log('GAME ID: ' + str(id),level=log_level)
-		#xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
+	data = json.loads(response);s=0
+	gid = (data['id'])
+	xbmc.log('GAME ID: ' + str(gid),level=log_level)
 	awayTeam = (data['awayTeam']['name']['default'])
 	try:
 		awayRadio = (data['awayTeam']['radioLink'])

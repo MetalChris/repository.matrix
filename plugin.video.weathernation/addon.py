@@ -4,9 +4,9 @@
 # Written by MetalChris
 # Released under GPL(v2)
 
-#2024.02.14
+#2024.02.15
 
-import urllib.request, urllib.parse, urllib.error, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcplugin, sys
+import urllib.request, urllib.parse, urllib.error, xbmcplugin, xbmcaddon, xbmcgui, sys
 import json
 
 _addon = xbmcaddon.Addon()
@@ -44,8 +44,8 @@ xbmc.log('LOG_NOTICE: ' + str(log_notice), level=log_level)
 def categories():
 	response = get_html(base)
 	data = json.loads(response);i=0
-	total = len(data['pageProps']['playlists']);t=0#[0]['contentData'])
-	xbmc.log('TOTAL: ' + str(total),level=log_level);titles=[];x=0;i=0
+	total = len(data['pageProps']['playlists'])
+	xbmc.log('TOTAL: ' + str(total),level=log_level)
 	for cats in range(total):
 		title = (data['pageProps']['playlists'][i]['name'])
 		image = defaultimage
@@ -58,13 +58,11 @@ def get_videos(name,url):
 	response = get_html(url)
 	data = json.loads(response);i=0
 	total = len(data['pageProps']['playlists']);t=0#[0]['contentData'])
-	xbmc.log('TOTAL: ' + str(total),level=log_level);titles=[];x=0;i=0;v=0
-	#vods = len(data['pageProps']['playlists'][i]['vods'][v]['title'])
-	#xbmc.log('VODS TOTAL: ' + str(vods),level=log_level)
+	xbmc.log('TOTAL: ' + str(total),level=log_level);x=0;i=0;v=0
 	for cats in range(total):
 		if (data['pageProps']['playlists'][i]['name']) == name:
 			vods = len(data['pageProps']['playlists'][i]['vods'])
-			xbmc.log('VODS TOTAL: ' + str(vods),level=log_level)#;x=0
+			xbmc.log('VODS TOTAL: ' + str(vods),level=log_level)
 			for vod in range(vods):
 				if x == vods:
 					continue

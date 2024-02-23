@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.01.29
+# Written by MetalChris 2024.02.23
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -119,7 +119,7 @@ def get_streams(url):
 		xbmc.log('Game Has Not Started',level=log_level)
 		sys.exit(1)
 	response = get_html(url)
-	data = json.loads(response);s=0
+	data = json.loads(response)
 	gid = (data['id'])
 	xbmc.log('GAME ID: ' + str(gid),level=log_level)
 	awayTeam = (data['awayTeam']['name']['default'])
@@ -147,7 +147,7 @@ def get_streams(url):
 	if ret == 1:
 		PLAY(title, homeRadio)
 	sys.exit()
-	#xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
+	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
 
 #99

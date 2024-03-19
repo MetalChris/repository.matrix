@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2)
 
-#2021.10.09
+#2024.03.15
 
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs, string, calendar, re, sys, os
 from bs4 import BeautifulSoup
@@ -87,7 +87,7 @@ def LIVE(name,url):
 		account = item.get('data-account')
 		id = item.get('data-video-id')
 		ad = item.get('data-ad-config-id')
-	url = 'https://edge.api.brightcove.com/playback/v1/accounts/' + account + '/videos/' + id + '?ad_config_id=' + ad
+	url = 'https://edge.api.brightcove.com/playback/v1/accounts/' + str(account) + '/videos/' + str(id) + '?ad_config_id=' + str(ad)
 	xbmc.log('URL: ' + str(url),level=log_level)
 	jsob = get_html(url,live)
 	xbmc.log('JSOB: ' + str(jsob),level=log_level)

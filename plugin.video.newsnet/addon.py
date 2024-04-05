@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.01
+# Written by MetalChris 2024.04.02
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os, re
@@ -92,10 +92,6 @@ def get_video(url):
 			url = urllib.parse.unquote(item)
 			xbmc.log('VIDEO_URL: ' + str(url), level=log_level)
 			PLAY('video',url)
-	dialog = xbmcgui.Dialog()
-	ret = dialog.notification(heading=xbmcaddon.Addon().getAddonInfo('name'), message='This Video Is Currently Unavailable', icon=defaultimage, time=3000, sound=False)
-	xbmc.log('Video Is Not Available',level=log_level)
-	sys.exit(1)
 
 
 #99

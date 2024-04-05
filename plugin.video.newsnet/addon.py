@@ -1,11 +1,10 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.03.01
+# Written by MetalChris 2024.04.01
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os, re
-import json
 from bs4 import BeautifulSoup
 import html5lib
 
@@ -41,7 +40,7 @@ xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
 
 
 #3
-def all():
+def cats():
 	response = str(get_html(base))
 	liveStreamURL = str(re.compile('liveStreamURL":"(.+?)",').findall(response)[0])
 	xbmc.log('LiveStreamURL: ' + str(liveStreamURL),level=log_level)
@@ -207,11 +206,11 @@ xbmc.log("URL: " + str(url),level=log_level)
 xbmc.log("Name: " + str(name),level=log_level)
 
 if mode == None or url == None or len(url) < 1:
-	xbmc.log(("Get All"),level=log_level)
-	all()
+	xbmc.log(("Get Cats"),level=log_level)
+	cats()
 elif mode == 3:
-	xbmc.log(("Get All"),level=log_level)
-	all(url)
+	xbmc.log(("Get Cats"),level=log_level)
+	cats(url)
 elif mode == 6:
 	xbmc.log(("Get Sections"),level=log_level)
 	get_sections(url)

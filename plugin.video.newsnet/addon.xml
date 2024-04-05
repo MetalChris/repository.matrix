@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.newsnet" name="NEWSnet" version="2024.03.01" provider-name="MetalChris">
+  <requires>
+    <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+    <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+    <import addon="script.module.html5lib" version="0.999.0"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">NEWSnet</summary>
+    <description lang="en">NEWSnet is America's newest 24/7 news channel - and the only 24/7 national news channel with a focus on the headlines, not talk and opinion. Watch live anytime!</description>
+    <disclaimer lang="en"></disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2 or later)</license>
+    <forum></forum>
+    <website>https://www.newsnetmedia.com/</website>
+    <email></email>
+    <source></source>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.png</fanart>
+    </assets>
+  </extension>
+</addon>

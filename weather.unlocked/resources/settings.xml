@@ -1,0 +1,100 @@
+<?xml version="1.0" ?>
+<settings version="1">
+	<section id="weather.unlocked">
+		<category id="1" label="32101">
+			<group id="1">
+				<setting help="" id="Location1" label="32111" type="string">
+					<level>0</level>
+					<default></default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<control format="action" type="button">
+						<data>RunScript(weather.unlocked,Location1)</data>
+					</control>
+				</setting>
+				<setting help="" id="Location2" label="32112" type="string">
+					<level>0</level>
+					<default></default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="!is" setting="Location1"/>
+						</dependency>
+					</dependencies>
+					<control format="action" type="button">
+						<data>RunScript(weather.unlocked,Location2)</data>
+					</control>
+				</setting>
+				<setting help="" id="Location3" label="32113" type="string">
+					<level>0</level>
+					<default></default>
+					<constraints>
+						<allowempty>true</allowempty>
+					</constraints>
+					<dependencies>
+						<dependency type="enable">
+							<condition operator="!is" setting="Location2"/>
+						</dependency>
+					</dependencies>
+					<control format="action" type="button">
+						<data>RunScript(weather.unlocked,Location3)</data>
+					</control>
+				</setting>
+				<setting help="" id="Location1id" type="string">
+					<default>-1</default>
+					<visible>false</visible>
+					<control format="string" type="edit">
+					</control>
+				</setting>
+				<setting help="" id="Location2id" type="string">
+					<default>-1</default>
+					<visible>false</visible>
+					<control format="string" type="edit">
+					</control>
+				</setting>
+				<setting help="" id="Location3id" type="string">
+					<default>-1</default>
+					<visible>false</visible>
+					<control format="string" type="edit">
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="2" label="32102">
+			<group id="1" label="32131">
+				<setting help="" id="APP_ID" label="32114" type="string">
+					<level>0</level>
+					<default>-1</default>
+					<constraints>
+						<allowempty>false</allowempty>
+					</constraints>
+					<control format="string" type="edit">
+						<heading>32114</heading>
+					</control>
+				</setting>
+				<setting help="" id="API_KEY" label="32115" type="string">
+					<level>0</level>
+					<default>-1</default>
+					<constraints>
+						<allowempty>false</allowempty>
+					</constraints>
+					<control format="string" type="edit">
+						<heading>32115</heading>
+					</control>
+				</setting>
+			</group>
+		</category>
+		<category id="3" label="32103">
+			<group id="1">
+				<setting help="" id="log_notice" label="32104" type="boolean">
+					<level>0</level>
+					<default>false</default>
+					<control type="toggle"/>
+				</setting>
+			</group>
+		</category>
+	</section>
+</settings>

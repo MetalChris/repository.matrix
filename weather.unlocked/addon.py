@@ -14,11 +14,7 @@
 # *  http://www.gnu.org/copyleft/gpl.html
 
 import os, sys, socket, urllib.request, urllib.error, urllib.parse
-import xbmc, xbmcgui, xbmcaddon, json
-#if sys.version_info < (2, 7):
-	#import json
-#else:
-	#import json as json
+import xbmc, xbmcgui, xbmcaddon, xbmcvfs, json
 import time
 
 # This is a throwaway variable to deal with a python bug
@@ -29,7 +25,7 @@ __addonname__  = __addon__.getAddonInfo('name')
 __addonid__    = __addon__.getAddonInfo('id')
 __version__    = __addon__.getAddonInfo('version')
 __cwd__        = __addon__.getAddonInfo('path')#.decode("utf-8")
-__resource__   = xbmc.translatePath( os.path.join( __cwd__, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
+__resource__   = xbmcvfs.translatePath( os.path.join( __cwd__, 'resources', 'lib' ))#.encode("utf-8") ).decode("utf-8")
 
 sys.path.append(__resource__)
 
@@ -50,7 +46,7 @@ LOC_URL          = 'https://nominatim.openstreetmap.org/search?addressdetails=1&
 API_URL          = 'http://api.weatherunlocked.com/api/current/'
 APP_ID		= __addon__.getSetting(id="APP_ID")
 API_KEY	= __addon__.getSetting(id="API_KEY")
-WEATHER_ICON     = xbmc.translatePath('special://temp/weather/%s.png')#.decode("utf-8")
+WEATHER_ICON     = xbmcvfs.translatePath('special://temp/weather/%s.png')#.decode("utf-8")
 WEATHER_WINDOW   = xbmcgui.Window(12600)
 NOW = time.time()
 LOCAL_TIME = time.localtime(NOW)
@@ -165,13 +161,14 @@ def get_weather(locid):
 def get_forecast(locid):
 	xbmc.log('GET FORECAST')
 	url = API_URL.replace('current','forecast') + str(locid) + '?app_id=' + APP_ID + '&app_key=' + API_KEY
-	xbmc.log('GET FORECAST URL:' + str(url))
+	xbmc.log('GET FORECAST URL:' + str(url),level=log_level)
 	try:
 		req = urllib.request.Request(url)
 		req.add_header('User-Agent','Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:47.0) Gecko/20100101 Firefox/47.0')
 		req.add_header('Accept','application/json')
 		response = urllib.request.urlopen(req)
 		fdata = response.read()
+		#xbmc.log('FDATA:' + str(fdata),level=log_level)
 		#xbmc.log(str(fdata))
 		req.close()
 	except:
@@ -188,7 +185,7 @@ def clear():
 	set_property('Current.WindDirection' , 'N/A')
 	set_property('Current.Humidity'      , '0')
 	set_property('Current.FeelsLike'     , '0')
-	set_property('Current.UVIndex'       , '0')
+	#set_property('Current.UVIndex'       , '0')
 	set_property('Current.DewPoint'      , '0')
 	set_property('Current.OutlookIcon'   , 'na.png')
 	set_property('Current.FanartCode'    , 'na')
@@ -220,6 +217,7 @@ def properties(data,fdata,loc,locid):
 	forecast = parse_data(fdata)
 	set_property('Today.Sunrise'         , str(forecast['Days'][0]['sunrise_time']))
 	set_property('Today.Sunset'          , str(forecast['Days'][0]['sunset_time']))
+	set_property('Today.IsFetched', 'true')
 	xbmc.log('HOUR: ' + str(HOUR))
 	if int(HOUR) < 12:
 		offset = 1
@@ -227,23 +225,69 @@ def properties(data,fdata,loc,locid):
 		offset = 0
 	for count in range(offset,(offset+5)):
 		xbmc.log('OFFSET: ' + str(offset))
-		set_property('Day%i.HighTemp'    % count, str(forecast['Days'][count+1]['temp_max_c']))
-		set_property('Day%i.LowTemp'     % count, str(forecast['Days'][count+1]['temp_min_c']))
+		set_property('Daily.%i.HighTemperature'    % count, str(round(forecast['Days'][count+1]['temp_max_f'])))
+		set_property('Daily.%i.LowTemperature'     % count, str(round(forecast['Days'][count+1]['temp_min_f'])))
+		set_property('Day.%i.HighTemp'    % count, str(round(forecast['Days'][count+1]['temp_max_f'])))
+		set_property('Day.%i.LowTemp'     % count, str(round(forecast['Days'][count+1]['temp_min_f'])))
+		set_property('Daily.%i.MinHumidity'     % count, str(round(forecast['Days'][count+1]['humid_min_pct'])) + '%')
+		set_property('Day.%i.MinHumidity'     % count, str(round(forecast['Days'][count+1]['humid_min_pct'])) + '%')
+		set_property('Daily.%i.MaxHumidity'     % count, str(round(forecast['Days'][count+1]['humid_max_pct'])) + '%')
+		set_property('Day.%i.MaxHumidity'     % count, str(round(forecast['Days'][count+1]['humid_max_pct'])) + '%')
+		set_property('Daily.%i.Humidity'     % count, str(round(forecast['Days'][count+1]['humid_max_pct'])) + '%')
+		set_property('Day.%i.Humidity'     % count, str(round(forecast['Days'][count+1]['humid_max_pct'])) + '%')
+		set_property('Daily.%i.WindSpeed'     % count, str(round(forecast['Days'][count+1]['windspd_max_mph'])))
+		set_property('Day.%i.WindSpeed'     % count, str(round(forecast['Days'][count+1]['windspd_max_mph'])))
+		set_property('Daily.%i.WindDirection'     % count, str(forecast['Days'][count+1]['Timeframes'][3]['winddir_compass']))
+		set_property('Day.%i.WindDirection'     % count, str(forecast['Days'][count+1]['Timeframes'][3]['winddir_compass']))
 		fdate = str(forecast['Days'][count+1]['date'])
 		fday = time.strptime(fdate, "%d/%m/%Y")#.strftime("%m/%d/%Y")
 		fdaynew = time.strftime("%A", fday)
 		if str(fdaynew) != str(TODAY):
-			set_property('Day%i.Title'       % count, str(fdaynew))
+			set_property('Day.%i.Title'       % count, str(fdaynew))
+			set_property('Daily.%i.Title'       % count, str(fdaynew))
 		else:
-			set_property('Day%i.Title'       % count, 'Today')
-		set_property('Day%i.Outlook'     % count, str(forecast['Days'][count+1]['Timeframes'][3]['wx_desc']))
+			set_property('Day.%i.Title'       % count, 'Today')
+			set_property('Daily.%i.Title'       % count, 'Today')
+		set_property('Daily.%i.LongDay'     % count, str(time.strftime("%A", fday)))
+		set_property('Daily.%i.ShortDay'     % count, str(time.strftime("%a", fday)))
+		#set_property('Daily.%i.ShortDate'       % (count + 1), str(forecast['Days'][count+1]['date']))
+		set_property('Daily.%i.ShortDate'       % count, str(time.strftime("%b %d", fday)))
+		set_property('Day.%i.Outlook'     % count, str(forecast['Days'][count+1]['Timeframes'][3]['wx_desc']))
+		set_property('Daily.%i.Outlook'     % count, str(forecast['Days'][count+1]['Timeframes'][3]['wx_desc']))
 		weathercode = WEATHER_CODES[str(forecast['Days'][count+1]['Timeframes'][3]['wx_icon']).lower().replace('.gif','')]
-		set_property('Day%i.OutlookIcon' % count, '%s.png' % weathercode)
+		set_property('Daily.%i.OutlookIcon' % count, '%s.png' % weathercode)
+		set_property('Day.%i.OutlookIcon' % count, '%s.png' % weathercode)
+		set_property('Daily.%i.Precipitation'   % count, str(forecast['Days'][count+1]['Timeframes'][3]['prob_precip_pct']) + '%')
 		count = count + 1
+	#for day in range(2):
+	for hour in range(8):
+		#xbmc.log('HOUR: ' + str(hour),level=log_level)
+		hdate = str(forecast['Days'][1]['date'])
+		hday = time.strptime(hdate, "%d/%m/%Y")#.strftime("%m/%d/%Y")
+		set_property('Hourly.%i.ShortDate'  % hour, str(time.strftime("%b %d", hday)))
+		htime = str(forecast['Days'][1]['Timeframes'][hour]['time']).replace('00', ':00')
+		#htime = htime.replace('00', ':00')
+		set_property('Hourly.%i.Time'  % hour, str(htime))
+		#xbmc.log('HTIME: ' + str(htime),level=log_level)
+		weathercode = WEATHER_CODES[str(forecast['Days'][1]['Timeframes'][hour]['wx_icon']).lower().replace('.gif','')]
+		set_property('Hourly.%i.OutlookIcon' % hour, '%s.png' % weathercode)
+		set_property('Hourly.%i.Outlook'  % hour, str(forecast['Days'][1]['Timeframes'][hour]['wx_desc']))
+		set_property('Hourly.%i.Temperature'  % hour, str(round(forecast['Days'][1]['Timeframes'][hour]['temp_f'])))
+		set_property('Hourly.%i.FeelsLike'  % hour, str(round(forecast['Days'][1]['Timeframes'][hour]['feelslike_f'])))
+		set_property('Hourly.%i.WindSpeed'  % hour, str(round(forecast['Days'][1]['Timeframes'][hour]['windspd_mph'])))
+		set_property('Hourly.%i.WindDirection'  % hour, str(forecast['Days'][1]['Timeframes'][hour]['winddir_compass']))
+		set_property('Hourly.%i.Humidity'  % hour, str(forecast['Days'][1]['Timeframes'][hour]['humid_pct']) + '%')
+		set_property('Hourly.%i.Precipitation'  % hour, str(forecast['Days'][1]['Timeframes'][hour]['prob_precip_pct']) + '%')
+	set_property('Forecast.IsFetched', 'true')
+	set_property('Day.IsFetched', 'true')
+	set_property('Daily.IsFetched', 'true')
+	set_property('Hourly.IsFetched', 'true')
 xbmc.log('version %s started: %s' % (__version__, sys.argv))
 
+#hourly
+
 set_property('WeatherProvider', __addonname__)
-set_property('WeatherProviderLogo', xbmc.translatePath(os.path.join(__cwd__, 'resources', 'banner.png')))
+set_property('WeatherProviderLogo', xbmcvfs.translatePath(os.path.join(__cwd__, 'resources', 'banner.png')))
 
 if sys.argv[1].startswith('Location'):
 	keyboard = xbmc.Keyboard('', xbmc.getLocalizedString(14024), False)

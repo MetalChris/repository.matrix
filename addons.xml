@@ -289,7 +289,7 @@ v4.2.7
     </extension>
 </addon>
 
-<addon id="weather.unlocked" name="Weather Unlocked" version="2024.03.03" provider-name="MetalChris">
+<addon id="weather.unlocked" name="Weather Unlocked" version="2024.04.03" provider-name="MetalChris">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
 		<!-- <import addon="script.module.simplejson" version="3.3.0"/> -->
@@ -303,6 +303,7 @@ v4.2.7
 		<platform>all</platform>
 		<forum></forum>
 		<source></source>
+		<news>Updated to add hourly forecast info.</news>
 		<assets>
 			<icon>/resources/media/icon.png</icon>
 			<banner>/resources/media/fanart.jpg</banner>

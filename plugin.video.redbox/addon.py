@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.02.23
+# Written by MetalChris 2024.04.17
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -58,7 +58,7 @@ myobj = {
 def cats():
 	reels = requests.post('https://www.redbox.com/gapi/ondemand/hcgraphql/', json = myobj)
 	xbmc.log('X: ' + str(len(reels.text)),level=log_level)
-	data = json.loads(reels.text);i=0
+	data = json.loads(reels.text)
 	for count, item in enumerate(data['data']['reelCollection']['reels']):
 		#xbmc.log('COUNT: ' + str(count),level=log_level)
 		#xbmc.log('ITEM: ' + str(item),level=log_level)
@@ -78,7 +78,7 @@ def cats():
 def channels(name,url):
 	reels = requests.post('https://www.redbox.com/gapi/ondemand/hcgraphql/', json = myobj)
 	xbmc.log('X: ' + str(len(reels.text)),level=log_level)
-	data = json.loads(reels.text);i=0
+	data = json.loads(reels.text)
 	for count, item in enumerate(data['data']['reelCollection']['reels']):
 		#xbmc.log(('TITLE: ' + str(item['name'])),level=log_level)
 		if item['name'] == name:
@@ -88,13 +88,12 @@ def channels(name,url):
 			for count, item in enumerate(data['data']['reelCollection']['reels'][c]['items']):
 				title = item['name']
 				now = item['onNow']['title']
-				plot = item['onNow']['description']
-				next = item['onNext']['title']
+				description = item['onNow']['description']
+				nextUp = item['onNext']['title']
 				startTime = item['onNext']['startTime']
-				localNext = strftime('%Y-%m-%d %H:%M:%S', localtime(startTime))
 				lN = strftime('%H:%M', localtime(startTime))
 				image = item['images']['stylized']
-				title = str(title) + ' [NOW: ' + str(now) + ' - NEXT @ ' + str(lN) + ' : ' + str(next) + ']'
+				plot = '[B]'+ str(now) +'[/B]' + ' ' + str(description) + '\n\n[NEXT @' + str(lN) + '] ' + '[B]'+ str(nextUp) +'[/B]'
 				url = item['url']
 				streamUrl = 'plugin://plugin.video.redbox?mode=99&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title)
 				li = xbmcgui.ListItem(title)
@@ -112,25 +111,9 @@ def PLAY(name,url):
 	listitem = xbmcgui.ListItem(path=url)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
-	#background = [{'image':image}]
-	#listitem.setAvailableFanart(background)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 	xbmc.log('URL: ' + str(url), level=log_level)
 	xbmcplugin.endOfDirectory(addon_handle)
-
-
-def get_html(url):
-	req = urllib.request.Request(url)
-	req.add_header('User-Agent', ua)
-
-	try:
-		response = urllib.request.urlopen(req)
-		html = response.read()
-		response.close()
-	except urllib.error.HTTPError:
-		response = False
-		html = False
-	return html
 
 
 def get_params():

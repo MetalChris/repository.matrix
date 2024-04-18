@@ -74,7 +74,8 @@ def all_games():
 		homeTeam = (data['gamesByDate'][t]['games'][x]['homeTeam']['name']['default'])
 		gid = (data['gamesByDate'][t]['games'][x]['id'])
 		xbmc.log('GAME ID: ' + str(gid),level=log_level)
-		url = 'https://api-web.nhle.com/v1_1/gamecenter/' + str(gid) + '/landing'
+		#  https://api-web.nhle.com/v1/gamecenter/2023021303/landing
+		url = 'https://api-web.nhle.com/v1/gamecenter/' + str(gid) + '/landing'
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'FUT':
 			url = 'Future'
 		title = awayTeam + ' @ ' + homeTeam
@@ -119,6 +120,7 @@ def get_streams(url):
 		xbmc.log('Game Has Not Started',level=log_level)
 		sys.exit(1)
 	response = get_html(url)
+	xbmc.log('RESPONSE: ' + str(len(response)),level=log_level)
 	data = json.loads(response)
 	gid = (data['id'])
 	xbmc.log('GAME ID: ' + str(gid),level=log_level)

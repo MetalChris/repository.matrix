@@ -1,10 +1,10 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.18
+# Written by MetalChris 2024.04.20
 # Released under GPL(v2 or later)
 
-import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
+import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
 import json
 import time
 from time import strftime, localtime
@@ -141,8 +141,8 @@ def movies(name,url):
 				image = 'https://images.redbox.com/Images/EPC/boxartvertical/' + item['images']['boxArtVertical']
 				if len(str(item['id'])) < 5:
 					continue
-				id = '5' + str(item['id'])[1:]
-				streamUrl = 'plugin://plugin.video.redbox?mode=15&url=' + urllib.parse.quote_plus(apiUrl) + '&name=' + urllib.parse.quote_plus(id)
+				videoId = '5' + str(item['id'])[1:]
+				streamUrl = 'plugin://plugin.video.redbox?mode=15&url=' + urllib.parse.quote_plus(apiUrl) + '&name=' + urllib.parse.quote_plus(videoId)
 				li = xbmcgui.ListItem(title)
 				li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (plotId)))])
 				li.setProperty('IsPlayable', 'true')
@@ -160,14 +160,14 @@ def mymovie(name,url):
 	  "query": "\n\tquery AvodStreams($redboxTitleId: String!,$filter:AvodStreamFilter) { \n\t\tavodStreams(redboxTitleId: $redboxTitleId,filter:$filter) {\n\t\t\tviewContentReference\n\t\t\tredboxTitleId\n\t\t\tname\n\t\t\tstreams {\n\t\t\t\tquality\n\t\t\t\tformat\n\t\t\t\tdrmType\n\t\t\t\turl\n\t\t\t\tdrmUrl\n\t\t\t\tlicenseRequestToken\n\t\t\t\tavailability\n\t\t\t\tadsType\n\t\t\t}\n\t\t\tcuePoints\n\t\t\tvmapUrl\n            scrubbers {\n                url\n            }\n\t\t}\n\t}\n",
 	  "variables": {
 	    "redboxTitleId": "" + str(name) + "",
-	    "filter": {
-	      "drmType": [
-	        "WIDEVINE"
-	      ],
-	      "format": [
-	        "DASH"
-	      ]
-	    }
+		"filter": {
+		  "drmType": [
+			"WIDEVINE"
+		  ],
+		  "format": [
+			"DASH"
+		  ]
+		}
 	  }
 	}
 
@@ -175,6 +175,9 @@ def mymovie(name,url):
 	reels = requests.post(apiUrl, headers=headers, json = movieparams)
 	xbmc.log('REELS: ' + str(len(reels.text)),level=log_level)
 	xbmc.log('REELS: ' + str(reels.text)[:200],level=log_level)
+	if 'ITEM_NOT_FOUND' in reels.text:
+		xbmcgui.Dialog().ok('Redbox Error', 'This video is not available at this time.')
+		sys.exit()
 	data = json.loads(reels.text)
 	streamUrl = str(data['data']['avodStreams']['streams'][0]['url'])
 	xbmc.log('STREAMURL: ' + str(streamUrl),level=log_level)
@@ -185,11 +188,11 @@ def mymovie(name,url):
 	sys.exit()
 
 
-def get_id(id,idUrl):
+def get_id(videoId,idUrl):
 	reels = requests.get(idUrl)
 	#xbmc.log('X: ' + str(reels.text),level=log_level)
 	data = json.loads(reels.text)
-	id = data['Id']
+	videoId = data['Id']
 	return(id)
 
 
@@ -225,7 +228,7 @@ def desc(plotId):
 		a.append(actor)
 	actors = ", ".join(a)
 	xbmc.log('ACTORS: ' + str(actors),level=log_level)
-	details = '(' + genre + ') ' + desc + '\n\n' + actors + '\n\nRated: ' + rating + '\nRuntime: ' + duration
+	details = '(' + genre + ') ' + desc + '\n\nCast: ' + actors + '\n\nRated: ' + rating + '\nRuntime: ' + duration
 	xbmc.log('DETAILS: ' + str(details),level=log_level)
 	xbmcgui.Dialog().textviewer(title, details)
 

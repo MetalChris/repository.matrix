@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.02.23
+# Written by MetalChris 2024.04.23
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -87,15 +87,20 @@ def all_games():
 		xbmc.log('EPOCH: ' + str(epoch),level=log_level)
 		gameTimeEpoch = int(epoch) + (-time.timezone)
 		xbmc.log('gameTimeEpoch: ' + str(gameTimeEpoch),level=log_level)
-		localgameTime = time.strftime("%-I:%M %p", time.localtime(gameTimeEpoch))
-		xbmc.log('localgameTime: ' + str(localgameTime),level=log_level)
+
+		### Fix for barney63 ##################################################
+		### This will display games without the start time ####################
+		#localgameTime = time.strftime("%-I:%M %p", time.localtime(gameTimeEpoch))
+		#xbmc.log('localgameTime: ' + str(localgameTime),level=log_level)
+		#######################################################################
+
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'FUT':
-			title = title + ' [' + str(localgameTime) + ']'
+			title = title# + ' [' + str(localgameTime) + ']'
 			url = 'Future'
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'PRE':
 			title = title + ' [Pregame]'
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'LIVE':
-			if (data['gamesByDate'][t]['games'][x]['period']) == 4:
+			if (data['gamesByDate'][t]['games'][x]['period']) >= 4:
 				period = 'OT'
 				title = title + ' [OT]'
 			else:

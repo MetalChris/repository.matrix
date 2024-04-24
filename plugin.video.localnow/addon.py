@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.21
+# Written by MetalChris 2024.04.22
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -52,6 +52,7 @@ s = requests.Session()
 
 
 def get_token():
+	xbmc.log(('GET TOKEN'),level=log_level)
 	response = s.get(baseUrl)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
@@ -63,6 +64,7 @@ def get_token():
 
 
 def get_ln(baseUrl):
+	xbmc.log(('GET LOCATION'),level=log_level)
 	response = s.get(baseUrl)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
@@ -78,12 +80,13 @@ def get_ln(baseUrl):
 	market = data['city']['market']
 	pbsMarkets = data['city']['pbsMarkets']
 	zipDma = data['city']['zipDma']
-	url = 'https://data-store-trans-cdn.api.cms.amdvids.com/live/epg/US/androidtv?program_size=3&dma=' + str(zipDma) + '&market=' + str(market) + ',' + str(pbsMarkets)
-	xbmc.log('CHANNELSURL: ' + str(url),level=log_level)
+	url = 'https://data-store-trans-cdn.api.cms.amdvids.com/live/epg/US/androidtv?program_size=3&dma=' + str(zipDma) + '&market=' + str(market)# + ',' + str(pbsMarkets)
+	xbmc.log('CHANNELS URL: ' + str(url),level=log_level)
 	genres(url)
 
 
 def genres(url):
+	xbmc.log(('GET GENRES'),level=log_level)
 	response = s.get(url, headers = {'User-Agent': ua})
 	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
 	data = json.loads(response.text);genres = []
@@ -123,7 +126,8 @@ def channels(url, name):
 		lN = strftime('%H:%M', localtime(startTime))
 		plot = '[B]'+ str(onNow) +'[/B]' + ' ' + str(description) + '\n\n[NEXT @' + str(lN) + '] ' + '[B]'+ str(onNext) +'[/B]'
 		videoId = item['video_id']
-		url ='https://data-store-trans-cdn.api.cms.amdvids.com/video/play/' + str(videoId) + '/1920/1080?page_url=https%253A%252F%252Flocalnow.com%252Fchannels%252Fthe-war-channel&device_devicetype=desktop_web&app_version=0.0.0'
+		slug = item['slug']
+		url ='https://data-store-trans-cdn.api.cms.amdvids.com/video/play/' + str(videoId) + '/1920/1080?page_url=https%253A%252F%252Flocalnow.com%252Fchannels%252F' + str(slug) + '&device_devicetype=desktop_web&app_version=0.0.0'
 		streamUrl = 'plugin://plugin.video.localnow?mode=6&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title)
 		li = xbmcgui.ListItem(title)
 		li.setProperty('IsPlayable', 'true')
@@ -136,6 +140,7 @@ def channels(url, name):
 
 #6
 def get_stream(name,url):
+	xbmc.log(('GET STREAM'),level=log_level)
 	token = get_token()
 	xbmc.log('TOKEN: ' + str(token),level=log_level)
 	headers = {'User-Agent': ua, 'X-Access-Token': str(token)}
@@ -175,7 +180,7 @@ def shows(name,url):
 			for count, item in enumerate(data['pageProps']['page']['rails'][c]['cards']):
 				title = item['title']
 				slug = item['slug']
-				url = baseUrl + 'shows/' + slug
+				url = apiUrl + 'shows/' + slug + '.json'
 				image = item['image']
 				streamUrl = 'plugin://plugin.video.localnow?mode=15&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
 				li = xbmcgui.ListItem(title)
@@ -191,11 +196,11 @@ def shows(name,url):
 def episodes(name,url):
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	data = json.loads(jsob)
-	total = len(data['props']['pageProps']['page']['pdp']['seasons'])
+	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
+	data = json.loads(response.text)
+	total = len(data['pageProps']['page']['pdp']['seasons'])
 	xbmc.log('TOTAL: ' + str(total),level=log_level)
-	for count, item in enumerate(data['props']['pageProps']['page']['pdp']['seasons']):
+	for count, item in enumerate(data['pageProps']['page']['pdp']['seasons']):
 		season = str(item['season']['number'])
 		xbmc.log('SEASON: ' + str(season),level=log_level)
 		for card, episode in enumerate(item['cards']):
@@ -254,7 +259,7 @@ def movies(name,url):
 				image = item['image']
 				fanart = image.replace('2x3','16x9')
 				streamUrl = 'plugin://plugin.video.localnow?mode=6&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
-				url = baseUrl + 'movies/' + slug
+				url = apiUrl + 'movies/' + slug + '.json'
 				li = xbmcgui.ListItem(title)
 				li.setProperty('IsPlayable', 'true')
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
@@ -266,7 +271,8 @@ def movies(name,url):
 
 
 def get_id(baseUrl):
-	response = s.get(url)
+	xbmc.log(('GET BUILDID'),level=log_level)
+	response = s.get(baseUrl)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
 	data = json.loads(jsob)
@@ -282,12 +288,24 @@ def desc(url):
 	xbmc.log(('GET DESCRIPTION'),level=log_level)
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	data = json.loads(jsob)
-	description = data['props']['pageProps']['page']['pdp']['description']
-	title = data['props']['pageProps']['page']['pdp']['title']
+	data = json.loads(response.text)
+	description = data['pageProps']['page']['pdp']['description']
+	title = data['pageProps']['page']['pdp']['title']
+	genres = data['pageProps']['page']['pdp']['genres'];g=[]
+	for count, item in enumerate(data['pageProps']['page']['pdp']['genres']):
+		genre = (item)
+		g.append(genre)
+	genres = ", ".join(g)
+	actors = data['pageProps']['page']['pdp']['actors'];a=[]
+	for count, item in enumerate(data['pageProps']['page']['pdp']['actors']):
+		actor = (item)
+		a.append(actor)
+	actors = ", ".join(a)
+	rating = data['pageProps']['page']['pdp']['rating']
+	year = data['pageProps']['page']['pdp']['year']
+	info = '(' + genres + ') ' + str(description) + '\n\nCast: ' + actors + '\n\nReleased: ' + year + '\n\n' + rating 
 	xbmc.log('DESCRIPTION: ' + str(description),level=log_level)
-	xbmcgui.Dialog().ok(title, description)
+	xbmcgui.Dialog().textviewer(title, info)
 
 
 #85
@@ -297,12 +315,24 @@ def info(url):
 	xbmc.log(('GET DESCRIPTION'),level=log_level)
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	data = json.loads(jsob)
-	description = data['props']['pageProps']['page']['pdp']['description']
-	title = data['props']['pageProps']['page']['pdp']['title']
+	data = json.loads(response.text)
+	description = data['pageProps']['page']['pdp']['description']
+	title = data['pageProps']['page']['pdp']['title']
+	genres = data['pageProps']['page']['pdp']['genres'];g=[]
+	for count, item in enumerate(data['pageProps']['page']['pdp']['genres']):
+		genre = (item)
+		g.append(genre)
+	genres = ", ".join(g)
+	actors = data['pageProps']['page']['pdp']['actors'];a=[]
+	for count, item in enumerate(data['pageProps']['page']['pdp']['actors']):
+		actor = (item)
+		a.append(actor)
+	actors = ", ".join(a)
+	rating = data['pageProps']['page']['pdp']['rating']
+	year = data['pageProps']['page']['pdp']['year']
+	info = '(' + genres + ') ' + str(description) + '\n\nCast: ' + actors + '\n\nReleased: ' + year + '\n\n' + rating
 	xbmc.log('DESCRIPTION: ' + str(description),level=log_level)
-	xbmcgui.Dialog().ok(title, description)
+	xbmcgui.Dialog().textviewer(title, info)
 
 
 #99

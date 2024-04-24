@@ -224,7 +224,7 @@ def desc(plotId):
 	genre = ", ".join(genres)
 	actors = data['data']['product']['actors'];a=[]
 	for count, item in enumerate(data['data']['product']['actors']):
-		actor = (item['name'])
+		actor = (item)
 		a.append(actor)
 	actors = ", ".join(a)
 	xbmc.log('ACTORS: ' + str(actors),level=log_level)

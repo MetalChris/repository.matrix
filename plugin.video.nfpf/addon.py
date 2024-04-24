@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2)
 
-#2021.10.11
+#2024.04.15
 
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, sys, re
 from bs4 import BeautifulSoup
@@ -69,8 +69,8 @@ def GET_ITEM(name,url):
 #20
 def GET_STREAM(url):
 	html = get_html(url)
-	soup = BeautifulSoup(html,'html5lib').find_all('div', {'class':'film-player'})
-	#xbmc.log('SOUP: ' + (str(soup)), level=xbmc.LOGDEBUG)
+	soup = BeautifulSoup(html,'html5lib').find_all('div', {'data-controller':'player'})
+	xbmc.log('SOUP: ' + (str(soup)), level=log_level)
 	stream = re.compile('data-file="(.+?)"').findall(str(soup))[0].replace('https','http')
 	if '10mbps' in stream:
 		stream = stream.replace('10mbps','6mbps')

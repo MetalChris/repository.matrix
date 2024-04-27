@@ -1,10 +1,10 @@
 # Kodi Media Center language file
-# Addon Name: "Redbox"
-# Addon id: plugin.video.redbox
+# Addon Name: "Local Now"
+# Addon id: plugin.video.localnow
 # Addon Provider: MetalChris
 msgid ""
 msgstr ""
-"Project-Id-Version: plugin.video.redbox\n"
+"Project-Id-Version: plugin.video.localnow\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"

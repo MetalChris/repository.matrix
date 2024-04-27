@@ -7,6 +7,7 @@
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
 import json
 import time
+import datetime
 
 today = time.strftime("%Y-%m-%d")
 
@@ -94,8 +95,16 @@ def all_games():
 		#xbmc.log('localgameTime: ' + str(localgameTime),level=log_level)
 		#######################################################################
 
+		UTCoffset = -time.timezone
+		epochDif = (int((int(epoch) - int(time.time()))))# + 3600
+		xbmc.log('EPOCH_DIF: ' + str(epochDif),level=log_level)
+		localgameTime = round((int(epochDif))) + int(UTCoffset) + 3600
+		xbmc.log('localgameTime: ' + str(localgameTime),level=log_level)
+		puckDrops = str(datetime.timedelta(seconds=localgameTime))
+		xbmc.log('PUCKDROPS: ' + str(puckDrops),level=log_level)
+
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'FUT':
-			title = title# + ' [' + str(localgameTime) + ']'
+			title = title + ' [Starts in ' + str(puckDrops) + ']'
 			url = 'Future'
 		if (data['gamesByDate'][t]['games'][x]['gameState']) == 'PRE':
 			title = title + ' [Pregame]'

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.watchyourtv" name="WatchYour.TV" version="2021.01.11" provider-name="MetalChris">
+<addon id="plugin.video.watchyourtv" name="WatchYour.TV" version="2022.01.11" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
   </requires>

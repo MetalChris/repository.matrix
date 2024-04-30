@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.27
+# Written by MetalChris 2024.04.30
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -28,6 +28,7 @@ settings = xbmcaddon.Addon(id="plugin.video.xumoplay")
 apiUrl = 'https://valencia-app-mds.xumo.com/v2/'
 devUrl = 'https://play-dev.xumo.com/_next/data/-tJ2heLKohd5CJOzD6cKF/'
 showUrl = 'https://play.xumo.com/_next/data/vYloRlruhjCb1nMLv-3-p/tv-shows/'
+movieUrl = 'https://play.xumo.com/_next/data/vYloRlruhjCb1nMLv-3-p/free-movies/'
 baseUrl = 'https://play.xumo.com/'
 plugin = "Xumo Play"
 local_string = xbmcaddon.Addon(id='plugin.video.xumoplay').getLocalizedString
@@ -166,7 +167,7 @@ def get_stream(name,url):
 #9
 def live(name,url):
 	xbmc.log('LIVE URL: ' + str(url),level=log_level)
-	channel = url.split('/')[-2]
+	#channel = url.split('/')[-2]
 	if name == 'Local Now':
 		xbmc.log(('##### LOCAL NOW #####'),level=log_level)
 		local_now(name,url)
@@ -227,7 +228,7 @@ def shows(name,url):
 				streamUrl = 'plugin://plugin.video.xumoplay?mode=15&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
 				li = xbmcgui.ListItem(title)
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
-				li.setArt({'thumb':image,'fanart':defaultfanart})
+				li.setArt({'thumb':image,'fanart':fanart})
 				li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=88&url=%s)' % (sys.argv[0], (url)))])
 				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
 	xbmcplugin.setContent(addon_handle, 'episodes')
@@ -350,7 +351,7 @@ def desc(url):
 		if str(item['id']) == channel:
 			xbmc.log(('MATCH'),level=log_level)
 			xbmc.log(('COUNT: ' + str(count)),level=log_level)
-			c = count
+			#c = count
 			#xbmc.log('ITEM: ' + str(item),level=log_level)
 			title = item['program'][0]['title']
 			description = item['program'][0]['description']
@@ -373,9 +374,9 @@ def desc(url):
 
 #85
 def info(url):
-	slug1 = str(url.split('/')[:-1])
-	slug2 = str(url.split('/')[:-2])
-	url = url.replace('play.xumo.com','play-dev.xumo.com/_next/data/-tJ2heLKohd5CJOzD6cKF') + '.json'#?slug=' + slug2 + '.json?slug=' + slug1
+	slugs = url.split('/')
+	xbmc.log('SLUGS: ' + str(slugs),level=log_level)
+	url = movieUrl + slugs[-2] + '/' + slugs[-1] + '.json?slug=' + slugs[-2] + '?slug=' + slugs[-1]
 	xbmcgui.Dialog().notification(addonname, 'Fetching Movie Info...', defaultimage, time=3000, sound=False)
 	xbmc.log('URL: ' + str(url),level=log_level)
 	xbmc.log(('GET DESCRIPTION'),level=log_level)

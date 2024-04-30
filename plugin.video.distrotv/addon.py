@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.28
+# Written by MetalChris 2024.04.29
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -55,19 +55,6 @@ xbmc.log('UTC Offset: ' + str(time.timezone),level=log_level)
 
 s = requests.Session()
 
-
-#6
-def get_stream(name,url):
-	xbmc.log(('GET STREAM'),level=log_level)
-	token = get_token()
-	xbmc.log('TOKEN: ' + str(token),level=log_level)
-	headers = {'User-Agent': ua, 'X-Access-Token': str(token)}
-	response = s.get(url, headers=headers)
-	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
-	jsob = (str(response.text))
-	data = json.loads(jsob)
-	stream = data['video_m3u8']
-	PLAY(name,stream)
 
 #9
 def vod(url):
@@ -203,9 +190,7 @@ def get_channel(channels,url):
 		for count, item in enumerate(data['shows'][code]['seasons'][0]['episodes']):
 			title = item['title']
 			li = xbmcgui.ListItem(title)
-			slug = item['name']
 			description = item['description']
-			#plot = item['description']
 			image = item['img_thumbh']
 			if item['id'] is not None:
 				epgId = str(item['id'])
@@ -231,33 +216,40 @@ def desc(url):
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
-	title = data['epg'][code]['title']
-	slots = len(data['epg'][code]['slots'])
-	xbmc.log('SLOTS: ' + str(slots),level=log_level)
-	if slots > 0:
-		xbmc.log('NOW: ' + str(round(time.time())),level=log_level)
-		NOW = time.time()
-		endTime = data['epg'][code]['slots'][0]['end']
-		p='%Y-%m-%d %H:%M:%S'
-		epoch = int(time.mktime(time.strptime(endTime,p)))
-		xbmc.log('END_EPOCH: ' + str(epoch),level=log_level)
-		epochDif = (int((int(epoch) - int(NOW)))) - int(time.timezone) + 3600
-		xbmc.log('EPOCHDIF: ' + str(epochDif),level=log_level)
-		nextTime = round((int(epochDif)/60))
-		xbmc.log('NEXTTIME: ' + str(nextTime),level=log_level)
-		try:description = '[B]' + data['epg'][code]['slots'][0]['title'] +'[/B] - ' + data['epg'][code]['slots'][0]['description']
-		except:
-			try:description = '[B]' + data['epg'][code]['slots'][0]['title'] +'[/B]'
+	if 'slots' in data['epg'][code]:
+		slots = len(data['epg'][code]['slots'])
+		xbmc.log('SLOTS: ' + str(slots),level=log_level)
+		#xbmc.log('SLOTS: ' + str(data['epg'][code]['slots']),level=log_level)
+		if str(data['epg'][code]['slots']) == '[]':
+			xbmc.log(('NO DESCRIPTION'),level=log_level)
+			title = 'DistroTV'
+			info = 'No information available.'
+			pass
+		if slots > 0:
+			title = data['epg'][code]['title']
+			xbmc.log('NOW: ' + str(round(time.time())),level=log_level)
+			NOW = time.time()
+			endTime = data['epg'][code]['slots'][0]['end']
+			p='%Y-%m-%d %H:%M:%S'
+			epoch = int(time.mktime(time.strptime(endTime,p)))
+			xbmc.log('END_EPOCH: ' + str(epoch),level=log_level)
+			epochDif = (int((int(epoch) - int(NOW)))) - int(time.timezone) + 3600
+			xbmc.log('EPOCHDIF: ' + str(epochDif),level=log_level)
+			nextTime = round((int(epochDif)/60))
+			xbmc.log('NEXTTIME: ' + str(nextTime),level=log_level)
+			try:description = '[B]' + data['epg'][code]['slots'][0]['title'] +'[/B] - ' + data['epg'][code]['slots'][0]['description']
 			except:
-				description = 'No information available.'
-		try:onNext = '[B]' + data['epg'][code]['slots'][1]['title'] +'[/B] - ' + data['epg'][code]['slots'][1]['description']
-		except:
-			try:onNext = '[B]' + data['epg'][code]['slots'][1]['title'] +'[/B]'
+				try:description = '[B]' + data['epg'][code]['slots'][0]['title'] +'[/B]'
+				except:
+					description = 'No information available.'
+			try:onNext = '[B]' + data['epg'][code]['slots'][1]['title'] +'[/B] - ' + data['epg'][code]['slots'][1]['description']
 			except:
-				onNext = 'No information available.'
-		info = description + '\n(ends in ' + str(nextTime) + ' minutes...)' + '\n\n' + '[B]Next:  [/B]' + onNext
-		#info = description + '\n\n' + '[B]Next:  [/B]' + onNext
-		xbmc.log('DESCRIPTION: ' + str(description),level=log_level)
+				try:onNext = '[B]' + data['epg'][code]['slots'][1]['title'] +'[/B]'
+				except:
+					onNext = 'No information available.'
+			info = description + '\n(ends in ' + str(nextTime) + ' minutes...)' + '\n\n' + '[B]Next:  [/B]' + onNext
+			#info = description + '\n\n' + '[B]Next:  [/B]' + onNext
+			xbmc.log('DESCRIPTION: ' + str(description),level=log_level)
 	else:
 		title = 'DistroTV'
 		info = 'No information available.'

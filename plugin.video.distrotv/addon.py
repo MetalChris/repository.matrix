@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.29
+# Written by MetalChris 2024.05.01
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -9,6 +9,7 @@ import json
 import time
 from time import strftime, localtime, mktime
 import requests
+import inputstreamhelper
 
 today = time.strftime("%Y-%m-%d")
 
@@ -259,6 +260,13 @@ def desc(url):
 #99
 def PLAY(name,url):
 	listitem = xbmcgui.ListItem(path=url)
+	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
+	listitem.setProperty('IsPlayable', 'true')
+	listitem.setProperty('inputstream', 'inputstream.adaptive')
+	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
+	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
 	xbmcplugin.setResolvedUrl(addon_handle, True, listitem)

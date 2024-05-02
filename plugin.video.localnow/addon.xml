@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.localnow" name="Local Now" version="2024.04.03" provider-name="MetalChris">
+<addon id="plugin.video.localnow" name="Local Now" version="2024.04.04" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
+    <import addon="script.module.inputstreamhelper"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
@@ -18,6 +19,7 @@
     <website>https://www.localnow.com</website>
     <email></email>
     <source></source>
+    <news>Change to inputstream for playing streams.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

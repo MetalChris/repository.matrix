@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.22
+# Written by MetalChris 2024.05.01
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -9,6 +9,7 @@ import json
 import time
 from time import strftime, localtime
 import requests
+import inputstreamhelper
 
 
 today = time.strftime("%Y-%m-%d")
@@ -303,7 +304,7 @@ def desc(url):
 	actors = ", ".join(a)
 	rating = data['pageProps']['page']['pdp']['rating']
 	year = data['pageProps']['page']['pdp']['year']
-	info = '(' + genres + ') ' + str(description) + '\n\nCast: ' + actors + '\n\nReleased: ' + year + '\n\n' + rating 
+	info = '(' + genres + ') ' + str(description) + '\n\nCast: ' + actors + '\n\nReleased: ' + year + '\n\n' + rating
 	xbmc.log('DESCRIPTION: ' + str(description),level=log_level)
 	xbmcgui.Dialog().textviewer(title, info)
 
@@ -338,6 +339,13 @@ def info(url):
 #99
 def PLAY(name,url):
 	listitem = xbmcgui.ListItem(path=url)
+	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
+	listitem.setProperty('IsPlayable', 'true')
+	listitem.setProperty('inputstream', 'inputstream.adaptive')
+	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
+	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
 	xbmcplugin.setResolvedUrl(addon_handle, True, listitem)

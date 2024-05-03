@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.xumoplay" name="Xumo Play" version="2024.04.08" provider-name="MetalChris">
+<addon id="plugin.video.xumoplay" name="Xumo Play" version="2024.04.10" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
@@ -19,7 +19,7 @@
     <website>https://play.xumo.com</website>
     <email></email>
     <source></source>
-    <news>Change to inputstream for playing streams</news>
+    <news>Fix for limit of 25 items on VOD categories.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

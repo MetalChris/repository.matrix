@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.05.02
+# Written by MetalChris 2024.05.03
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -48,6 +48,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
+xbmc.log(('Xumo Play 05.03.2024'),level=log_level)
 
 xbmc.log('TODAY: ' + str(today),level=log_level)
 xbmc.log('NOW: ' + str(round(time.time())),level=log_level)
@@ -71,13 +72,9 @@ def genres(apiUrl):
 		genre = item['genre'][0]['value']
 		if genre not in genres:
 			genres.append(genre)
-			#slug = item['guid']['value']
-			#image = 'https://image.xumo.com/v1/channels/channel/' + str(slug) + '/600x600.png?type=color_onBlack'
-			#images.append(image)
 	xbmc.log('GENRES: ' + str(genres),level=log_level)
 	for genre in genres:
 		title = str(genre)
-		#image = image
 		streamUrl = 'plugin://plugin.video.xumoplay?mode=3&url=' + urllib.parse.quote_plus(apiUrl) + '&name=' + urllib.parse.quote_plus(title)
 		li = xbmcgui.ListItem(title)
 		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
@@ -101,13 +98,10 @@ def channels(apiUrl, name):
 		if item['genre'][0]['value'] != name:
 			continue
 		title = str(item['title'])
-		#if title == 'Local Now':
-			#continue
 		description = item['description']
 		slug = item['guid']['value']
 		#image = 'https://image.xumo.com/v1/channels/channel/' + str(slug) + '/600x600.webp?type=color_onBlack'
 		image = 'https://image.xumo.com/v1/channels/channel/' + str(slug) + '/600x337.webp?type=channelTile'
-		#xbmc.log('IMAGE: ' + str(image),level=log_level)
 		url = apiUrl + 'channels/channel/' + str(slug) + '/broadcast.json?hour=3'
 		streamUrl = 'plugin://plugin.video.xumoplay?mode=9&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title)
 		li = xbmcgui.ListItem(title)
@@ -201,34 +195,27 @@ def getTargetIds(jsonData):
 
 #12
 def shows(name,url):
+	xbmc.log(('URL 12: ' + str(url)),level=log_level)
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	prefix = url.partition('collection')[0]
+	xbmc.log(('PREFIX: ' + str(prefix)),level=log_level)
 	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
 	data = json.loads(response.text)#;genres = []
-	prefix = url.replace('.json','/')
-	for count, item in enumerate(data['pageProps']['page']['rails']):
-		if item['category']['name'] == name:
-			xbmc.log(('MATCH'),level=log_level)
-			xbmc.log(('COUNT: ' + str(count)),level=log_level)
-			c = count
-			for count, item in enumerate(data['pageProps']['page']['rails'][c]['cards']):
-				title = item['title']
-				#xbmc.log(('TITLE: ' + str(title)),level=log_level)
-				slug = item['slug']
-				showId = item['id']
-				#https://play.xumo.com/_next/data/YOYN5jQOLMYmSB4caL8Sb/tv-shows.json
-				#https://play.xumo.com/_next/data/YOYN5jQOLMYmSB4caL8Sb/tv-shows/alfred-hitchcock-presents/XM0L5DS716XGD1.json?slug=alfred-hitchcock-presents&slug=XM0L5DS716XGD1
-				url = prefix + slug + '/' + showId + '.json?slug=' + slug + '&slug=' + showId
-				#url = baseUrl + 'tv-shows/' + slug + '/' + showId
-				image = item['image'] + '/640x360.jpg'
-				fanart = image.replace('/400x600', '1280x720')
-				streamUrl = 'plugin://plugin.video.xumoplay?mode=15&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
-				url = baseUrl + 'tv-shows/' + slug + '/' + showId
-				li = xbmcgui.ListItem(title)
-				li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=88&url=%s)' % (sys.argv[0], (url)))])
-				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
-				li.setArt({'thumb':image,'fanart':fanart})
-				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
+	for count, item in enumerate(data['pageProps']['page']['rail']['cards']):
+		title = item['title']
+		slug = item['slug']
+		showId = item['id']
+		url = prefix + slug + '/' + showId + '.json?slug=' + slug + '&slug=' + showId
+		image = item['image'] + '/640x360.jpg'
+		fanart = image.replace('/400x600', '1280x720')
+		streamUrl = 'plugin://plugin.video.xumoplay?mode=15&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
+		url = baseUrl + 'tv-shows/' + slug + '/' + showId
+		li = xbmcgui.ListItem(title)
+		li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=88&url=%s)' % (sys.argv[0], (url)))])
+		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
+		li.setArt({'thumb':image,'fanart':fanart})
+		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
@@ -238,11 +225,7 @@ def episodes(name,url):
 	xbmc.log('URL 15: ' + str(url),level=log_level)
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	#xbmc.log('JSOB: ' + str(jsob),level=log_level)
 	data = json.loads(response.text)
-	#total = len(data['props']['pageProps']['page']['entity']['seasons'])
-	#xbmc.log('TOTAL: ' + str(total),level=log_level)
 	for count, item in enumerate(data['pageProps']['page']['entity']['seasons']):
 		season = str(item['season']['number'])
 		xbmc.log('SEASON: ' + str(season),level=log_level)
@@ -275,21 +258,19 @@ def get_id(baseUrl):
 	return(buildId)
 
 
-#'https://play.xumo.com/_next/data/vYloRlruhjCb1nMLv-3-p/tv-shows/'
 #18
 def mcats(name,url):
 	buildId = get_id(url)
 	if 'tv-shows' in url:
 		url = vodUrl + buildId + '/tv-shows.json'
-		mode = '12'
+		mode = '27'
 	else:
 		url = vodUrl + buildId + '/free-movies.json'
-		mode = '21'
+		mode = '30'
 	xbmc.log('URL 18: ' + str(url),level=log_level)
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	data = json.loads(response.text);genres = []
+	data = json.loads(response.text);genres = []#;catIds=[];slugs=[]
 	for count, item in enumerate(data['pageProps']['page']['rails']):
 		genre = item['category']['name']
 		if genre not in genres:
@@ -310,28 +291,23 @@ def mcats(name,url):
 def movies(name,url):
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
-	data = json.loads(response.text)#;genres = []
-	for count, item in enumerate(data['pageProps']['page']['rails']):
-		if item['category']['name'] == name:
-			xbmc.log(('MATCH'),level=log_level)
-			xbmc.log(('COUNT: ' + str(count)),level=log_level)
-			c = count
-			for count, item in enumerate(data['pageProps']['page']['rails'][c]['cards']):
-				title = item['title']
-				movieId = item['id']
-				slug = item['slug']
-				url = apiUrl + 'assets/asset/' + str(movieId) + '.json?f=providers&f=connectorId&f=keywords'
-				image = item['image'] + '/400x600.webp'
-				#fanart = image.replace('/400x600.webp','1280x720.jpg')
-				streamUrl = 'plugin://plugin.video.xumoplay?mode=24&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
-				url = baseUrl + 'free-movies/' + slug + '/' + movieId
-				li = xbmcgui.ListItem(title)
-				li.setProperty('IsPlayable', 'true')
-				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
-				li.setArt({'thumb':image,'fanart':defaultfanart})
-				li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=85&url=%s)' % (sys.argv[0], (url)))])
-				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
+	prefix = url.partition('collection')[0]
+	xbmc.log(('PREFIX: ' + str(prefix)),level=log_level)
+	data = json.loads(response.text)
+	for count, item in enumerate(data['pageProps']['page']['rail']['cards']):
+		title = item['title']
+		movieId = item['id']
+		slug = item['slug']
+		url = apiUrl + 'assets/asset/' + str(movieId) + '.json?f=providers&f=connectorId&f=keywords'
+		image = item['image'] + '/400x600.webp'
+		streamUrl = 'plugin://plugin.video.xumoplay?mode=24&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
+		url = baseUrl + 'free-movies/' + slug + '/' + movieId
+		li = xbmcgui.ListItem(title)
+		li.setProperty('IsPlayable', 'true')
+		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
+		li.setArt({'thumb':image,'fanart':defaultfanart})
+		li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=85&url=%s)' % (sys.argv[0], (url)))])
+		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
@@ -348,10 +324,50 @@ def movie_stream(url):
 	PLAY(name,stream)
 
 
+#27
+def show_collection(url):
+	response = s.get(url)
+	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
+	data = json.loads(response.text)#;genres = []
+	prefix = url.replace('.json','/')
+	for count, item in enumerate(data['pageProps']['page']['rails']):
+		if item['category']['name'] == name:
+			xbmc.log(('MATCH'),level=log_level)
+			xbmc.log(('COUNT: ' + str(count)),level=log_level)
+			catId = item['category']['id']
+			xbmc.log(('CATID: ' + str(catId)),level=log_level)
+			c = count
+			slug = name.lower().replace(' ','-').replace('&','and')
+			xbmc.log(('SLUG: ' + str(slug)),level=log_level)
+			url = prefix + 'collection/' + slug + '/' + catId + '.json?slug=' + slug + '&slug=' + catId
+			xbmc.log('COLLECTION URL: ' + str(url),level=log_level)
+			shows(name,url)
+
+
+#30
+def movie_collection(url):
+	response = s.get(url)
+	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
+	data = json.loads(response.text)#;genres = []
+	prefix = url.replace('.json','/')
+	for count, item in enumerate(data['pageProps']['page']['rails']):
+		if item['category']['name'] == name:
+			xbmc.log(('MATCH'),level=log_level)
+			xbmc.log(('COUNT: ' + str(count)),level=log_level)
+			catId = item['category']['id']
+			xbmc.log(('CATID: ' + str(catId)),level=log_level)
+			c = count
+			deepLink = item['category']['deepLink']
+			xbmc.log(('SLUG: ' + str(deepLink)),level=log_level)
+			url = prefix + 'collection/' + deepLink + '.json?slug=' + deepLink
+			xbmc.log('COLLECTION URL: ' + str(url),level=log_level)
+			movies(name,url)
+
+
 #82
 def desc(url):
-	#channel = url.split('/')[-2]
-	#xbmc.log('CHANNEL: ' + str(channel),level=log_level)
 	xbmcgui.Dialog().notification(addonname, 'Fetching Program Info...', defaultimage, time=3000, sound=False)
 	url = url.rpartition('/')[0] + '/onnowandnext.json?f=asset.title&f=asset.descriptions'
 	xbmc.log('DESC URL: ' + str(url),level=log_level)
@@ -546,6 +562,12 @@ elif mode == 21:
 elif mode == 24:
 	xbmc.log(("Get Movie Stream"),level=log_level)
 	movie_stream(url)
+elif mode == 27:
+	xbmc.log(("Get Show Collection"),level=log_level)
+	show_collection(url)
+elif mode == 30:
+	xbmc.log(("Get Movie Collection"),level=log_level)
+	movie_collection(url)
 elif mode == 82:
 	xbmc.log(("Get Show Info"),level=log_level)
 	desc(url)

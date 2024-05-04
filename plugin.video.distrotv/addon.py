@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.05.01
+# Written by MetalChris 2024.05.04
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -45,6 +45,9 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
+
+xbmc.log(('DistroTV 05.04.2024'),level=log_level)
+xbmc.log(('PYTHON VERSION: ' + str(sys.version)),level=log_level)
 
 xbmc.log('TODAY: ' + str(today),level=log_level)
 xbmc.log('NOW: ' + str(time.time()),level=log_level)
@@ -196,7 +199,7 @@ def get_channel(channels,url):
 			if item['id'] is not None:
 				epgId = str(item['id'])
 				li.addContextMenuItems([('Program Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (epgId)))])
-			url = (data['shows'][code]['seasons'][0]['episodes'][0]['content']['url']) + '|User-Agent=' + ua
+			url = (data['shows'][code]['seasons'][0]['episodes'][0]['content']['url'])# + '|User-Agent=' + ua
 			streamUrl = 'plugin://plugin.video.distrotv?mode=99&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
 			li.setProperty('IsPlayable', 'true')
 			li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':description})
@@ -260,11 +263,12 @@ def desc(url):
 #99
 def PLAY(name,url):
 	listitem = xbmcgui.ListItem(path=url)
-	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
+	xbmc.log('### INPUTSTREAM ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
 	listitem.setProperty('inputstream', 'inputstream.adaptive')
 	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
 	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	listitem.setProperty('inputstream.adaptive.manifest_headers', f"User-Agent={ua}")
 	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
 	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)

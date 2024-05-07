@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.americasvoice" name="Real America's Voice" version="2024.04.16" provider-name="MetalChris">
+<addon id="plugin.video.americasvoice" name="Real America's Voice" version="2024.04.18" provider-name="MetalChris">
   <requires>
-    <!-- <import addon="xbmc.python" version="2.1.0"/> -->
+    <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
     <import addon="script.module.requests" version="2.9.1"/>
     <import addon="script.module.html5lib" version="0.999.0"/>
     <import addon="script.module.mechanize" version="0.2.6"/>
+    <import addon="script.module.inputstreamhelper"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
@@ -23,7 +24,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
     <website></website>
     <email></email>
     <source></source>
-    <news></news>
+    <news>Change to inputstream for playback</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

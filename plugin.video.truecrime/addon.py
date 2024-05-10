@@ -4,11 +4,12 @@
 # Written by MetalChris
 # Released under GPL(v2) or Later
 
-# 2022.01.16
+# 2024.04.04
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, re, sys, xbmcvfs, os
 import json
 import requests
+import inputstreamhelper
 
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
@@ -29,6 +30,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
+xbmc.log(('TRUE CRIME NETWORK 2024.05.01'),level=log_level)
 
 baseurl = 'https://watch.truecrimenetworktv.com/'
 #jsonurl = 'https://prod-api-cached-2.viewlift.com/content/pages?site=justicenetwork&path=%2F&includeContent=true&moduleOffset=16&moduleLimit=4'
@@ -199,6 +201,12 @@ def PLAY(name,url):
 	addon_handle = int(sys.argv[1])
 	listitem = xbmcgui.ListItem(path=url)
 	xbmc.log(('### SETRESOLVEDURL ###'),level=log_level)
+	listitem.setProperty('IsPlayable', 'true')
+	listitem.setProperty('inputstream', 'inputstream.adaptive')
+	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
+	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setContentLookup(False)
 	listitem.setProperty('IsPlayable', 'true')
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 	xbmc.log('URL: ' + str(url), level=log_level)

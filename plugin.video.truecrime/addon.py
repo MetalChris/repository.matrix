@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2) or Later
 
-# 2024.04.04
+# 2024.05.02
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, re, sys, xbmcvfs, os
 import json
@@ -30,7 +30,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
-xbmc.log(('TRUE CRIME NETWORK 2024.05.01'),level=log_level)
+xbmc.log(('TRUE CRIME NETWORK 2024.05.02'),level=log_level)
 
 baseurl = 'https://watch.truecrimenetworktv.com/'
 #jsonurl = 'https://prod-api-cached-2.viewlift.com/content/pages?site=justicenetwork&path=%2F&includeContent=true&moduleOffset=16&moduleLimit=4'

@@ -43,6 +43,7 @@ if log_notice != 'false':
 else:
 	log_level = xbmc.LOGDEBUG
 xbmc.log('LOG_NOTICE: ' + str(log_notice), level=log_level)
+xbmc.log(('CFL+ 05.15.2024 - 2024.05.15'),level=log_level)
 
 quality = settings.getSetting(id="quality")
 xbmc.log('QUALITY: ' + str(quality), level=log_level)
@@ -120,8 +121,8 @@ def get_stream(url):
 	xbmc.log('JSON: ' + str(data), level=log_level)
 	if 'sources' in str(res.text):
 		m3u8 = (data['sources'][0]['src'])
-		if quality != '4':
-			m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
+		#if quality != '4':
+			#m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
 		xbmc.log('M3U8: ' + str(m3u8), level=log_level)
 		PLAY(m3u8)
 		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
@@ -134,7 +135,12 @@ def get_stream(url):
 def PLAY(url):
 	listitem = xbmcgui.ListItem(path=url)
 	xbmc.log('### SETRESOLVEDURL ###', level=log_level)
-	listitem.setProperty('IsPlayable', 'true')
+	#listitem.setProperty('IsPlayable', 'true')
+	#listitem.setProperty('inputstream', 'inputstream.adaptive')
+	#listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
+	#listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setContentLookup(False)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 	xbmc.log('URL: ' + str(url), level=log_level)
 	xbmcplugin.endOfDirectory(pluginhandle)

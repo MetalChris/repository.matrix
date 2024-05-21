@@ -549,9 +549,9 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="plugin.video.truecrime" name="True Crime Network" version="2024.05.01" provider-name="MetalChris">
+<addon id="plugin.video.truecrime" name="True Crime Network" version="2024.05.02" provider-name="MetalChris">
     <requires>
-        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.9.1"/>
         <import addon="script.module.inputstreamhelper"/>
     </requires>
@@ -606,7 +606,7 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="plugin.video.cflplus" name="CFL+" version="2023.07.02" provider-name="MetalChris">
+<addon id="plugin.video.cflplus" name="CFL+" version="2024.05.15" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -621,7 +621,7 @@ v4.2.7
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">CFL+ is the new way for U.S. and International audiences to stream CFL games!</summary>
-    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2023 season, including the Grey Cup Playoffs and the 110th Grey Cup championship on Sunday, November 19, will be available for viewers outside of North America.</description>
+    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2024 season, including the Grey Cup Playoffs and the 110th Grey Cup championship on Sunday, November 19, will be available for viewers outside of North America.</description>
     <disclaimer lang="en"></disclaimer>
     <language></language>
     <platform>all</platform>
@@ -699,7 +699,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2024.04.29" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2024.05.02" provider-name="MetalChris">
     <extension point="xbmc.addon.repository" name="Official MetalChris Matrix Repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -711,7 +711,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Updated True Crime Network to use inputstream adaptive for playback.</news>
+        <news>Updated CFL+ for 2024 season.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>

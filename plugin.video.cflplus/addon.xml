@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.cflplus" name="CFL+" version="2023.07.02" provider-name="MetalChris">
+<addon id="plugin.video.cflplus" name="CFL+" version="2024.05.15" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -14,7 +14,7 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">CFL+ is the new way for U.S. and International audiences to stream CFL games!</summary>
-    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2023 season, including the Grey Cup Playoffs and the 110th Grey Cup championship on Sunday, November 19, will be available for viewers outside of North America.</description>
+    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2024 season, including the Grey Cup Playoffs and the 110th Grey Cup championship on Sunday, November 19, will be available for viewers outside of North America.</description>
     <disclaimer lang="en"></disclaimer>
     <language></language>
     <platform>all</platform>

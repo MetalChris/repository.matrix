@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<addon id="plugin.video.lgchannels" name="LG Channels" version="2024.04.05" provider-name="MetalChris">
+  <requires>
+    <import addon="xbmc.python" version="3.0.0"/>
+    <import addon="script.module.requests" version="2.9.1"/>
+    <import addon="script.module.inputstreamhelper"/>
+  </requires>
+  <extension point="xbmc.python.pluginsource" library="addon.py">
+    <provides>video</provides>
+  </extension>
+  <extension point="xbmc.addon.metadata">
+    <summary lang="en">LG Channels</summary>
+    <description lang="en">LG Channels is LG's exclusive free streaming service, offering a wide selection of premium live programming, including movies, TV shows, news, sports, and more.</description>
+    <disclaimer lang="en"></disclaimer>
+    <language></language>
+    <platform>all</platform>
+    <license>GPL(v2 or later)</license>
+    <forum></forum>
+    <website>https://lgchannels.com</website>
+    <email></email>
+    <source></source>
+    <assets>
+        <icon>resources/media/icon.png</icon>
+        <fanart>resources/media/fanart.jpg</fanart>
+    </assets>
+  </extension>
+</addon>

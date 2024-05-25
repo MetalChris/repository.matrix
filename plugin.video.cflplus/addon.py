@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 07.09.2023
+# Written by MetalChris 05.25.2024
 # Released under GPL(v2 or later)
 
 from six.moves import urllib_parse
@@ -43,10 +43,10 @@ if log_notice != 'false':
 else:
 	log_level = xbmc.LOGDEBUG
 xbmc.log('LOG_NOTICE: ' + str(log_notice), level=log_level)
-xbmc.log(('CFL+ 05.15.2024 - 2024.05.15'),level=log_level)
+xbmc.log(('CFL+ 05.16.2024 - 2024.05.25'),level=log_level)
 
-quality = settings.getSetting(id="quality")
-xbmc.log('QUALITY: ' + str(quality), level=log_level)
+#quality = settings.getSetting(id="quality")
+#xbmc.log('QUALITY: ' + str(quality), level=log_level)
 
 
 plugin = "CFL Video"

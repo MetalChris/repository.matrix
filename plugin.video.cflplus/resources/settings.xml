@@ -1,7 +1,4 @@
 <settings>
-    <category label="Playback">
-     		<setting id="quality" type="enum" label="30003" lvalues="30115|30110|30105|30100|30120" enable="!eq(3,false)" default="4"/>
-    </category>
 	<category label="Logging">
 	        <setting id='log_notice' type ="bool" label="30060" default="false"/>
 	</category>

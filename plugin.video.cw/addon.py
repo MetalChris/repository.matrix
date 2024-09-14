@@ -4,11 +4,9 @@
 # Written by MetalChris
 # Released under GPL(v2 or later)
 
-#2021.11.27
+#2024.09.11
 
-import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, re, sys, os
-from six.moves import urllib_parse, urllib_request, urllib_error, http_client
-#import simplejson as json
+import urllib.request, urllib.parse, urllib.error, xbmcplugin, xbmcaddon, xbmcgui, re, sys, os
 import xbmcvfs
 import json
 import mechanize
@@ -48,9 +46,9 @@ xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
 
 plugin = "CW TV Network"
 
-defaultimage = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
-defaultfanart = 'special://home/addons/plugin.video.cw/resources/media/fanart.jpg'
-defaulticon = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
+defaultimage = 'special://home/addons/plugin.video.cw/icon.png'
+defaultfanart = 'special://home/addons/plugin.video.cw/fanart.jpg'
+defaulticon = 'special://home/addons/plugin.video.cw/icon.png'
 
 
 local_string = xbmcaddon.Addon(id='plugin.video.cw').getLocalizedString
@@ -61,8 +59,8 @@ force_views = settings.getSetting(id="force_views")
 
 #533
 def sites():
-	addDir('CW TV Network', 'https://www.cwtv.com/shows/', 633, defaultimage, defaultfanart)
-	addDir('CW Seed', 'https://www.cwseed.com/shows/', 633, artbase + 'seed.png', artbase + 'seed.jpg')
+	addDir('CW TV Network', 'https://www.cwtv.com/series/', 633, defaultimage)
+	addDir('CW Seed', 'https://www.cwtv.com/series/', 633, artbase + 'seed.png', artbase + 'seed.jpg')
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
@@ -77,17 +75,16 @@ def shows(name,url):
 	xbmc.log('COUNT: ' + str(count),level=log_level)
 	for i in range(count):
 		if 'Network' in name:
-			if (jdata['items'][i]['airtime'] == '') or (jdata['items'][i]['airtime'] == 'COMING SOON') or (jdata['items'][i]['schedule'] == 'coming-soon'):
-			#if (jdata['items'][i]['airtime'] == 'STREAM NOW') or (jdata['items'][i]['airtime'] == '') or (jdata['items'][i]['airtime'] == 'COMING SOON') or (jdata['items'][i]['schedule'] == 'coming-soon'):
+			if (jdata['items'][i]['show_type'] == 'cw-seed'):
 				continue
 		elif 'Seed' in name:
 			if (jdata['items'][i]['show_type'] == 'cw-network'):
 				continue
 		title = jdata['items'][i]['title']
 		plot = striphtml(str(jdata['items'][i]['description']))
-		url = 'https://www.cwtv.com/shows/' + jdata['items'][i]['slug']
+		url = 'https://www.cwtv.com/series/' + jdata['items'][i]['slug']
 		image = 'https://images.cwtv.com/images/cw/show-hub/' + jdata['items'][i]['slug'] + '.png'
-		add_directory2(title,url,30,image,image,plot)
+		add_directory2(title,url,30,defaultfanart,image,plot)
 		xbmcplugin.setContent(addon_handle, 'episodes')
 	if force_views != 'false':
 		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
@@ -125,11 +122,11 @@ def get_stuff(jdata,i):
 	duration = jdata['videos'][i]['duration_secs']
 	#url = 'https://www.cwtv.com/ioshlskeys/videos' + (image.split('thumbs')[-1]).split('_CWtv')[0] + '.m3u8'
 	mpx_url = jdata['videos'][i]['mpx_url']
-	xbmc.log('MPX_URL: ' + str(mpx_url),level=log_level)
+	#xbmc.log('MPX_URL: ' + str(mpx_url),level=log_level)
 	url = get_m3u8(mpx_url)
 	li = xbmcgui.ListItem(title)
-	#li.setProperty('fanart_image', image)
-	li.setArt({'thumb': image,'fanart': image})
+	li.setArt({'icon': image, 'thumb': image})
+	li.setProperty('fanart_image', image)
 	li.setInfo(type="Video", infoLabels={"Title": title, "Plot": description, "Episode": ep, "Premiered": airdate})
 	li.addStreamInfo('video', { 'duration': duration })
 	xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=li)
@@ -139,29 +136,20 @@ def get_stuff(jdata,i):
 
 def get_m3u8(url):
 	QUALITY = settings.getSetting(id="quality")
-	xbmc.log('QUALITY: ' + str(QUALITY),level=log_level)
+	#xbmc.log('QUALITY: ' + str(QUALITY),level=log_level)
 	res = ['360', '540', '720', '1080', '']
-	xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
+	#xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
 	html = get_html(url)
 	#xbmc.log('HTML: ' + str(html))
 	m3u8_url = re.compile('video src="(.+?)" ').findall(str(html))[0]
 	data = get_html(m3u8_url)
 	#xbmc.log('M3U8_DATA: ' + str(data),level=log_level)
-	pattern = '^(https).*(\\n)$'
-	#streams = re.compile('https(.+?) ').findall(str(data))
-	streams = re.findall('https(.+?)\\\\n', str(data))
-	xbmc.log('LENGTH: ' + str(len(streams)),level=log_level)
+	streams = re.findall(r'https.*m3u8', str(data), flags=re.MULTILINE);links = [];rqs = []
+	#xbmc.log('LENGTH: ' + str(len(streams)),level=log_level)
 	for stream in streams:
 		if res[int(QUALITY)] == '':
 			return m3u8_url
-		if 'I-Frame' in stream:
-			continue
-		if '_vtt_eng' in stream:
-			continue
 		if res[int(QUALITY)] in stream:
-			#xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
-			stream = 'https' + stream
-			xbmc.log('STREAM: ' + str(stream),level=log_level)
 			return stream
 	#xbmc.log('STREAMS: ' + str(streams),level=log_level)
 	#return streams[-1]
@@ -170,7 +158,7 @@ def get_m3u8(url):
 
 def get_html(url):
 	req = urllib.request.Request(url)
-	req.add_header('User-Agent', ua)
+	req.add_header('User-Agent','Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:48.0) Gecko/20100101 Firefox/48.0')
 
 	try:
 		response = urllib.request.urlopen(req)
@@ -180,7 +168,6 @@ def get_html(url):
 		response = False
 		html = False
 	return html
-
 
 
 #31
@@ -224,37 +211,31 @@ def get_params():
 	return param
 
 def add_directory2(name,url,mode,fanart,thumbnail,plot,showcontext=False):
-	u=sys.argv[0]+"?url="+urllib_parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib_parse.quote_plus(name) + "&iconimage=" + urllib_parse.quote_plus(thumbnail)
+	u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(thumbnail)
 	ok=True
 	liz=xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultFolder.png"})
+	liz.setArt({'thumb': iconimage})
 	liz.setInfo( type="Video", infoLabels={ "Title": name,
 											"plot": plot} )
 	if not fanart:
 		fanart=''
 	liz.setProperty('fanart_image',fanart)
-	liz.setArt({
-		'thumb': thumbnail,
-		'icon': "DefaultFolder.png",
-		'fanart': fanart
-	})
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True, totalItems=40)
 	return ok
 
 
-def addDir(name, url, mode, thumbnail, fanart, infoLabels=True):
-	u = sys.argv[0] + "?url=" + urllib_parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib_parse.quote_plus(name) + "&iconimage=" + urllib_parse.quote_plus(thumbnail)
+def addDir(name, url, mode, iconimage, fanart=False, infoLabels=True):
+	u = sys.argv[0] + "?url=" + urllib.parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(iconimage)
 	ok = True
 	liz = xbmcgui.ListItem(name)
+	liz.setArt({'icon': "DefaultFolder.png"})
+	liz.setArt({'thumb': iconimage})
 	liz.setInfo(type="Video", infoLabels={"Title": name})
 	liz.setProperty('IsPlayable', 'true')
 	if not fanart:
 		fanart=defaultfanart
 	liz.setProperty('fanart_image',fanart)
-	liz.setArt({
-		'thumb': thumbnail,
-		'icon': "DefaultFolder.png",
-		'fanart': fanart
-	})
 	ok = xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]), url=u, listitem=liz, isFolder=True)
 	return ok
 

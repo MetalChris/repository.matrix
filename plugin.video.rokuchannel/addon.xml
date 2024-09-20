@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.redbox" name="Redbox" version="2024.04.04" provider-name="MetalChris">
+<addon id="plugin.video.rokuchannel" name="Roku Channel" version="2024.09.01-BETA" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
@@ -9,21 +9,19 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">Redbox</summary>
-    <description lang="en">Redbox Free Live TV is an ad supported channel based video on demand service.  Watch free live TV and on demand movies from Redbox.com - no subscription required.</description>
+    <summary lang="en">Roku Channel</summary>
+    <description lang="en">Enjoy thousands of free TV shows and hit movies, Roku® Originals, 400+ live TV channels, kids’ entertainment, and more — all in one place.</description>
     <disclaimer lang="en"></disclaimer>
     <language></language>
     <platform>all</platform>
     <license>GPL(v2 or later)</license>
     <forum></forum>
-    <website>https://www.redbox.com</website>
+    <website>https://therokuchannel.roku.com/</website>
     <email></email>
     <source></source>
-    <news>Added error handling for the occasional non-free movie that shows in the listings.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>
     </assets>
-    <broken>The Redbox service has shutdown.</broken>
   </extension>
 </addon>

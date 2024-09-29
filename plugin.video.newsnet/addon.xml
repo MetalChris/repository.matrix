@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.newsnet" name="NEWSnet" version="2024.04.02" provider-name="MetalChris">
+<addon id="plugin.video.newsnet" name="NEWSnet" version="2024.09.01" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.1.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -23,5 +23,6 @@
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.png</fanart>
     </assets>
+    <broken>NEWSnet and SportsNews Highlights are off the air and operations have been suspended.</broken>
   </extension>
 </addon>

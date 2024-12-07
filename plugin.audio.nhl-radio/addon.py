@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.04.23
+# Written by MetalChris 2024.12.06
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -138,7 +138,7 @@ def get_streams(url):
 	data = json.loads(response)
 	gid = (data['id'])
 	xbmc.log('GAME ID: ' + str(gid),level=log_level)
-	awayTeam = (data['awayTeam']['name']['default'])
+	awayTeam = (data['awayTeam']['commonName']['default'])
 	try:
 		awayRadio = (data['awayTeam']['radioLink'])
 		xbmc.log('Away Radio: ' + str(awayRadio),level=log_level)
@@ -146,7 +146,7 @@ def get_streams(url):
 		dialog = xbmcgui.Dialog()
 		dialog.notification(heading=xbmcaddon.Addon().getAddonInfo('name'), message='No Away Stream Available',time=3000, sound=False)
 	awayLogo = (data['awayTeam']['logo'])
-	homeTeam = (data['homeTeam']['name']['default'])
+	homeTeam = (data['homeTeam']['commonName']['default'])
 	try:
 		homeRadio = (data['homeTeam']['radioLink'])
 		xbmc.log('Home Radio: ' + str(homeRadio),level=log_level)

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.05.01
+# Written by MetalChris 2025.01.01
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -26,6 +26,7 @@ addon = xbmcaddon.Addon()
 addonname = addon.getAddonInfo('name')
 settings = xbmcaddon.Addon(id="plugin.video.localnow")
 apiUrl = 'https://localnow.com/_next/data/qtV7yILDmnCBIm1lP-ToB/'
+apiBase = 'https://localnow.com/_next/data/'
 baseUrl = 'https://localnow.com/'
 plugin = "Local Now"
 local_string = xbmcaddon.Addon(id='plugin.video.localnow').getLocalizedString
@@ -52,6 +53,17 @@ xbmc.log('UTC Offset: ' + str(-time.timezone),level=log_level)
 s = requests.Session()
 
 
+def get_buildID():
+	xbmc.log(('GET BUILD_ID'),level=log_level)
+	response = s.get(baseUrl)
+	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
+	data = json.loads(jsob)
+	BUILD_ID = data['buildId']
+	xbmc.log('BUILD_ID: ' + str(BUILD_ID),level=log_level)
+	return(BUILD_ID)
+
+
 def get_token():
 	xbmc.log(('GET TOKEN'),level=log_level)
 	response = s.get(baseUrl)
@@ -60,6 +72,8 @@ def get_token():
 	data = json.loads(jsob)
 	DSP_TOKEN = data['runtimeConfig']['DSP_TOKEN']
 	LN_API_KEY = data['runtimeConfig']['LN_API_KEY']
+	BUILD_ID = data['buildId']
+	xbmc.log('BUILD_ID: ' + str(BUILD_ID),level=log_level)
 	token = str(re.compile('token":"(.+?)"').findall(DSP_TOKEN)[0])
 	return(token)
 
@@ -79,6 +93,7 @@ def get_ln(baseUrl):
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
 	market = data['city']['market']
+	xbmc.log('MARKET: ' + str(market),level=log_level)
 	pbsMarkets = data['city']['pbsMarkets']
 	zipDma = data['city']['zipDma']
 	url = 'https://data-store-trans-cdn.api.cms.amdvids.com/live/epg/US/androidtv?program_size=3&dma=' + str(zipDma) + '&market=' + str(market)# + ',' + str(pbsMarkets)
@@ -104,7 +119,7 @@ def genres(url):
 		li.setArt({'thumb':defaultimage,'fanart':defaultfanart})
 		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
 	xbmcplugin.setContent(addon_handle, 'episodes')
-	addDir2('On Demand TV Shows', apiUrl + 'shows.json'
+	addDir2('On Demand TV Shows', apiBase
 	, 9, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited TV shows. Watch action, comedy, drama, romance, and timeless classics from our vast collection on Local Now.'})
 	addDir2('On Demand Movies', apiUrl + 'movies.json'
 	, 18, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited free movies. Watch action, comedy, drama, romance, blockbuster films and more on Local Now.'})
@@ -154,6 +169,8 @@ def get_stream(name,url):
 
 #9
 def rails(url):
+	BUILD_ID = get_buildID()
+	url = apiBase + BUILD_ID + '/shows.json'
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
@@ -170,6 +187,7 @@ def rails(url):
 
 #12
 def shows(name,url):
+	BUILD_ID = get_buildID()
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
@@ -181,7 +199,8 @@ def shows(name,url):
 			for count, item in enumerate(data['pageProps']['page']['rails'][c]['cards']):
 				title = item['title']
 				slug = item['slug']
-				url = apiUrl + 'shows/' + slug + '.json'
+				url = apiBase + BUILD_ID + '/shows/' + slug + '.json'
+				#url = apiUrl + 'shows/' + slug + '.json'
 				image = item['image']
 				streamUrl = 'plugin://plugin.video.localnow?mode=15&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
 				li = xbmcgui.ListItem(title)
@@ -223,7 +242,8 @@ def episodes(name,url):
 
 #18
 def mcats(name,url):
-	response = s.get(apiUrl + 'movies.json')
+	BUILD_ID = get_buildID()
+	response = s.get(apiBase + BUILD_ID + '/movies.json')
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text);genres = []
 	for count, item in enumerate(data['pageProps']['page']['rails']):
@@ -244,7 +264,8 @@ def mcats(name,url):
 
 #21
 def movies(name,url):
-	response = s.get(apiUrl + 'movies.json')
+	BUILD_ID = get_buildID()
+	response = s.get(apiBase + BUILD_ID + '/movies.json')
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
 	for count, item in enumerate(data['pageProps']['page']['rails']):
@@ -260,7 +281,7 @@ def movies(name,url):
 				image = item['image']
 				fanart = image.replace('2x3','16x9')
 				streamUrl = 'plugin://plugin.video.localnow?mode=6&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
-				url = apiUrl + 'movies/' + slug + '.json'
+				url = apiBase + BUILD_ID + '/movies/' + slug + '.json'
 				li = xbmcgui.ListItem(title)
 				li.setProperty('IsPlayable', 'true')
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})

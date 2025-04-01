@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.09.06
+# Written by MetalChris 2025.03.31
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -63,7 +63,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
-xbmc.log(('Roku Channel 2024-09-01 BETA'),level=log_level)
+xbmc.log(('Roku Channel 2025-03-01 BETA'),level=log_level)
 
 xbmc.log('TODAY: ' + str(today),level=log_level)
 xbmc.log('NOW: ' + str(round(time.time())),level=log_level)
@@ -162,7 +162,8 @@ def channels(apiUrl, name):
 			c = count
 			for count, item in enumerate(data['collections'][c]['view']):
 				title = str(item['content']['title'])
-				if title == 'See all' or title == 'See All':
+				#xbmc.log(('TITLE: ' + str(title)),level=log_level)
+				if title == 'See all' or title == 'See All' or title == 'More':
 					continue
 				image = item['content']['imageMap']['grid']['path']
 				fanart = image

@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.powernationtv" name="PowerNation TV" version="2022.03.05" provider-name="MetalChris, zymbiosis">
+<addon id="plugin.video.powernationtv" name="PowerNation TV" version="2025.03.01" provider-name="MetalChris, zymbiosis">
     <requires>
     <!-- <import addon="xbmc.python" version="2.1.0"/> -->
     <import addon="script.module.requests" version="2.9.1"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
     <import addon="script.module.html5lib" version="0.999.0"/>
+    <import addon="script.module.inputstreamhelper"/>
     </requires>
     <extension point="xbmc.python.pluginsource"
                library="addon.py">
@@ -23,7 +24,7 @@
         <website>http://www.powernationtv.com</website>
         <email></email>
         <source>https://github.com/MetalChris/repository.metalchris/tree/master/plugin.video.powernationtv</source>
-        <news>Version 2022.03.04 - Fixed missing dependency in addon.xml file.</news>
+        <news>Version 2025.03.01 - Updates for website changes. Incorporate Inputstream Adaptive.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

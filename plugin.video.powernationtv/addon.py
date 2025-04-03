@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2 or Later)
 
-#2022.03.05
+#2025.04.01
 
 import xbmcaddon, urllib.request, urllib.parse, urllib.error, xbmcgui, xbmcplugin, urllib.request, urllib.error, urllib.parse, re, sys, os, xbmcvfs
 from bs4 import BeautifulSoup
@@ -14,6 +14,7 @@ import ssl
 import requests
 import urllib3
 from urllib3 import poolmanager
+import inputstreamhelper
 
 #LOGDEBUG
 
@@ -119,6 +120,7 @@ def INDEX(url):
 		xbmcplugin.setContent(addon_handle, 'episodes')#;titles=[]
 	soup = BeautifulSoup(html,'html5lib').find_all('div',{'class':'episode'});titles=[]#;e=0
 	for episode in soup:
+		#xbmc.log('EPISODE: ' + str(episode),level=log_level)
 		#If it's a "coming soon" show, skip it
 		if episode.find(class_="coming_soon"):
 			continue
@@ -151,16 +153,16 @@ def INDEX(url):
 			xbmcplugin.addDirectoryItem(handle=addon_handle, url=surl, listitem=li, isFolder=False)
 			xbmcplugin.setContent(addon_handle, 'episodes')
 			xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_EPISODE)
-		else:
-			season_info = episode.find('div', {'class':'season'}).text.encode('ascii','ignore').strip()
-			title = title + b' - ' + season_info
-			plot = episode.find('div',{'class':'description'}).text
-			surl = 'plugin://plugin.video.powernationtv?mode=30&url=' + urllib.parse.quote_plus(url)
-			li = xbmcgui.ListItem(title)
-			li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot': plot})#,"genre":"Sports",'plot': plot, 'season': season, 'episode':episode})
-			li.setArt({'thumb':image,'fanart':defaultfanart})
-			xbmcplugin.addDirectoryItem(handle=addon_handle, url=surl, listitem=li, isFolder=True)
-			xbmcplugin.setContent(addon_handle, 'episodes')
+		#else:
+			#season_info = episode.find('div', {'class':'season'}).text.encode('ascii','ignore').strip()
+			#title = title + b' - ' + season_info
+			#plot = episode.find('div',{'class':'description'}).text
+			#surl = 'plugin://plugin.video.powernationtv?mode=30&url=' + urllib.parse.quote_plus(url)
+			#li = xbmcgui.ListItem(title)
+			#li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot': plot})#,"genre":"Sports",'plot': plot, 'season': season, 'episode':episode})
+			#li.setArt({'thumb':image,'fanart':defaultfanart})
+			#xbmcplugin.addDirectoryItem(handle=addon_handle, url=surl, listitem=li, isFolder=True)
+			#xbmcplugin.setContent(addon_handle, 'episodes')
 	if force_views != 'false':
 		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
 	xbmcplugin.endOfDirectory(addon_handle)
@@ -182,12 +184,14 @@ def TDC(url):
 			plot = episode.find('div', {'class':'description'}).text.encode('ascii','ignore').strip()
 			season_info = episode.text.strip().splitlines()[-1:]
 			#xbmc.log('SEASON INFO: ' + str(season_info),level=log_level)#.strip().split(',')
-			season = season_info[0].split(',')[0]
-			season = re.sub("\D", "", season)
-			#xbmc.log('SEASON: ' + str(season),level=log_level)
-			episode = season_info[0].split(',')[1]
-			episode = re.sub("\D", "", episode)
-			#xbmc.log('EPISODE: ' + str(episode),level=log_level)
+			#season = season_info[0].split(',')[0]
+			season = episode.find('span',{'class':'season-text'}).text.split(' ')[1]
+			#season = re.sub("\D", "", season)
+			xbmc.log('SEASON: ' + str(season),level=log_level)
+			episode = episode.find('span',{'class':'episode-text'}).text.split(' ')[1]
+			#episode = season_info[0].split(' ')[1]
+			#episode = re.sub("\D", "", episode)
+			xbmc.log('EPISODE: ' + str(episode),level=log_level)
 			infolabels = {'plot': plot, 'season': season, 'episode':episode}
 			surl = 'plugin://plugin.video.powernationtv?mode=20&url=' + urllib.parse.quote_plus(url)
 			li = xbmcgui.ListItem(title)
@@ -416,12 +420,14 @@ def EPISODES(episodes,s_num):
 			if episode.find('div',{'class':'season'}):
 				season_info = episode.text.strip().splitlines()[-1:]
 				#xbmc.log('SEASON INFO: ' + str(season_info),level=log_level)#.strip().split(',')
-				season = season_info[0].split(',')[0]
-				season = re.sub("\D", "", season)
-				#xbmc.log('SEASON: ' + str(season),level=log_level)
-				episode = season_info[0].split(',')[1]
-				episode = re.sub("\D", "", episode)
-				#xbmc.log('EPISODE: ' + str(episode),level=log_level)
+				#season = season_info[0].split(',')[0]
+				season = episode.find('span',{'class':'season-text'}).text.split(' ')[1]
+				#season = re.sub("\D", "", season)
+				xbmc.log('SEASON: ' + str(season),level=log_level)
+				episode = episode.find('span',{'class':'episode-text'}).text.split(' ')[1]
+				#episode = season_info[0].split(' ')[1]
+				#episode = re.sub("\D", "", episode)
+				xbmc.log('EPISODE: ' + str(episode),level=log_level)
 			else:
 				season = 'N/A'
 				episode = 'N/A'
@@ -446,8 +452,15 @@ def EPISODES(episodes,s_num):
 
 #99
 def PLAY(name,url):
+	addon_handle = int(sys.argv[1])
 	listitem = xbmcgui.ListItem(path=url)
-	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
+	xbmc.log(('### SETRESOLVEDURL ###'),level=log_level)
+	listitem.setProperty('IsPlayable', 'true')
+	listitem.setProperty('inputstream', 'inputstream.adaptive')
+	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
+	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
+	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setContentLookup(False)
 	listitem.setProperty('IsPlayable', 'true')
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 	xbmc.log('URL: ' + str(url), level=log_level)

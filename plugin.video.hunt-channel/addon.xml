@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.hunt-channel" name="Hunt Channel" version="2021.09.26" provider-name="MetalChris">
+<addon id="plugin.video.hunt-channel" name="Hunt Channel" version="2025.03.01" provider-name="MetalChris">
   <requires>
-    <!-- <import addon="xbmc.python" version="2.20.0"/> /-->
+    <import addon="xbmc.python" version="2.20.0"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
     <import addon="script.module.html5lib" version="0.999.0"/>
   </requires>
@@ -10,7 +10,7 @@
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">Watch Live Programming from Hunt Channel</summary>
-    <description lang="en">Hunt Channel’s Mission is to provide Quality Outdoor Programming during PrimeTime.  *Matrix Version*</description>
+    <description lang="en">Hunt Channel’s Mission is to provide Quality Outdoor Programming during PrimeTime.</description>
     <disclaimer lang="en">Support at forum.kodi.tv or my github only. No support without a full, unedited debug log.  No support at TVAddons or any other forum.</disclaimer>
     <language></language>
     <platform>all</platform>
@@ -19,10 +19,7 @@
     <website>http://www.huntchannel.tv</website>
     <email></email>
     <source></source>
-    <news>v.2021.09.26: Updates for Matrix</news>
-    <assets>
-        <icon>resources/Media/icon.png</icon>
-        <fanart>resources/Media/fanart.jpg</fanart>
-    </assets>
+    <news>v.2019.09.21: Fixes for website changes, only live stream is available.</news>
+    <broken>The Hunt Channel is no longer streaming from the website.</broken>
   </extension>
 </addon>

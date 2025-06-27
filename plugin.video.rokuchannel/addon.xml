@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.rokuchannel" name="Roku Channel" version="2025.03.01-BETA" provider-name="MetalChris">
+<addon id="plugin.video.rokuchannel" name="Roku Channel" version="2025.06.01-BETA" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>

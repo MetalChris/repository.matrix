@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2025.03.31
+# Written by MetalChris 2025.06.27
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -32,6 +32,7 @@ addon = xbmcaddon.Addon()
 addonname = addon.getAddonInfo('name')
 settings = xbmcaddon.Addon(id="plugin.video.rokuchannel")
 apiUrl = 'https://therokuchannel.roku.com/api/v2/homescreen/v2/home'
+api1Url = 'https://therokuchannel.roku.com/api/v1/navigation/menu'
 playbackUrl = 'https://therokuchannel.roku.com/api/v3/playback'
 allLive = 'https://therokuchannel.roku.com/api/v2/homescreen/pages/w.DzWLgJdPr1hPM0J89axBs1lBP4jwQzcdedlray1BhAP79Q3q6wTQA4Bx8RMxUYM2Ll2RWGcRDDgRN149tWYwVJAq6oSZjlGydblvFVb0ymJQw5sxmDy6Yj53HeVp9aVwG4f1Qbxd79wg/rendered?limit=99'
 plugin = "Roku Channel"
@@ -63,7 +64,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
-xbmc.log(('Roku Channel 2025-03-01 BETA'),level=log_level)
+xbmc.log(('Roku Channel 2025-06-01 BETA'),level=log_level)
 
 xbmc.log('TODAY: ' + str(today),level=log_level)
 xbmc.log('NOW: ' + str(round(time.time())),level=log_level)
@@ -248,11 +249,11 @@ def get_pid(url,sid):
 
 #9
 def get_live(url,name):
-	response = s.get(apiUrl)
+	response = s.get(api1Url)
 	data = json.loads(response.text)
 	retry = 0
 	while not 'Live TV' in response.text:
-		response = s.get(apiUrl)
+		response = s.get(api1Url)
 		retry +=1
 		time.sleep(5)
 		xbmc.log('RETRY: ' + str(retry),level=log_level)
@@ -260,13 +261,16 @@ def get_live(url,name):
 			xbmcgui.Dialog().notification(addonname, 'Live TV API Not Available. Please Try Again Later.', defaultimage, time=5000, sound=False)
 			sys.exit()
 	xbmc.log(('LIVE TV API FOUND'),level=log_level)
-	for count, item in enumerate (data['collections']):
+	for count, item in enumerate (data['view']):
 		if item['title'] == 'Live TV':
-			for count, item in enumerate(item['view']):
-				if item['content']['title'] == 'See all':
-					pageId = item['content']['meta']['id']
-					xbmc.log('PAGEID: ' + str(pageId),level=log_level)
-					Live = 'https://therokuchannel.roku.com/api/v2/homescreen/pages/' + pageId + '/rendered?limit=99'
+			xbmc.log(('TITLE: ' + str(item['title'])),level=log_level)
+			xbmc.log(('LIVE TV FOUND'),level=log_level)
+			#for count, item in enumerate(item['meta']):
+			#if item['title'] == 'Live TV':
+			pageId = item['meta']['id']
+			xbmc.log('PAGEID: ' + str(pageId),level=log_level)
+			Live = 'https://therokuchannel.roku.com/api/v2/homescreen/pages/' + pageId + '/rendered?limit=99'
+	#Live = 'https://therokuchannel.roku.com/api/v2/homescreen/pages/w.xWvaD8v8B1HPbvLeY9pWCq4VZGGwoktG5NA1w1WgCVYNBL8D2M/rendered?limit=99'
 	response = s.get(Live)
 	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)

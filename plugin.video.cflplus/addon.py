@@ -1,14 +1,15 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 05.25.2024
+# Written by MetalChris 09.01.2025
 # Released under GPL(v2 or later)
 
 from six.moves import urllib_parse
 from kodi_six import xbmc, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs
 import urllib, re, sys, os
+import bs4
 from bs4 import BeautifulSoup
-import mechanize
+import mechanicalsoup
 import requests
 
 if sys.version_info >= (3, 4, 0):
@@ -61,19 +62,28 @@ pluginhandle = int(sys.argv[1])
 confluence_views = [500,501,502,503,504,508,515]
 baseurl = 'https://www.cfl.ca/plus/'
 
-br = mechanize.Browser()
-br.addheaders = [('Host', 'www.cfl.ca')]
-br.addheaders = [('User-agent', ua)]
-br.addheaders = [('Accept', 'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ')]
+browser = mechanicalsoup.Browser(soup_config={'features': 'html.parser'})
+#browser.addheaders = [('Host', 'www.cfl.ca')]
+#browser.addheaders = [('User-agent', ua)]
+#browser.addheaders = [('Accept', 'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ')]
+
+browser.session.headers.update({
+	'Host': 'www.cfl.ca',
+    'User-Agent': ua,
+    'Accept': 'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ'
+    # Add any other headers you need
+})
+
 xbmc.log('UA: ' + str(ua))
 
 
 def cfl(baseurl):
-	br.set_handle_robots( False )
-	response = br.open('https://www.cfl.ca/plus/')
-	xbmc.log(str(response.code), level=log_level)
-	html = response.get_data()
+	#browser.set_handle_robots( False )
+	response = browser.get('https://www.cfl.ca/plus/')
+	html = response.text
+	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
 	soup = BeautifulSoup(html, 'html.parser')
+	#soup = response.soup
 	for anchor in soup.find_all("a"):
 		if not anchor.find('div', {'class':'item-title'}):
 			continue
@@ -105,17 +115,17 @@ def cfl(baseurl):
 
 #53
 def get_stream(url):
-	br.set_handle_robots( False )
-	response = br.open(url)
-	xbmc.log('RESPONSE: ' + str(response.code), level=log_level)
-	html = response.get_data()
+	#browser.set_handle_robots( False )
+	response = browser.get(url)
+	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
+	html = response.text
 	videoId = (re.compile('videoId=(.+?)&amp').findall(str(html))[0])
 	xbmc.log('videoId: ' + str(videoId), level=log_level)
 	url = 'https://edge.api.brightcove.com/playback/v1/accounts/4401740954001/videos/' + str(videoId)
 	xbmc.log('URL: ' + str(url), level=log_level)
-	br.set_handle_robots( False )
+	#browser.set_handle_robots( False )
 	res = requests.get(url, headers={'Accept':'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ'})
-	xbmc.log('RESPONSE: ' + str(res.text), level=log_level)
+	xbmc.log('STREAM RESPONSE: ' + str(res.text), level=log_level)
 	data = res.json()
 	xbmc.log('JSON: ' + str(len(data)), level=log_level)
 	xbmc.log('JSON: ' + str(data), level=log_level)

@@ -1,11 +1,13 @@
-# .codacy.yml
 engines:
   flake8:
     enabled: true
     configuration:
       ignore:
-        - E501
-        - N802
-        - N803
-        - N806
+        - E501  # Line too long
+        - N802  # Function name should be lowercase
+        - N803  # Argument name should be lowercase
+        - N806  # Variable in function should be lowercase
       max-line-length: 140
+
+ignore_paths:
+  - "script.module.mechanicalsoup/"

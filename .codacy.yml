@@ -1,0 +1,11 @@
+# .codacy.yml
+engines:
+  flake8:
+    enabled: true
+    configuration:
+      ignore:
+        - E501
+        - N802
+        - N803
+        - N806
+      max-line-length: 140

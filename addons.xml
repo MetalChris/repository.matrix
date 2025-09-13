@@ -836,6 +836,30 @@ v4.2.5
   </extension>
 </addon>
 
+<addon id="script.module.mechanicalsoup"
+	name="MechanicalSoup"
+	version="1.0.0+matrix.1"
+	provider-name="Matthew Hickford, Dan Hemberger, Matthieu Moy">
+	<requires>
+		<import addon="xbmc.python" version="3.0.0"/>
+		<import addon="script.module.requests" version="2.22.0+matrix.1"/>
+		<import addon="script.module.beautifulsoup4" version="4.6.3+matrix.1"/>
+		<import addon="script.module.six" version="1.14.0+matrix.1"/>
+	</requires>
+	<extension point="xbmc.python.module" library="lib" />
+	<extension point="xbmc.addon.metadata">
+		<summary lang="en_GB">A Python library for automating interaction with websites.</summary>
+		<forum></forum>
+		<website>https://mechanicalsoup.readthedocs.io/</website>
+		<license>MIT</license>
+		<platform>all</platform>
+		<source>https://github.com/MechanicalSoup/MechanicalSoup</source>
+        <assets>
+            <icon>icon.png</icon>
+        </assets>
+	</extension>
+</addon>
+
 <addon id="plugin.video.newsnet" name="NEWSnet" version="2024.09.01" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.1.0"/> -->

@@ -10,4 +10,4 @@ engines:
       max-line-length: 140
 
 ignore_paths:
-  - "script.module.mechanicalsoup/"
+  - script.module.mechanicalsoup/

@@ -9,8 +9,14 @@
 import urllib.request, urllib.parse, urllib.error, xbmcplugin, xbmcaddon, xbmcgui, re, sys, os
 import xbmcvfs
 import json
-import mechanize
+import requests
+from bs4 import BeautifulSoup
+import inputstreamhelper
 
+ADDON = xbmcaddon.Addon()
+ADDON_ID = "metalchris.cwlive.epg"
+ADDON_NAME = ADDON.getAddonInfo("name")
+ADDON_VERSION = ADDON.getAddonInfo("version")
 artbase = 'special://home/addons/plugin.video.cw/resources/media/'
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
@@ -28,14 +34,15 @@ __resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 
 sys.path.append(__resource__)
 
 from uas import *
-#from ahole import *
 
-br = mechanize.Browser()
-br.set_handle_robots(False)
-br.set_handle_equiv(False)
-br.addheaders = [('Host', 'www.cwtv.com')]
-br.addheaders = [('User-agent', ua)]
-xbmc.log('USER AGENT: ' + str(ua))
+xbmc.log(f"Loaded ADDON_ID = {ADDON_ID}, VERSION = {ADDON_VERSION}", xbmc.LOGINFO)
+
+headers = {
+"User-Agent": ua,
+"Accept": "application/json;pk=BCpkADawqM0t2qFXB_K2XdHv2JmeRgQjpP6De9_Fl7d4akhL5aeqYwErorzsAxa7dyOF2FdxuG5wWVOREHEwb0DI-M8CGBBDpqwvDBEPfDKQg7kYGnccdNDErkvEh2O28CrGR3sEG6MZBlZ03I0xH7EflYKooIhfwvNWWw",
+"Referer": "https://www.cwtv.com/",
+
+}
 
 log_notice = settings.getSetting(id="log_notice")
 if log_notice != 'false':
@@ -46,114 +53,182 @@ xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
 
 plugin = "CW TV Network"
 
-defaultimage = 'special://home/addons/plugin.video.cw/icon.png'
-defaultfanart = 'special://home/addons/plugin.video.cw/fanart.jpg'
-defaulticon = 'special://home/addons/plugin.video.cw/icon.png'
+defaultimage = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
+defaultfanart = 'special://home/addons/plugin.video.cw/resources/media/fanart.jpg'
+defaulticon = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
 
 
 local_string = xbmcaddon.Addon(id='plugin.video.cw').getLocalizedString
 addon_handle = int(sys.argv[1])
-confluence_views = [500,501,503,504,515]
-force_views = settings.getSetting(id="force_views")
 
+apiUrl = 'https://cwtv-prod-elb.digitalsmiths.net/sd/cwtv/screens/series?userId=-2415179020856985572&deviceType=html5&offset=0&limit=20'
+showsUrl = 'https://cwtv-prod-elb.digitalsmiths.net/sd/cwtv/screens/series?userId=-2415179020856985572&deviceType=html5&offset=0&limit=25'
+moviesUrl = 'https://cwtv-prod-elb.digitalsmiths.net/sd/cwtv/screens/movies?userId=-2415179020856985572&deviceType=html5&offset=0&limit=20'
+
+s = requests.Session()
 
 #533
 def sites():
-	addDir('CW TV Network', 'https://www.cwtv.com/series/', 633, defaultimage)
-	addDir('CW Seed', 'https://www.cwtv.com/series/', 633, artbase + 'seed.png', artbase + 'seed.jpg')
+	addDir('CW TV VOD', showsUrl, 633, defaultimage)
+	addDir('CW Movies', moviesUrl, 633, defaultimage)
 	xbmcplugin.endOfDirectory(int(sys.argv[1]))
 
 
 #633
-def shows(name,url):
-	br.open('https://www.cwtv.com/')
-	response = br.open('https://www.cwtv.com/feed/mobileapp/shows?api_version=3')
-	xbmc.log('RESPONSE: ' + str(response.code),level=log_level)
-	page = response.get_data()
-	jdata = json.loads(page)
-	count = jdata['count']
-	xbmc.log('COUNT: ' + str(count),level=log_level)
-	for i in range(count):
-		if 'Network' in name:
-			if (jdata['items'][i]['show_type'] == 'cw-seed'):
-				continue
-		elif 'Seed' in name:
-			if (jdata['items'][i]['show_type'] == 'cw-network'):
-				continue
-		title = jdata['items'][i]['title']
-		plot = striphtml(str(jdata['items'][i]['description']))
-		url = 'https://www.cwtv.com/series/' + jdata['items'][i]['slug']
-		image = 'https://images.cwtv.com/images/cw/show-hub/' + jdata['items'][i]['slug'] + '.png'
+def get_cats(url):
+	response = s.get(url)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
+	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
+	data = json.loads(response.content)
+	top_name = data.get("name")
+	# Extract "name" and "path" from each element in "rows"
+	for row in data.get("rows", []):
+		title = row.get("name")
+		#url = 'https://www.cwtv.com/series' + row.get("path")# + '/?viewContext=Series+Swimlane'
+		stuff = row.get("items", [])
+		plot = row.get("description")
+		image = defaultimage
 		add_directory2(title,url,30,defaultfanart,image,plot)
 		xbmcplugin.setContent(addon_handle, 'episodes')
-	if force_views != 'false':
-		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
+	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	xbmcplugin.endOfDirectory(addon_handle)
+
+#https://www.cwtv.com/series/penn-teller-fool-us/?viewContext=Series+Swimlane
+#30
+def get_shows(name,url,iconimage):
+	response = s.get(url)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
+	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
+	data = json.loads(response.content)
+	for row in data.get("rows", []):
+		row_name = row.get("name")
+		if name == row_name:
+			xbmc.log(f"MATCH: {row_name}", xbmc.LOGDEBUG)
+
+			items = row.get("items", [])
+			xbmc.log(f"SHOWS: {len(items)}", xbmc.LOGDEBUG)
+
+			for show in items:
+				title_dict = show.get("title", {})
+				title_en = title_dict.get("en")
+				xbmc.log(f"SHOW: {title_en}", xbmc.LOGDEBUG)
+				#xbmc.log('TITLE: ' + str(title),level=log_level)
+				try:
+					artwork = show["images"][-1]["url"]
+				except (IndexError, KeyError, TypeError):
+					artwork = defaultfanart
+				desc = show.get("description")
+				plot = desc["en"]
+				meta = show.get("metadata")
+				slug = meta["slug"]
+				if "movies" in url:
+					mode = 45
+					url = 'https://www.cwtv.com/movies/' + slug
+					add_directory2(title_en,url,mode,artwork,artwork,plot)
+				else:
+					mode = 40
+					url = 'https://www.cwtv.com/series/' + slug
+					add_directory2(title_en,url,mode,artwork,artwork,plot)
+			xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
 	xbmcplugin.endOfDirectory(addon_handle)
 
 
-#30
-def get_json(name,url,iconimage):
-	show = url.rpartition('/')[-1]
-	xbmc.log('SHOW: ' + str(show),level=log_level)
-	jurl = 'https://www.cwtv.com/feed/mobileapp/videos?show=' + show + '&api_version=3'
-	response = br.open(jurl)
-	#response = br.open(jurl)
-	jdata = json.load(response); i = 0
-	if 'network' in jdata['videos'][0]['show_type']:
-		add_directory2('Show Clips',url,31,defaultfanart,iconimage,plot='Watch video clips from this show.')
-	count = len(jdata['videos'])
-	for i in range(count):
-		if jdata['videos'][i]['fullep'] != 1:
+
+#40
+def get_eps(name,url,iconimage):
+	xbmc.log('[GET EPS] NAME: ' + str(name),xbmc.LOGINFO)
+	response = s.get(url)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
+	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
+	html = response.content
+	soup = BeautifulSoup(html, "html.parser")
+	xbmc.log('SOUP: ' + str(len(soup)),level=log_level)
+	divs = soup.find_all("div", {'class':'videowrapped thumbgrow slide'})
+	xbmc.log('DIVS: ' + str(len(divs)),level=log_level)
+	for div in divs:
+		url = str('https://www.cwtv.com' + div.find('a')['href'])
+		#xbmc.log('URL: ' + str(url),level=log_level)
+		a_tag = div.find('a')
+		if not (a_tag and a_tag.has_attr('data-eptitle')):
 			continue
-		get_stuff(jdata,i)
-	if force_views != 'false':
-		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
-	#add_directory2(title,url,30,image,image,plot=''); i = i + 1
+		title = (div.find('a')['data-eptitle'])
+		#xbmc.log('TITLE: ' + str(title),level=log_level)
+		artwork = div.find('img')['data-src']
+		plot = " "
+		plot = str(div.find('a').text)
+		streamUrl = 'plugin://plugin.video.cw?mode=45&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title) + '&iconimage=' + urllib.parse.quote_plus(artwork)
+
+		li = xbmcgui.ListItem(title)
+		li.setArt({'icon': artwork, 'thumb': artwork})
+		li.setProperty('fanart_image', artwork)
+		li.setInfo(type="Video", infoLabels={"Title": title, "Plot": plot})#, "Episode": ep, "Premiered": airdate})
+		#li.addStreamInfo('video', { 'duration': duration })
+		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li)
+		xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle)
 
 
-def get_stuff(jdata,i):
-	title = jdata['videos'][i]['title']
-	image = jdata['videos'][i]['large_thumbnail']
-	ep = jdata['videos'][i]['episode']
-	airdate = jdata['videos'][i]['airdate']
-	description = jdata['videos'][i]['description_long']
-	duration = jdata['videos'][i]['duration_secs']
-	#url = 'https://www.cwtv.com/ioshlskeys/videos' + (image.split('thumbs')[-1]).split('_CWtv')[0] + '.m3u8'
-	mpx_url = jdata['videos'][i]['mpx_url']
-	#xbmc.log('MPX_URL: ' + str(mpx_url),level=log_level)
-	url = get_m3u8(mpx_url)
-	li = xbmcgui.ListItem(title)
-	li.setArt({'icon': image, 'thumb': image})
-	li.setProperty('fanart_image', image)
-	li.setInfo(type="Video", infoLabels={"Title": title, "Plot": description, "Episode": ep, "Premiered": airdate})
-	li.addStreamInfo('video', { 'duration': duration })
-	xbmcplugin.addDirectoryItem(handle=addon_handle, url=url, listitem=li)
-	xbmcplugin.setContent(addon_handle, 'episodes')
-	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_EPISODE)
+#45
+def video_id(name,url,iconimage):
+	xbmc.log('URL: ' + str(url),xbmc.LOGINFO)
+	response = s.get(url)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
+	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
+	html = response.content
+	soup = BeautifulSoup(html, "html.parser")
+	xbmc.log('SOUP: ' + str(len(soup)),level=log_level)
+	videoId = re.search(r"curPlayingBCVideoId\s*=\s*'([^']+)'", str(soup)).group(1)
+	xbmc.log('VIDEOID: ' + str(videoId),xbmc.LOGINFO)
+	url = 'https://edge.api.brightcove.com/playback/v1/accounts/6415823816001/videos/' + videoId
+	xbmc.log('URL: ' + str(url),xbmc.LOGINFO)
+	get_stuff(name,url,iconimage)
 
 
-def get_m3u8(url):
-	QUALITY = settings.getSetting(id="quality")
-	#xbmc.log('QUALITY: ' + str(QUALITY),level=log_level)
-	res = ['360', '540', '720', '1080', '']
-	#xbmc.log('RESOLUTION: ' + str(res[int(QUALITY)]),level=log_level)
-	html = get_html(url)
-	#xbmc.log('HTML: ' + str(html))
-	m3u8_url = re.compile('video src="(.+?)" ').findall(str(html))[0]
-	data = get_html(m3u8_url)
-	#xbmc.log('M3U8_DATA: ' + str(data),level=log_level)
-	streams = re.findall(r'https.*m3u8', str(data), flags=re.MULTILINE);links = [];rqs = []
-	#xbmc.log('LENGTH: ' + str(len(streams)),level=log_level)
-	for stream in streams:
-		if res[int(QUALITY)] == '':
-			return m3u8_url
-		if res[int(QUALITY)] in stream:
-			return stream
-	#xbmc.log('STREAMS: ' + str(streams),level=log_level)
-	#return streams[-1]
-	return m3u8_url
+#50
+def get_stuff(name,url,iconimage):
+	xbmc.log('[GET STUFF] URL: ' + str(url),xbmc.LOGINFO)
+	response = s.get(url, headers=headers)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
+	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
+	html = response.content
+	data = json.loads(response.content)
+	sources = data.get("sources",[])
+	#for source in sources:
+	source = sources[-1]
+	key_systems = source.get("key_systems",{})
+	license_url = key_systems['com.widevine.alpha']['license_url']
+	xbmc.log('SOURCE: ' + str(license_url),level=log_level)
+	url = source.get("src")
+	xbmc.log('URL: ' + str(url),level=log_level)
+	referer = 'https://www.cwtv.com/'
+
+	license_key = license_url + '|User-Agent=' + ua + '&Referer=' + referer +'/&Origin=' + referer + '&Content-Type= |R{SSM}|'
+	xbmc.log('LICENSE KEY: ' + str(license_key),level=log_level)
+	is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+	if not is_helper.check_inputstream():
+		sys.exit()
+	listitem = xbmcgui.ListItem(path=url, label=name)
+	listitem.setProperty('IsPlayable', 'true')
+	listitem.setArt({'icon': iconimage, 'thumb': iconimage})
+	#xbmc.Player().play(item=url, listitem=listitem)
+	#if hls != 'false':
+	#if captions != '':
+		#listitem.setSubtitles([captions])
+	listitem.setProperty('inputstream', 'inputstream.adaptive')
+	#listitem.setProperty('inputstream.adaptive.manifest_type', "mpd")
+	listitem.setProperty('inputstream.adaptive.manifest_headers', f"User-Agent={ua}")
+	listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	listitem.setProperty('inputstream.adaptive.license_key', license_key)
+	listitem.setMimeType('application/dash+xml')
+	listitem.setContentLookup(False)
+	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
+	listitem.setProperty('IsPlayable', 'true')
+	#xbmcplugin.setResolvedUrl(addon_handle, True, listitem)
+	xbmc.log('URL: ' + str(url), level=log_level)
+	#sys.exit()
+	xbmc.Player().play(item=url, listitem=listitem)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def get_html(url):
@@ -168,23 +243,6 @@ def get_html(url):
 		response = False
 		html = False
 	return html
-
-
-#31
-def get_clips(url):
-	show = url.rpartition('/')[-1]
-	url = 'https://www.cwtv.com/feed/mobileapp/videos?show=' + show + '&api_version=3'
-	response = br.open(url)
-	jdata = json.load(response); i = 0
-	count = len(jdata['videos'])
-	for i in range(count):
-		if jdata['videos'][i]['fullep'] != 0:
-			continue
-		get_stuff(jdata,i)
-	if force_views != 'false':
-		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
-	#add_directory2(title,url,30,image,image,plot=''); i = i + 1
-	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def striphtml(data):
@@ -211,27 +269,36 @@ def get_params():
 	return param
 
 def add_directory2(name,url,mode,fanart,thumbnail,plot,showcontext=False):
+	if mode == 45:
+		folder = False
+	else:
+		folder = True
 	u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(thumbnail)
 	ok=True
 	liz=xbmcgui.ListItem(name)
-	liz.setArt({'icon': "DefaultFolder.png"})
-	liz.setArt({'thumb': iconimage})
-	liz.setInfo( type="Video", infoLabels={ "Title": name,
-											"plot": plot} )
+	liz.setArt({'icon': thumbnail})
+	liz.setArt({'thumb': thumbnail})
+	info = liz.getVideoInfoTag()
+	info.setTitle(name)
+	info.setPlot(plot)
 	if not fanart:
 		fanart=''
 	liz.setProperty('fanart_image',fanart)
-	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True, totalItems=40)
+	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=folder, totalItems=40)
+	#xbmc.log('[ADD DIR2] MODE: ' + str(mode),xbmc.LOGDEBUG)
+	#xbmc.log('[ADD DIR2] Folder: ' + str(folder),xbmc.LOGDEBUG)
 	return ok
 
 
-def addDir(name, url, mode, iconimage, fanart=False, infoLabels=True):
+def addDir(name, url, mode, iconimage, fanart=False, infoLabels=False):
 	u = sys.argv[0] + "?url=" + urllib.parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(iconimage)
 	ok = True
 	liz = xbmcgui.ListItem(name)
-	liz.setArt({'icon': "DefaultFolder.png"})
+	liz.setArt({'icon': iconimage})
 	liz.setArt({'thumb': iconimage})
-	liz.setInfo(type="Video", infoLabels={"Title": name})
+	info = liz.getVideoInfoTag()
+	info.setTitle(name)
+	#info.setPlot(plot)
 	liz.setProperty('IsPlayable', 'true')
 	if not fanart:
 		fanart=defaultfanart
@@ -287,10 +354,19 @@ elif mode==533:
 	sites()
 elif mode==633:
 	xbmc.log("CW TV Network Main Menu",level=log_level)
-	shows(name,url)
+	get_cats(url)
 elif mode==30:
+	xbmc.log("CW TV Shows JSON",level=log_level)
+	get_shows(name,url,iconimage)
+elif mode==40:
 	xbmc.log("CW TV Episodes JSON",level=log_level)
-	get_json(name,url,iconimage)
+	get_eps(name,url,iconimage)
+elif mode==45:
+	xbmc.log("CW TV Get VideoId",level=log_level)
+	video_id(name,url,iconimage)
+elif mode==50:
+	xbmc.log("CW TV Get Stuff",level=log_level)
+	get_stuff(name,url,iconimage)
 elif mode==31:
 	xbmc.log("CW TV Clips JSON",level=log_level)
 	get_clips(url)

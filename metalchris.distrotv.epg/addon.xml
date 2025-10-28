@@ -1,0 +1,26 @@
+<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2025.10.03" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="inputstream.adaptive" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Add-on that displays a centered EPG panel for live channels from DistroTV.</summary>
+        <description lang="en">Watch DistroTV’s live streaming channels with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+</addon>

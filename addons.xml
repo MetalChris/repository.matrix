@@ -543,6 +543,33 @@ v4.2.7
   </extension>
 </addon>
 
+<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2025.10.03" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="inputstream.adaptive" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Add-on that displays a centered EPG panel for live channels from DistroTV.</summary>
+        <description lang="en">Watch DistroTV’s live streaming channels with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+</addon>
+
 <addon id="plugin.video.rokuchannel" name="Roku Channel" version="2025.06.01-BETA" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -747,7 +774,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2025.10.04" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2025.10.10" provider-name="MetalChris">
     <extension point="xbmc.addon.repository" name="Official MetalChris Matrix Repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -759,7 +786,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Update CW Network for major site changes.</news>
+        <news>Upload CW Live EPG and DistroTV EPG.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>
@@ -911,5 +938,34 @@ v4.2.5
         <fanart>resources/media/fanart.jpg</fanart>
     </assets>
   </extension>
+</addon>
+
+<addon id="metalchris.cwlive.epg" name="CW Live EPG" version="2025.10.02" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.1"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="inputstream.adaptive" />
+        <import addon="script.module.inputstreamhelper" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">EPG Viewer for CW Live channels</summary>
+        <description lang="en">Stream live channels from CW Live. Watch action, comedy, drama, romance, blockbuster films, timeless classics and more on live channels from the CW Network.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
 </addon>
 </addons>

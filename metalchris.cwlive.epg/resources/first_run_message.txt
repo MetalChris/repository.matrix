@@ -1,0 +1,26 @@
+The add-on will now download channel logos and cache them locally. This may take about 1 or 2 minutes.
+
+You only need to do this once.
+
+
+The following options are available in the add-on Settings:
+
+Sort channels alphabetically
+Remember last genre filter
+Choose fullscreen or panel display
+Enable add-on specific debug logging
+EPG cache duration
+Clear EPG cache and thumbs
+
+
+The following options are available from the context menu:
+
+Current (Now) program information
+Next program information
+Filter channels by genre
+Clear genre filter (only available when a genre filter is applied)
+Add Channel to FAVORITES (not available while viewing Favorites)
+View Favorites (only available if Favorites exist)
+Remove Channel from favorites (only available while viewing Favorites)
+Clear Favorites (only available while viewing Favorites)
+Exit Favorites (only available while viewing Favorites)

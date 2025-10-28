@@ -1,0 +1,338 @@
+<window id="12001" backgroundcolor="FF000000">
+    <defaultcontrol always="true">9000</defaultcontrol>
+
+    <controls>
+
+        <!-- Black background -->
+        <control type="image">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1280</width>
+            <height>720</height>
+            <texture>special://home/addons/metalchris.distrotv.epg/resources/media/bg.png</texture>
+        </control>
+
+        <!-- Icon -->
+        <control type="image">
+            <posx>20</posx>
+            <posy>20</posy>
+            <width>32</width>
+            <height>32</height>
+            <texture>special://home/addons/metalchris.distrotv.epg/resources/media/icon.png</texture>
+        </control>
+
+
+        <!-- Clock -->
+        <control type="label" id="1001">
+            <posx>1240</posx>
+            <posy>15</posy>
+            <width>200</width>
+            <height>50</height>
+            <label>$INFO[System.Time]</label>
+            <font>font30_title</font>
+            <textcolor>white</textcolor>
+            <align>right</align>
+        </control>
+
+        <!-- Title -->
+        <control type="label" id="1">
+            <posx>60</posx>
+            <posy>15</posy>
+            <width>1240</width>
+            <height>50</height>
+            <label>DistroTV EPG</label>
+            <font>font30_title</font>
+            <textcolor>white</textcolor>
+        </control>
+
+        <!-- Header Row Background -->
+        <control type="image">
+            <posx>20</posx>
+            <posy>60</posy>
+            <width>1240</width>
+            <height>29</height>
+            <texture>special://home/addons/metalchris.distrotv.epg/resources/media/row_focus.png</texture>
+        </control>
+
+        <!-- Channel Heading -->
+        <control type="label">
+            <posx>27</posx>
+            <posy>56</posy>
+            <width>200</width>
+            <height>30</height>
+            <label>Channel</label>
+            <font>font24_title</font>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Now Heading -->
+        <control type="label">
+            <posx>275</posx>
+            <posy>56</posy>
+            <width>500</width>
+            <height>30</height>
+            <label>Now</label>
+            <font>font24_title</font>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Next Heading -->
+        <control type="label">
+            <posx>800</posx>
+            <posy>56</posy>
+            <width>500</width>
+            <height>30</height>
+            <label>Next</label>
+            <font>font24_title</font>
+            <textcolor>grey</textcolor>
+        </control>
+
+
+        <!-- Program list -->
+        <control type="list" id="9000">
+            <posx>20</posx>
+            <posy>90</posy>
+            <width>1240</width>
+            <height>640</height>
+            <itemheight>55</itemheight>
+
+                <pagecontrol>9001</pagecontrol> <!-- link to scrollbar -->
+            <control.../>
+
+
+            <!-- Odd rows -->
+            <itemlayout height="86">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1240</width>
+                    <height>84</height>
+                    <texture>special://home/addons/metalchris.distrotv.epg/resources/media/row_dark.png</texture>
+                </control>
+
+                <!-- Channel (left, bold) -->
+                <control type="label">
+                    <posx>8</posx>
+                    <posy>4</posy>
+                    <width>200</width>
+                    <height>20</height>
+                    <!-- <label>$INFO[ListItem.Property(channel)]</label> -->
+                    <font>font14B</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <control type="image">
+                    <posx>10</posx>
+                    <posy>6</posy>
+                    <width>200</width>
+                    <height>72</height>
+                    <texture>$INFO[ListItem.Art(thumb)]</texture>
+                </control>
+
+                <!-- Now (middle) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(now)]</label>
+                    <font>font14</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Next (right) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(next)]</label>
+                    <font>font14</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Description (below) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>28</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font12</font>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Next Description (below) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>28</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc2)]</label>
+                    <font>font12</font>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+            </itemlayout>
+
+            <!-- Even rows -->
+            <itemlayout height="86" alternate="true">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1240</width>
+                    <height>84</height>
+                    <texture>special://home/addons/metalchris.distrotv.epg/resources/media/row_dark.png</texture>
+                </control>
+
+                <!-- Channel (left, bold) -->
+                <control type="label">
+                    <posx>8</posx>
+                    <posy>4</posy>
+                    <width>200</width>
+                    <height>20</height>
+                    <!-- <label>$INFO[ListItem.Property(channel)]</label> -->
+                    <font>font14B</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <control type="image">
+                    <posx>10</posx>
+                    <posy>6</posy>
+                    <width>200</width>
+                    <height>72</height>
+                    <texture>$INFO[ListItem.Art(thumb)]</texture>
+                </control>
+
+                <!-- Now (middle) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(now)]</label>
+                    <font>font14</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Next (right) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(next)]</label>
+                    <font>font14</font>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Description (below) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>28</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font12</font>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Next Description (below) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>28</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc2)]</label>
+                    <font>font12</font>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+            </itemlayout>
+
+            <!-- Focused row -->
+            <focusedlayout height="90">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1240</width>
+                    <height>90</height>
+                    <texture>special://home/addons/metalchris.distrotv.epg/resources/media/focus_row.png</texture>
+                </control>
+
+                <!-- Channel (left, bold) -->
+                <control type="label">
+                    <posx>8</posx>
+                    <posy>4</posy>
+                    <width>200</width>
+                    <height>20</height>
+                    <!-- <label>$INFO[ListItem.Property(channel)]</label> -->
+                    <font>font14_title</font>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <control type="image">
+                    <posx>10</posx>
+                    <posy>6</posy>
+                    <width>200</width>
+                    <height>72</height>
+                    <texture>$INFO[ListItem.Art(thumb)]</texture>
+                </control>
+
+                <!-- Now (middle) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(now)]</label>
+                    <font>font24_title</font>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <!-- Next (right) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>4</posy>
+                    <width>500</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Property(next)]</label>
+                    <font>font24_title</font>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <!-- Description (below) -->
+                <control type="label">
+                    <posx>255</posx>
+                    <posy>32</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font14_title</font>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <!-- Next Description (below) -->
+                <control type="label">
+                    <posx>780</posx>
+                    <posy>32</posy>
+                    <width>500</width>
+                    <height>18</height>
+                    <label>$INFO[ListItem.Property(desc2)]</label>
+                    <font>font14_title</font>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+            </focusedlayout>
+        </control>
+
+    </controls>
+</window>

@@ -1,0 +1,244 @@
+<window type="dialog" id="20000">
+    <defaultcontrol always="true">9000</defaultcontrol>
+    <coordinates>
+        <system>1</system>
+    </coordinates>
+    <controls>
+
+        <!-- Full-screen background -->
+        <control type="image">
+            <left>0</left>
+            <top>0</top>
+            <width>1280</width>
+            <height>720</height>
+            <texture>DialogBack.png</texture>
+        </control>
+
+        <!-- Panel container (centered 75% of screen) -->
+        <control type="image">
+            <left>80</left> <!-- 1920*0.125 -->
+            <top>135</top>   <!-- 1080*0.125 -->
+            <width>87.5%</width> <!-- 1920*0.75 -->
+            <height>405</height> <!-- 1080*0.75 -->
+        <!-- <texture border="40">special://home/addons/metalchris.cwlive.epg/resources/media/row_light.png</texture> -->
+        </control>
+
+        <!-- Title -->
+        <control type="label" id="1">
+            <left>80</left>
+            <top>50</top>
+            <width>87.5%</width>
+            <height>60</height>
+            <align>center</align>
+            <label>CW Live EPG</label>
+            <font>font36</font>
+        </control>
+
+        <!-- Header -->
+
+        <!-- Header Background -->
+        <control type="image">
+            <left>80</left>
+            <top>80</top>
+            <width>87.5%</width>
+            <height>30</height>
+            <texture>special://home/addons/metalchris.cwlive.epg/resources/media/header.png</texture>
+        </control>
+
+        <!-- Header: Channel logo -->
+        <control type="label">
+            <left>80</left>
+            <top>80</top>
+            <width>15%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font14</font>
+            <label>Channel</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Header: Now column -->
+        <control type="label">
+            <left>20%</left>
+            <top>80</top>
+            <width>35%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font14</font>
+            <label>Now</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Header: Next column -->
+        <control type="label">
+            <left>55%</left>
+            <top>80</top>
+            <width>35%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font14</font>
+            <label>Next</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+
+        <!-- List of items -->
+        <control type="list" id="9000">
+            <left>80</left>
+            <top>120</top>
+            <width>87.5%</width>
+            <height>76%</height>
+
+            <!-- Scrollbar inside list -->
+            <scrollbar>
+                <orientation>vertical</orientation>
+                <scrollbar>
+                    <background>special://home/addons/metalchris.cwlive.epg/resources/skins/Confluence/720p/dark_box.png</background>
+                    <bar>special://home/addons/metalchris.cwlive.epg/resources/skins/Confluence/720p/light_box.png</bar>
+                    <nib>special://home/addons/metalchris.cwlive.epg/resources/skins/Confluence/720p/light_row.png</nib>
+                </scrollbar>
+
+                <visible>true</visible>
+            </scrollbar>
+
+            <onleft>9000</onleft>
+            <onright>9000</onright>
+            <onup>9000</onup>
+            <ondown>9000</ondown>
+
+
+
+            <!-- Item layout -->
+            <itemlayout height="80">
+                <control type="image">
+                    <left>0</left>
+                    <top>0</top>
+                    <width>100%</width>
+                    <height>76</height>
+                    <texture>$INFO[ListItem.Art(bg)]</texture>
+                </control>
+
+                <!-- Column 1: Logo -->
+                <control type="image">
+                    <left>10</left>
+                    <top>10</top>
+                    <width>15%</width>
+                    <height>70%</height>
+                    <texture>$INFO[ListItem.Art(icon)]</texture>
+                </control>
+
+                <!-- Column 2: Now title + description -->
+                <control type="label">
+                    <left>20%</left>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font14</font>
+                    <label>$INFO[ListItem.Property(Label)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+                <control type="label">
+                    <left>20%</left>
+                    <top>40%</top>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <label>$INFO[ListItem.Property(Label2)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Column 3: Next title -->
+                <control type="label">
+                    <left>60%</left>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font14</font>
+                    <label>$INFO[ListItem.Property(Label3)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+                <control type="label">
+                    <left>60%</left>
+                    <top>40%</top>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <label>$INFO[ListItem.Property(Label4)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+            </itemlayout>
+
+            <!-- Focused layout -->
+            <focusedlayout height="80">
+                <control type="image">
+                    <left>0</left>
+                    <top>-2</top>
+                    <width>100%</width>
+                    <height>80</height>
+                    <texture colordiffuse="0.2,0.2,0.8,0.3" border="0">$INFO[ListItem.Art(focus)]</texture>
+                </control>
+
+                <!-- Column 1: Logo -->
+                <control type="image">
+                    <left>10</left>
+                    <top>10</top>
+                    <width>15%</width>
+                    <height>70%</height>
+                    <texture>$INFO[ListItem.Art(icon)]</texture>
+                </control>
+
+                <!-- Column 2: Now title + description -->
+                <control type="label">
+                    <left>20%</left>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font16</font>
+                    <label>$INFO[ListItem.Property(Label)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <left>20%</left>
+                    <top>40%</top>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font13</font>
+                    <label>$INFO[ListItem.Property(Label2)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <!-- Column 3: Next title -->
+                <control type="label">
+                    <left>60%</left>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font16</font>
+                    <label>$INFO[ListItem.Property(Label3)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <left>60%</left>
+                    <top>40%</top>
+                    <width>35%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font13</font>
+                    <label>$INFO[ListItem.Property(Label4)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+            </focusedlayout>
+        </control>
+    </controls>
+</window>

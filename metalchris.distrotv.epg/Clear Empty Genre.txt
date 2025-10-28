@@ -1,0 +1,57 @@
+🧹 Option 1: Manual reset via file system (safest and fastest)
+
+Exit Kodi.
+
+Go to your add-on data folder:
+
+userdata/addon_data/metalchris.distrotv.epg/
+
+
+Delete the file (or edit and clear) settings.xml if it contains:
+
+<setting id="last_genre">[whatever]</setting>
+<setting id="remember_genre">true</setting>
+
+
+or anything related to a genre search term.
+
+Restart Kodi — it should open with a full EPG again.
+
+🧰 Option 2: Temporary “failsafe” patch in default.py
+
+Add a check at startup to auto-clear invalid filters:
+
+win = xbmcgui.Window(xbmcgui.getCurrentWindowId())
+genre = win.getProperty("GENRE_FILTER")
+
+if genre and not has_valid_channels_for_genre(genre):
+    log(f"[STARTUP] Invalid or empty genre '{genre}' detected — clearing filter.")
+    win.clearProperty("GENRE_FILTER")
+    addon.setSetting("last_genre", "")
+
+
+And define:
+
+def has_valid_channels_for_genre(genre):
+    epg_json = os.path.join(CACHE_DIR, "epg.json")
+    if not xbmcvfs.exists(epg_json):
+        return False
+    with open(epg_json, "r", encoding="utf-8") as f:
+        data = json.load(f)
+    return any(ch.get("genre") == genre for ch in data.get("channels", []))
+
+
+That way, the next startup automatically detects and clears an empty genre filter.
+
+🧩 Option 3: Add a "Clear Filters" command
+
+If this happens often, you could make a keyboard shortcut or startup dialog:
+
+if not new_items:  # no EPG items loaded
+    xbmcgui.Dialog().ok("Empty EPG", "No channels found for this filter.")
+    win.clearProperty("GENRE_FILTER")
+    addon.setSetting("last_genre", "")
+    xbmc.executebuiltin("Container.Refresh")
+
+
+That way, if the EPG loads empty, the user is prompted and it automatically resets filters.

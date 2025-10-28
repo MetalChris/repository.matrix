@@ -1,0 +1,151 @@
+<window id="12000" backgroundcolor="FF000000">
+    <defaultcontrol always="true">9000</defaultcontrol>
+
+    <controls>
+
+        <!-- Background (opaque black full-screen) -->
+        <control type="image" id="bg">
+            <posx>0</posx>
+            <posy>0</posy>
+            <width>1280</width>
+            <height>720</height>
+            <texture>special://home/addons/plugin.distrotv.epg/resources/media/bg.png</texture>
+        </control>
+
+        <!-- Title -->
+        <control type="label">
+            <posx>40</posx>
+            <posy>30</posy>
+            <label>DistroTV EPG (Now / Next)</label>
+            <font>font35_title</font>
+            <textcolor>white</textcolor>
+        </control>
+
+        <!-- List -->
+        <control type="list" id="9000">
+            <posx>40</posx>
+            <posy>80</posy>
+            <width>1200</width>
+            <height>640</height>
+            <itemheight>60</itemheight>
+
+            <!-- ODD row layout -->
+            <itemlayout height="60" condition="StringCompare(ListItem.Property(row_parity),ODD)">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1200</width>
+                    <height>60</height>
+                    <texture colordiffuse="FF1A1A1A">special://home/addons/plugin.distrotv.epg/resources/media/bg.png</texture>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>5</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Label]</label>
+                    <font>font13</font>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>30</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font12</font>
+                    <textcolor>DDDDDD</textcolor>
+                </control>
+                <control type="label">
+                    <posx>1150</posx>
+                    <posy>20</posy>
+                    <width>50</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Position]</label>
+                    <font>font10</font>
+                    <textcolor>888888</textcolor>
+                    <align>right</align>
+                </control>
+            </itemlayout>
+
+            <!-- EVEN row layout -->
+            <itemlayout height="60" condition="StringCompare(ListItem.Property(row_parity),EVEN)">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1200</width>
+                    <height>60</height>
+                    <texture colordiffuse="FF222222">special://home/addons/plugin.distrotv.epg/resources/media/bg.png</texture>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>5</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Label]</label>
+                    <font>font13</font>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>30</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font12</font>
+                    <textcolor>DDDDDD</textcolor>
+                </control>
+                <control type="label">
+                    <posx>1150</posx>
+                    <posy>20</posy>
+                    <width>50</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Position]</label>
+                    <font>font10</font>
+                    <textcolor>AAAAAA</textcolor>
+                    <align>right</align>
+                </control>
+            </itemlayout>
+
+            <!-- Focused row -->
+            <focusedlayout height="60">
+                <control type="image">
+                    <posx>0</posx>
+                    <posy>0</posy>
+                    <width>1200</width>
+                    <height>60</height>
+                    <texture colordiffuse="FF444444">special://home/addons/plugin.distrotv.epg/resources/media/bg.png</texture>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>5</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Label]</label>
+                    <font>font13</font>
+                    <textcolor>green</textcolor>
+                </control>
+                <control type="label">
+                    <posx>10</posx>
+                    <posy>30</posy>
+                    <width>1180</width>
+                    <height>25</height>
+                    <label>$INFO[ListItem.Property(desc)]</label>
+                    <font>font10</font>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <posx>1150</posx>
+                    <posy>20</posy>
+                    <width>50</width>
+                    <height>20</height>
+                    <label>$INFO[ListItem.Position]</label>
+                    <font>font10</font>
+                    <textcolor>FFFFFF</textcolor>
+                    <align>right</align>
+                </control>
+            </focusedlayout>
+        </control>
+
+    </controls>
+</window>

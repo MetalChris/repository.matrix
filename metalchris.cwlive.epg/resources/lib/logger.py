@@ -21,7 +21,7 @@ def log(msg, level=xbmc.LOGDEBUG):
 
     level_map = {
         xbmc.LOGDEBUG: "DEBUG",
-        xbmc.LOGINFO: "INFO",
+        xbmc.LOGDEBUG: "INFO",
         xbmc.LOGWARNING: "WARNING",
         xbmc.LOGERROR: "ERROR",
     }
@@ -43,4 +43,4 @@ def log(msg, level=xbmc.LOGDEBUG):
 
 
 #  log(f"[VIDEO]: found menu: title='{title}' href='{href}'") ONLY SHOWS WHEN ADD-ON DEBUG ENABLED
-#  xbmc.log(f"NASA+ [ADD-ON STARTED]", xbmc.LOGINFO) ALWAYS SHOWS
+#  xbmc.log(f"NASA+ [ADD-ON STARTED]", xbmc.LOGDEBUG) ALWAYS SHOWS

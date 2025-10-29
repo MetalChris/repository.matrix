@@ -7,11 +7,10 @@ import json, os, xbmcvfs
 from resources.lib.logger import *
 from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
-#from resources.lib.refresh_addon_settings import *
+from resources.lib.refresh_addon_settings import *
 
 GENRE_FILTER_PROP = "cwlive_epg_genre_filter"
 addon = xbmcaddon.Addon()
-profile = addon.getAddonInfo("profile")
 
 def handle_context_menu(epg_window, listitem):
 	log("[CONTEXT_MENU] handle_context_menu called")
@@ -30,7 +29,7 @@ def handle_context_menu(epg_window, listitem):
 		if not in_favorites:
 			options.append("Search by Genre...")
 
-		if epg_window.getProperty(GENRE_FILTER_PROP):
+		if epg_window.getProperty(GENRE_FILTER_PROP) and not in_favorites:
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
@@ -98,7 +97,6 @@ def handle_context_menu(epg_window, listitem):
 
 			# Clear genre filter and load favorites
 			win.clearProperty(GENRE_FILTER_PROP)
-			addon.setSetting("last_genre", "")
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
 			epg_window.setProperty("FAVORITES_FILTER", ",".join(fav_channels))
@@ -112,16 +110,11 @@ def handle_context_menu(epg_window, listitem):
 				2000,
 				sound=False
 			)
-			epg_window.setProperty("VIEW_STATE", "favorites")
-			log(f"[CONTEXT_MENU][DEBUG] VIEW_STATE set to {epg_window.getProperty('VIEW_STATE')}")
 			epg_window.refresh_list()
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
 			epg_window.clearProperty("FAVORITES_FILTER")
-
-			# Clear favorites view state if set
-			epg_window.clearProperty("VIEW_STATE")
 
 			# Restore previous genre filter if exists
 			prev_genre = win.getProperty("PREV_GENRE_FILTER")
@@ -130,11 +123,6 @@ def handle_context_menu(epg_window, listitem):
 				if addon.getSettingBool("remember_genre"):
 					addon.setSetting("last_genre", prev_genre)
 				win.clearProperty("PREV_GENRE_FILTER")
-			else:
-				# No previous genre — ensure genre filter cleared
-				win.clearProperty(GENRE_FILTER_PROP)
-				addon.setSetting("last_genre", "")
-				epg_window.clearProperty("FILTER_GENRE")
 
 			# Set proper title before refresh
 			epg_window.setProperty("EPG_TITLE", "CW Live EPG")
@@ -142,14 +130,6 @@ def handle_context_menu(epg_window, listitem):
 
 			# Refresh and update heading
 			epg_window.refresh_list()
-
-			try:
-				heading_ctrl = epg_window.getControl(1)
-				if heading_ctrl:
-					heading_ctrl.setLabel("CW Live EPG")
-					log("[CONTEXT MENU] Heading reset to default")
-			except Exception as e:
-				log(f"[CONTEXT MENU] Failed to update heading: {e}", xbmc.LOGWARNING)
 
 		elif sel == "Remove channel from Favorites":
 			chan_id = listitem.getProperty("channel_id")
@@ -215,6 +195,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Search by Genre...":
 			try:
+				profile = addon.getAddonInfo("profile")
 				epg_path = os.path.join(profile, "cache", "epg.json")
 				os_path = xbmcvfs.translatePath(epg_path)
 

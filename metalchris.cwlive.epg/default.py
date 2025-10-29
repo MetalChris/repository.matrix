@@ -77,7 +77,7 @@ class EPGPanel(xbmcgui.WindowXML):
 		last_genre = addon.getSetting("last_genre")
 		if last_genre:
 			self.setProperty(GENRE_FILTER_PROP, last_genre)
-			log(f"[CW Live EPG Demo] [INFO] GENRE_FILTER_PROP set to: {last_genre}", xbmc.LOGINFO)
+			log(f"[CW Live EPG Demo] [INFO] GENRE_FILTER_PROP set to: {last_genre}", xbmc.LOGDEBUG)
 
 
 		if not self.player_monitor:

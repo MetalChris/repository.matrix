@@ -28,7 +28,7 @@ def refresh_addon_settings(epg_window=None):
 
     log(
         f"[REFRESH] Settings reloaded: use_isa={use_inputstream}, sort_alpha={sort_alpha}",
-        xbmc.LOGINFO,
+        xbmc.LOGDEBUG,
     )
 
     if epg_window:
@@ -42,7 +42,7 @@ def refresh_addon_settings(epg_window=None):
 
             # Trigger live list refresh
             epg_window.refresh_list()
-            log("[REFRESH] EPG panel refreshed after settings change.", xbmc.LOGINFO)
+            log("[REFRESH] EPG panel refreshed after settings change.", xbmc.LOGDEBUG)
 
         except Exception as e:
             log(f"[REFRESH] Failed to refresh EPG panel: {e}", xbmc.LOGERROR)

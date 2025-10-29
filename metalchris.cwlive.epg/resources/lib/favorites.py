@@ -28,7 +28,7 @@ try:
 except Exception:
     CACHE_TTL = 900  # fallback 15 min
 
-log(f"[FAVORITES] Using cache TTL: {CACHE_TTL // 60} minutes", xbmc.LOGINFO)
+log(f"[FAVORITES] Using cache TTL: {CACHE_TTL // 60} minutes", xbmc.LOGDEBUG)
 
 def _cache_path(name):
     return os.path.join(CACHE_DIR, name + ".json")
@@ -73,14 +73,14 @@ def fetch_favorites(fav_ids, epg_window):
 
                     #data["channels"] = {cid: epg_dict[cid] for cid in fav_ids if cid in epg_dict}
                     kept = len(data['channels'])
-                    log(f"[FAVORITES] Loaded {len(data['channels'])} favorite channels", xbmc.LOGINFO)
+                    log(f"[FAVORITES] Loaded {len(data['channels'])} favorite channels", xbmc.LOGDEBUG)
 
                     return(data)
 
                 except Exception as e:
                     log(f"[FAVORITES] Failed reading cached epg.json: {e}", xbmc.LOGERROR)
 
-        log(f"[FAVORITES] EPG list refreshed ({kept} channels)", xbmc.LOGINFO)
+        log(f"[FAVORITES] EPG list refreshed ({kept} channels)", xbmc.LOGDEBUG)
 
     except Exception as e:
         log(f"[FAVORITES] Error refreshing list: {e}", xbmc.LOGERROR)
@@ -105,7 +105,7 @@ def _save_favorites(favs):
     try:
         with xbmcvfs.File(FAV_FILE, "w") as f:
             f.write(json.dumps(favs, indent=2))
-        log(f"[FAVORITES] Saved {len(favs)} favorites", xbmc.LOGINFO)
+        log(f"[FAVORITES] Saved {len(favs)} favorites", xbmc.LOGDEBUG)
     except Exception as e:
         log(f"[FAVORITES] Failed to save favorites: {e}", xbmc.LOGERROR)
 
@@ -132,7 +132,7 @@ def add_favorite(chan_id, chan_name, logo_path):
 
         # Avoid duplicates
         if chan_id in favorites:
-            log(f"[FAVORITES] Channel '{chan_name}' ({chan_id}) already in favorites", xbmc.LOGINFO)
+            log(f"[FAVORITES] Channel '{chan_name}' ({chan_id}) already in favorites", xbmc.LOGDEBUG)
             return False
 
         # Add new channel
@@ -145,7 +145,7 @@ def add_favorite(chan_id, chan_name, logo_path):
         with xbmcvfs.File(FAV_FILE, "w") as f:
             f.write(json.dumps(favorites, indent=2))
 
-        log(f"[FAVORITES] Added channel '{chan_name}' ({chan_id}) to favorites", xbmc.LOGINFO)
+        log(f"[FAVORITES] Added channel '{chan_name}' ({chan_id}) to favorites", xbmc.LOGDEBUG)
         return True
 
     except Exception as e:
@@ -170,7 +170,7 @@ def remove_favorite(chan_id):
     # --- Remove from favorites ---
     del favs[chan_id]
     _save_favorites(favs)
-    log(f"[FAVORITES] Removed {chan_id} ({chan_name}) from favorites", xbmc.LOGINFO)
+    log(f"[FAVORITES] Removed {chan_id} ({chan_name}) from favorites", xbmc.LOGDEBUG)
     return True
 
 def list_favorites():

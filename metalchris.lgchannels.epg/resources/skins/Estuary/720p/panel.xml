@@ -1,0 +1,258 @@
+<window type="dialog" id="20000">
+    <defaultcontrol always="true">9000</defaultcontrol>
+    <coordinates>
+        <system>1</system>
+    </coordinates>
+    <controls>
+
+        <!-- Full-screen background -->
+        <control type="image">
+            <left>0</left>
+            <top>0</top>
+            <width>1280</width>
+            <height>720</height>
+            <texture>DialogBack.png</texture>
+        </control>
+
+        <!-- Panel container (centered 75% of screen) -->
+        <control type="image">
+            <left>0</left> <!-- 1920*0.125 -->
+            <top>0</top>   <!-- 1080*0.125 -->
+            <width>100%</width> <!-- 1920*0.75 -->
+            <height>100%</height> <!-- 1080*0.75 -->
+            <texture colordiffuse="dd101010" border="40">special://home/addons/metalchris.lgchannels.epg/resources/media/header.png</texture>
+        </control>
+
+        <!-- Clock -->
+        <control type="label" id="1001">
+            <posx>1268</posx>
+            <posy>1</posy>
+            <width>200</width>
+            <height>50</height>
+            <label>$INFO[System.Time]</label>
+            <font>font_clock</font>
+            <textcolor>grey</textcolor>
+            <align>right</align>
+        </control>
+
+        <!-- Title -->
+        <control type="label" id="1">
+            <left>80</left>
+            <top>50</top>
+            <width>87.5%</width>
+            <height>60</height>
+            <align>center</align>
+            <label>XumoPlay EPG</label>
+            <font>font30_title</font>
+        </control>
+
+        <!-- Header -->
+
+        <!-- Header Background -->
+        <control type="image">
+            <left>80</left>
+            <top>80</top>
+            <width>87.5%</width>
+            <height>30</height>
+            <texture>special://home/addons/metalchris.lgchannels.epg/resources/media/header.png</texture>
+        </control>
+
+        <!-- Header: Channel logo -->
+        <control type="label">
+            <left>50</left>
+            <top>80</top>
+            <width>15%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font30_title</font>
+            <label>Channel</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Header: Now column -->
+        <control type="label">
+            <left>15%</left>
+            <top>80</top>
+            <width>40%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font30_title</font>
+            <label>Now</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Header: Next column -->
+        <control type="label">
+            <left>52%</left>
+            <top>80</top>
+            <width>40%</width>
+            <height>30</height>
+            <align>center</align>
+            <font>font30_title</font>
+            <label>Next</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+
+        <!-- List of items -->
+        <control type="list" id="9000">
+            <left>80</left>
+            <top>120</top>
+            <width>87.5%</width>
+            <height>76%</height>
+
+            <!-- Scrollbar inside list -->
+            <scrollbar>
+                <orientation>vertical</orientation>
+                <scrollbar>
+                    <background>special://home/addons/metalchris.lgchannels.epg/resources/skins/Confluence/720p/dark_box.png</background>
+                    <bar>special://home/addons/metalchris.lgchannels.epg/resources/skins/Confluence/720p/light_box.png</bar>
+                    <nib>special://home/addons/metalchris.lgchannels.epg/resources/skins/Confluence/720p/light_row.png</nib>
+                </scrollbar>
+
+                <visible>true</visible>
+            </scrollbar>
+
+            <onleft>9000</onleft>
+            <onright>9000</onright>
+            <onup>9000</onup>
+            <ondown>9000</ondown>
+
+
+
+            <!-- Item layout -->
+            <itemlayout height="80">
+                <control type="image">
+                    <left>0</left>
+                    <top>0</top>
+                    <width>100%</width>
+                    <height>76</height>
+                    <texture>$INFO[ListItem.Art(bg)]</texture>
+                </control>
+
+                <!-- Column 1: Logo -->
+                <control type="image">
+                    <left>10</left>
+                    <top>10</top>
+                    <width>10%</width>
+                    <height>70%</height>
+                    <texture>$INFO[ListItem.Art(icon)]</texture>
+                </control>
+
+                <!-- Column 2: Now title + description -->
+                <control type="label">
+                    <left>15%</left>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font14</font>
+                    <label>$INFO[ListItem.Property(Label)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+                <control type="label">
+                    <left>15%</left>
+                    <top>40%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <label>$INFO[ListItem.Property(Label2)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+
+                <!-- Column 3: Next title -->
+                <control type="label">
+                    <left>58%</left>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font14</font>
+                    <label>$INFO[ListItem.Property(Label3)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+                <control type="label">
+                    <left>58%</left>
+                    <top>40%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font12</font>
+                    <label>$INFO[ListItem.Property(Label4)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>grey</textcolor>
+                </control>
+            </itemlayout>
+
+            <!-- Focused layout -->
+            <focusedlayout height="80">
+                <control type="image">
+                    <left>0</left>
+                    <top>0</top>
+                    <width>100%</width>
+                    <height>76</height>
+                    <texture>$INFO[ListItem.Art(focus)]</texture>
+                </control>
+
+                <!-- Column 1: Logo -->
+                <control type="image">
+                    <left>10</left>
+                    <top>10</top>
+                    <width>10%</width>
+                    <height>70%</height>
+                    <texture>$INFO[ListItem.Art(icon)]</texture>
+                </control>
+
+                <!-- Column 2: Now title + description -->
+                <control type="label">
+                    <left>15%</left>
+                    <top>5%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font30_title</font>
+                    <label>$INFO[ListItem.Property(Label)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <left>15%</left>
+                    <top>45%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font25_title</font>
+                    <label>$INFO[ListItem.Property(Label2)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+
+                <!-- Column 3: Next title -->
+                <control type="label">
+                    <left>58%</left>
+                    <top>5%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font30_title</font>
+                    <label>$INFO[ListItem.Property(Label3)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+                <control type="label">
+                    <left>58%</left>
+                    <top>45%</top>
+                    <width>40%</width>
+                    <height>30</height>
+                    <aligny>center</aligny>
+                    <font>font25_title</font>
+                    <label>$INFO[ListItem.Property(Label4)]</label>
+                    <scroll>false</scroll>
+                    <textcolor>white</textcolor>
+                </control>
+            </focusedlayout>
+        </control>
+    </controls>
+</window>

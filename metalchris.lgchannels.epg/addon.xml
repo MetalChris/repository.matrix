@@ -1,0 +1,27 @@
+<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2025.10.07" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="inputstream.adaptive" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">EPG Viewer for LGChannels.com</summary>
+        <description lang="en">Stream live channels from the LGChannels.com website. Watch action, comedy, drama, romance, blockbuster films, timeless classics and more.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+</addon>

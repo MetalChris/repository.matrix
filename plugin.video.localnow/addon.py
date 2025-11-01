@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2025.01.01
+# Written by MetalChris 2025.01.20
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
@@ -20,6 +20,7 @@ xbmcplugin.setContent(addon_handle, 'video')
 
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
+addon_path_profile = xbmcvfs.translatePath(_addon.getAddonInfo('profile'))
 selfAddon = xbmcaddon.Addon(id='plugin.video.localnow')
 translation = selfAddon.getLocalizedString
 addon = xbmcaddon.Addon()
@@ -28,6 +29,7 @@ settings = xbmcaddon.Addon(id="plugin.video.localnow")
 apiUrl = 'https://localnow.com/_next/data/qtV7yILDmnCBIm1lP-ToB/'
 apiBase = 'https://localnow.com/_next/data/'
 baseUrl = 'https://localnow.com/'
+TylerUrl = 'https://data-store-trans-cdn.api.cms.amdvids.com/live/epg/US/androidtv?program_size=3&dma=623&market=txTyler'
 plugin = "Local Now"
 local_string = xbmcaddon.Addon(id='plugin.video.localnow').getLocalizedString
 defaultimage = 'special://home/addons/plugin.video.localnow/resources/media/icon.png'
@@ -98,9 +100,19 @@ def get_ln(baseUrl):
 	zipDma = data['city']['zipDma']
 	url = 'https://data-store-trans-cdn.api.cms.amdvids.com/live/epg/US/androidtv?program_size=3&dma=' + str(zipDma) + '&market=' + str(market)# + ',' + str(pbsMarkets)
 	xbmc.log('CHANNELS URL: ' + str(url),level=log_level)
-	genres(url)
+	main_menu(url)
 
 
+def main_menu(url):
+	addDir2('Saved Items', apiUrl + 'tv-shows', 25, defaultimage, defaultfanart, infoLabels={'plot':''})
+	addDir2('Live Channels', url, 1, defaultimage, defaultfanart, infoLabels={'plot':''})
+	addDir2('On Demand TV Shows', apiBase
+	, 9, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited TV shows. Watch action, comedy, drama, romance, and timeless classics from our vast collection on Local Now.'})
+	addDir2('On Demand Movies', apiUrl + 'movies.json'
+	, 18, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited free movies. Watch action, comedy, drama, romance, blockbuster films and more on Local Now.'})
+
+
+#1
 def genres(url):
 	xbmc.log(('GET GENRES'),level=log_level)
 	response = s.get(url, headers = {'User-Agent': ua})
@@ -119,10 +131,6 @@ def genres(url):
 		li.setArt({'thumb':defaultimage,'fanart':defaultfanart})
 		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
 	xbmcplugin.setContent(addon_handle, 'episodes')
-	addDir2('On Demand TV Shows', apiBase
-	, 9, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited TV shows. Watch action, comedy, drama, romance, and timeless classics from our vast collection on Local Now.'})
-	addDir2('On Demand Movies', apiUrl + 'movies.json'
-	, 18, defaultimage, defaultfanart, infoLabels={'plot':'Stream unlimited free movies. Watch action, comedy, drama, romance, blockbuster films and more on Local Now.'})
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
 #3
@@ -134,7 +142,9 @@ def channels(url, name):
 		if item['genres'][0] != name:
 			continue
 		title = str(item['channel_number']) + ' ' + item['name']
+		contentType = 'Channel'
 		image = item['wallpaper']
+		info = item['description']
 		onNow = item['program'][0]['program_title']
 		description = item['program'][0]['program_description']
 		onNext = item['program'][1]['program_title']
@@ -149,6 +159,7 @@ def channels(url, name):
 		li.setProperty('IsPlayable', 'true')
 		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':plot})
 		li.setArt({'thumb':image,'fanart':image})
+		li.addContextMenuItems([('Save Item', 'RunPlugin(%s?mode=78&url=%s&name=%s&data=%s&image=%s&info=%s)' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(item['name']), (contentType), (image), (info)))])
 		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
@@ -199,6 +210,7 @@ def shows(name,url):
 			for count, item in enumerate(data['pageProps']['page']['rails'][c]['cards']):
 				title = item['title']
 				slug = item['slug']
+				contentType = item['type']
 				url = apiBase + BUILD_ID + '/shows/' + slug + '.json'
 				#url = apiUrl + 'shows/' + slug + '.json'
 				image = item['image']
@@ -206,7 +218,8 @@ def shows(name,url):
 				li = xbmcgui.ListItem(title)
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
 				li.setArt({'thumb':image,'fanart':defaultfanart})
-				li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url)))])
+				#li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url)))])
+				li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url))),('Save Item', 'RunPlugin(%s?mode=72&url=%s&name=%s&data=%s&image=%s)' % (sys.argv[0], (url), urllib.parse.quote_plus(title), (contentType[:-1]), (image)))])
 				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=True)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
@@ -214,6 +227,7 @@ def shows(name,url):
 
 #15
 def episodes(name,url):
+	url.replace('show/','shows/')
 	response = s.get(url)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	#jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
@@ -266,6 +280,7 @@ def mcats(name,url):
 def movies(name,url):
 	BUILD_ID = get_buildID()
 	response = s.get(apiBase + BUILD_ID + '/movies.json')
+	xbmc.log('URL: ' + str(apiBase + BUILD_ID + '/movies.json'),level=log_level)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
 	for count, item in enumerate(data['pageProps']['page']['rails']):
@@ -277,16 +292,19 @@ def movies(name,url):
 				title = item['title']
 				movieId = item['id']
 				slug = item['slug']
+				contentType = 'Movie'
+				#info = item['description']
 				url ='https://data-store-trans-cdn.api.cms.amdvids.com/video/play/' + str(movieId) + '/1920/1080?page_url=https%253A%252F%252Flocalnow.com%252Fchannels%252Fthe-war-channel&device_devicetype=desktop_web&app_version=0.0.0'
 				image = item['image']
 				fanart = image.replace('2x3','16x9')
 				streamUrl = 'plugin://plugin.video.localnow?mode=6&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(name)
-				url = apiBase + BUILD_ID + '/movies/' + slug + '.json'
+				info_url = apiBase + BUILD_ID + '/movies/' + slug + '.json'
 				li = xbmcgui.ListItem(title)
 				li.setProperty('IsPlayable', 'true')
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
 				li.setArt({'thumb':image,'fanart':fanart})
-				li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=85&url=%s)' % (sys.argv[0], (url)))])
+				#li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=85&url=%s)' % (sys.argv[0], (url)))])
+				li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=85&url=%s)' % (sys.argv[0], (info_url))),('Save Item', 'RunPlugin(%s?mode=75&url=%s&name=%s&data=%s&image=%s&info_url=%s)' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(title), (contentType), (image), (info_url)))])
 				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
@@ -301,6 +319,117 @@ def get_id(baseUrl):
 	buildId = data['buildId']
 	xbmc.log('BUILDID: ' + str(buildId),level=log_level)
 	return(buildId)
+
+
+#25
+def saved_items(name,url):
+	start_path = os.path.join(addon_path_profile) # current directory
+	xbmc.log('START_PATH: ' + str(start_path),level=log_level)
+	for path,dirs,files in os.walk(start_path):
+		for filename in files:
+			if '.txt' in filename:
+				title = urllib.parse.unquote_plus(filename).split('-')[0]
+				#xbmc.log('SAVED ITEM TITLE: ' + str(title),level=log_level)
+				with open(os.path.join(addon_path_profile, filename), 'r') as f:
+					items = f.read()
+				info = re.findall(r"'(.*?)'", items)
+				url = info[0]
+				xbmc.log('SAVED URL: ' + str(url),level=log_level)
+				image = info[2]
+				sid = ''# info[2].split('/')[8]
+				#xbmc.log('SID: ' + str(sid),level=log_level)
+				contentType = info[1]
+				if (len(info) > 3) and (contentType == 'Channel'):
+					item_info = info[3]
+					plot = contentType.title() + ' - ' + item_info
+				else:
+					plot = contentType.title()
+				xbmc.log('CONTENTTYPE: ' + str(contentType),level=log_level)
+				#plot = contentType.title() + ' - ' + item_info
+				if (contentType == 'Movie') or (contentType == 'Channel'):
+					mode = 6; folder = False
+				#if (contentType == 'shows') or (contentType == 'show'):
+				if 'show' in contentType:
+					mode = 15; folder = True
+				streamUrl = 'plugin://plugin.video.localnow?mode=' + str(mode) + '&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(sid)# + '&count=' + urllib.parse.quote_plus(str(count))
+				li = xbmcgui.ListItem(title)
+				if ('Movie' in filename) and (mode == 6):
+					url = info[3]
+					xbmc.log('MOVIE: ' + str(contentType),level=log_level)
+					li.setProperty('IsPlayable', 'true')
+					li.addContextMenuItems([('Movie Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url))),('Delete Item', 'RunPlugin(%s?mode=88&url=%s&name=%s&data=%s&image=%s)' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(title), (contentType), (image)))])
+				if contentType == 'Channel':
+					li.setProperty('IsPlayable', 'true')
+					li.addContextMenuItems([('Delete Item', 'RunPlugin(%s?mode=88&url=%s&name=%s&data=%s&image=%s)' % (sys.argv[0], urllib.parse.quote_plus(url), urllib.parse.quote_plus(title), (contentType), (image)))])
+				if 'show' in contentType:
+					li.addContextMenuItems([('Show Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url))),('Delete Item', 'RunPlugin(%s?mode=88&url=%s&name=%s&data=%s&image=%s)' % (sys.argv[0], (url), urllib.parse.quote_plus(title), (contentType), (image)))])
+				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':plot})
+				li.setArt({'thumb':image,'fanart':image})
+				## Add Context Item
+				#li.addContextMenuItems([('More Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (url))),('Delete Item', 'RunPlugin(%s?mode=88&url=%s&name=%s&data=%s&image=%s)' % (sys.argv[0], (url), urllib.parse.quote_plus(title), (contentType), (image)))])
+				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=folder)
+				xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	#xbmc.log('INFO 0: ' + str(info[0]),level=log_level)
+	#xbmc.log('INFO 1: ' + str(info[1]),level=log_level)
+	#xbmc.log('INFO 2: ' + str(info[2]),level=log_level)
+	xbmcplugin.setContent(addon_handle, 'episodes')
+	#if force_views != 'false':
+		#xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
+	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
+
+
+#72
+def save_item(url,name,data,image):
+	xbmc.log('SAVE ITEM NAME: ' + str(name),level=log_level)
+	xbmc.log('SAVE ITEM: ' + str(url),level=log_level)
+	xbmc.log('SAVE ITEM CONTENTTYPE: ' + str(data),level=log_level)
+	BUILD_ID = get_buildID()
+	second = urllib.parse.quote_plus(url.split('/',7)[-1])
+	xbmc.log('SECOND: ' + str(second),level=log_level)
+	#infoUrl = apiBase + '/' + BUILD_ID + '/' + data + '/' + second
+	infoUrl = apiBase + BUILD_ID + '/' + data + 's/' + second
+	xbmc.log('INFOURL: ' + str(infoUrl),level=log_level)
+	file_name = urllib.parse.quote_plus(name) + '-' + data + '.txt'
+	with open(os.path.join(addon_path_profile, file_name), "w") as text_file:
+		text_file.write(f"{infoUrl,data,image}")
+	xbmcgui.Dialog().notification(addonname, name + ' Saved', defaultimage, time=3000, sound=False)
+	sys.exit()
+
+
+#75
+def save_movie(url,name,data,image,info_url):
+	xbmc.log('SAVE ITEM NAME: ' + str(name),level=log_level)
+	xbmc.log('SAVE ITEM: ' + str(url),level=log_level)
+	xbmc.log('SAVE ITEM CONTENTTYPE: ' + str(data),level=log_level)
+	BUILD_ID = get_buildID()
+	#second = urllib.parse.quote_plus(url.split('/',7)[-1])
+	#xbmc.log('SECOND: ' + str(second),level=log_level)
+	#infoUrl = apiBase + '/' + BUILD_ID + '/' + data + '/' + second
+	#xbmc.log('INFOURL: ' + str(infoUrl),level=log_level)
+	file_name = urllib.parse.quote_plus(name) + '-' + data + '.txt'
+	with open(os.path.join(addon_path_profile, file_name), "w") as text_file:
+		text_file.write(f"{url,data,image,info_url}")
+	xbmcgui.Dialog().notification(addonname, name + ' Saved', defaultimage, time=3000, sound=False)
+	sys.exit()
+
+
+#78
+def save_channel(url,name,data,image,info):
+	xbmc.log('SAVE ITEM NAME: ' + str(name),level=log_level)
+	xbmc.log('SAVE ITEM: ' + str(url),level=log_level)
+	xbmc.log('SAVE ITEM CONTENTTYPE: ' + str(data),level=log_level)
+	xbmc.log('SAVE ITEM INFO: ' + str(info),level=log_level)
+	BUILD_ID = get_buildID()
+	#second = urllib.parse.quote_plus(url.split('/',7)[-1])
+	#xbmc.log('SECOND: ' + str(second),level=log_level)
+	#infoUrl = apiBase + '/' + BUILD_ID + '/' + data + '/' + second
+	#xbmc.log('INFOURL: ' + str(infoUrl),level=log_level)
+	file_name = urllib.parse.quote_plus(name) + '-' + data + '.txt'
+	with open(os.path.join(addon_path_profile, file_name), "w") as text_file:
+		text_file.write(f"{url,data,image,info}")
+	xbmcgui.Dialog().notification(addonname, name + ' Saved', defaultimage, time=3000, sound=False)
+	sys.exit()
 
 
 #82
@@ -357,6 +486,29 @@ def info(url):
 	xbmcgui.Dialog().textviewer(title, info)
 
 
+#88
+def delete_item(url,name,data,image):
+	xbmc.log('DELETE URL: ' + str(url),level=log_level)
+	xbmc.log('DELETE NAME: ' + str(name),level=log_level)
+	xbmc.log('DELETE DATA: ' + str(data),level=log_level)
+	xbmc.log('DELETE IMAGE: ' + str(image),level=log_level)
+	yes = xbmcgui.Dialog().yesno(addonname ,'Are you sure you want to delete ' + name + '?  This action cannot be reversed!')
+	if not yes:
+		xbmc.log('NOT YES',level=log_level)
+		sys.exit()
+	else:
+		xbmc.log('YES',level=log_level)
+		file_name = os.path.join(addon_path_profile, urllib.parse.quote_plus(name) + '-' + data + '.txt')
+		xbmc.log('FILE_NAME: ' + str(file_name),level=log_level)
+		if os.path.exists(os.path.join(addon_path_profile,file_name)):
+			os.remove(file_name)
+			xbmcgui.Dialog().notification(addonname, name + ' Has been deleted.', defaultimage, time=3000, sound=False)
+			xbmc.executebuiltin("Container.Refresh")
+			sys.exit()
+		else:
+			xbmcgui.Dialog().notification(addonname, name.split('--')[0] + ' Already deleted.', defaultimage, time=3000, sound=False)
+
+
 #99
 def PLAY(name,url):
 	listitem = xbmcgui.ListItem(path=url)
@@ -366,6 +518,12 @@ def PLAY(name,url):
 	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
 	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
 	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+	license_url = (
+		"https://keyserver.cloudport.amagi.tv/MysteriousWorlds_LocalNow.key"
+		"|Referer=https%3A%2F%2Flocalnow.com%2F&User-Agent=Mozilla%2F5.0"
+	)
+	listitem.setProperty("inputstream.adaptive.license_type", "com.widevine.alpha")
+	listitem.setProperty("inputstream.adaptive.license_key", license_url)
 	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
@@ -427,11 +585,31 @@ try:
 except:
 	pass
 try:
+	info_url = urllib.parse.unquote_plus(params["info_url"])
+except:
+	pass
+try:
 	name = urllib.parse.unquote_plus(params["name"])
 except:
 	pass
 try:
 	slug = urllib.parse.unquote_plus(params["slug"])
+except:
+	pass
+try:
+	item = urllib.parse.unquote_plus(params["item"])
+except:
+	pass
+try:
+	info = urllib.parse.unquote_plus(params["info"])
+except:
+	pass
+try:
+	data = urllib.parse.unquote_plus(params["data"])
+except:
+	pass
+try:
+	image = urllib.parse.unquote_plus(params["image"])
 except:
 	pass
 try:
@@ -446,6 +624,9 @@ xbmc.log("Name: " + str(name),level=log_level)
 if mode == None or url == None or len(url) < 1:
 	xbmc.log(("Get All"),level=log_level)
 	get_ln(baseUrl)
+elif mode == 1:
+	xbmc.log(("Live Channels"),level=log_level)
+	genres(url)
 elif mode == 3:
 	xbmc.log(("Get Channels"),level=log_level)
 	channels(url,name)
@@ -467,12 +648,27 @@ elif mode == 18:
 elif mode == 21:
 	xbmc.log(("Get Movies"),level=log_level)
 	movies(name,url)
+elif mode == 25:
+	xbmc.log(("Get Saved Items"),level=log_level)
+	saved_items(url,name)
+elif mode == 72:
+	xbmc.log(("Save Item"),level=log_level)
+	save_item(url,name,data,image)
+elif mode == 75:
+	xbmc.log(("Save Movie"),level=log_level)
+	save_movie(url,name,data,image,info_url)
+elif mode == 78:
+	xbmc.log(("Save Channel"),level=log_level)
+	save_channel(url,name,data,image,info)
 elif mode == 82:
 	xbmc.log(("Get Show Info"),level=log_level)
 	desc(url)
 elif mode == 85:
 	xbmc.log(("Get Movie Info"),level=log_level)
 	info(url)
+elif mode == 88:
+	xbmc.log(("Delete Item"),level=log_level)
+	delete_item(url,name,data,image)
 elif mode == 99:
 	xbmc.log("Play Stream", level=log_level)
 	PLAY(name,url)

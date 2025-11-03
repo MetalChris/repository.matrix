@@ -29,7 +29,6 @@ def play_episode_isa(title, url, image, epg_window=None):
 
             # --- LocalNow DRM handling for Mysterious Worlds ---
             if "Mysterious Worlds" in title or "localnow" in url.lower():
-                # Properly URL-encoded Referer and User-Agent
                 license_url = (
                     "https://keyserver.cloudport.amagi.tv/MysteriousWorlds_LocalNow.key"
                     "|Referer=https%3A%2F%2Flocalnow.com%2F&User-Agent=Mozilla%2F5.0"

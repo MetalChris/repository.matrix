@@ -17,7 +17,7 @@ def play_episode_hls(title, url, image, epg_window=None):
 
         if not url:
             xbmcgui.Dialog().notification(
-                "DistroTV EPG",
+                "LocalNow EPG",
                 "No stream URL",
                 xbmcgui.NOTIFICATION_ERROR,
                 3000,

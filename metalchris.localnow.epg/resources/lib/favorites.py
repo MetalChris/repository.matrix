@@ -163,7 +163,7 @@ def remove_favorite(chan_id):
 
     # --- Confirmation dialog ---
     dlg = xbmcgui.Dialog()
-    confirm = dlg.yesno("DistroTV EPG", f"Are you sure you wish to remove {chan_name} from Favorites?")
+    confirm = dlg.yesno("LocalNow EPG", f"Are you sure you wish to remove {chan_name} from Favorites?")
     if not confirm:
         return False  # user cancelled
 

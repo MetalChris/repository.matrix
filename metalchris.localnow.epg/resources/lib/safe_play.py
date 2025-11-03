@@ -25,7 +25,7 @@ def safe_play(ep, epg_window=None):
         log(f"[PLAYBACK] Error using {'ISA' if use_ISA else 'HLS'}: {e}", xbmc.LOGERROR)
         if use_ISA:
             xbmcgui.Dialog().notification(
-                "DistroTV EPG",
+                "LocalNow EPG",
                 "ISA playback failed — retrying without InputStream Adaptive",
                 xbmcgui.NOTIFICATION_WARNING,
                 3000,
@@ -37,7 +37,7 @@ def safe_play(ep, epg_window=None):
             except Exception as e2:
                 log(f"[PLAYBACK] Fallback HLS also failed: {e2}", xbmc.LOGERROR)
                 xbmcgui.Dialog().notification(
-                    "DistroTV EPG",
+                    "LocalNow EPG",
                     "Playback failed",
                     xbmcgui.NOTIFICATION_ERROR,
                     3000,

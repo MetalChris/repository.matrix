@@ -11,5 +11,5 @@ def convert_to_local(utc_str):
         time_format = xbmc.getRegion("time").replace(":%S", "")
         return time.strftime(time_format, local_tuple)
     except Exception as e:
-        xbmc.log(f"[DistroTV EPG] Time conversion failed for {utc_str}: {e}", xbmc.LOGERROR)
+        xbmc.log(f"[LocalNow EPG] Time conversion failed for {utc_str}: {e}", xbmc.LOGERROR)
         return "N/A"

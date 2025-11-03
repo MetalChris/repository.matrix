@@ -46,7 +46,7 @@ for path in [CACHE_DIR, THUMBS_DIR]:
 	if not xbmcvfs.exists(path):
 		xbmcvfs.mkdirs(path)
 
-HEADERS = {"User-Agent": "Mozilla/5.0 (Kodi; Linux) DistroTV/1.0"}
+HEADERS = {"User-Agent": "Mozilla/5.0 (Kodi; Linux) LocalNow/1.0"}
 
 def _cache_path(name):
 	return os.path.join(CACHE_DIR, name + ".json")
@@ -56,7 +56,7 @@ def build_genre_map(data):
 	genre_map = {}
 	try:
 		channels = data.get("channels", [])
-		log(f"Channels type: {type(channels)}", xbmc.LOGINFO)
+		log(f"Channels type: {type(channels)}", xbmc.LOGDEBUG)
 		# If channels is a dict, convert to list of values
 		if isinstance(channels, dict):
 			channels = channels.values()
@@ -80,7 +80,7 @@ def fetch_channel_descriptions(data):
 	desc_map = {}
 	try:
 		channels = data.get("channels", [])
-		log(f"Channels type: {type(channels)}", xbmc.LOGINFO)
+		log(f"Channels type: {type(channels)}", xbmc.LOGDEBUG)
 		# If channels is a dict, convert to list of values
 		if isinstance(channels, dict):
 			channels = channels.values()
@@ -154,7 +154,7 @@ def get_channel_thumbs(data):
 
         dlg.close()
         xbmcgui.Dialog().notification(
-            "DistroTV EPG",
+            "LocalNow EPG",
             f"Downloaded {total} new channel logos",
             xbmcgui.NOTIFICATION_INFO,
             3000,
@@ -186,7 +186,7 @@ def fetch_all_episode_ids():
 					if ep_id:
 						ids.append(ep_id)
 
-		log(f"[UTILS FETCH] Collected {len(ids)} episode IDs", xbmc.LOGINFO)
+		log(f"[UTILS FETCH] Collected {len(ids)} episode IDs", xbmc.LOGDEBUG)
 		return ids
 
 	except Exception as e:
@@ -210,7 +210,7 @@ def fetch_show_ids():
 		for show_id in shows.keys():
 			show_ids.append(show_id)
 
-		log(f"[UTILS FETCH] Collected {len(show_ids)} show IDs", xbmc.LOGINFO)
+		log(f"[UTILS FETCH] Collected {len(show_ids)} show IDs", xbmc.LOGDEBUG)
 	except Exception as e:
 		log(f"[UTILS FETCH] Error in fetch_show_ids: {e}", xbmc.LOGERROR)
 	return show_ids
@@ -301,9 +301,9 @@ def fetch_epg(url=None, ttl=None):
 	try:
 		log(f"[UTILS FETCH] Fetching EPG from {url[:150]}", xbmc.LOGINFO)
 		response = s.get(url, headers = {'User-Agent': ua})
-		log('[UTILS FETCH] FETCHING FROM: ' + str(url),xbmc.LOGINFO)
-		log('[UTILS FETCH] RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
-		log('[UTILS FETCH] RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+		log('[UTILS FETCH] FETCHING FROM: ' + str(url),xbmc.LOGDEBUG)
+		log('[UTILS FETCH] RESPONSE CODE: ' + str(response.status_code),xbmc.LOGDEBUG)
+		log('[UTILS FETCH] RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 		data = json.loads(response.text)
 		with xbmcvfs.File(cache_file, "w") as f:
 			f.write(json.dumps({"timestamp": now, "data": data}))
@@ -337,7 +337,7 @@ def clear_cache():
 			xbmcvfs.mkdirs(THUMBS_DIR)
 
 		xbmcgui.Dialog().notification(
-			"DistroTV EPG",
+			"LocalNow EPG",
 			"Cache cleared",
 			xbmcgui.NOTIFICATION_INFO,
 			3000,
@@ -388,7 +388,7 @@ def clear_cache_and_refresh_thumbs():
 				return
 
 			dlg = xbmcgui.DialogProgress()
-			dlg.create("DistroTV EPG", "Downloading channel logos...")
+			dlg.create("LocalNow EPG", "Downloading channel logos...")
 
 			for i, (ep_id, img_url) in enumerate(all_eps, 1):
 				if dlg.iscanceled():
@@ -408,7 +408,7 @@ def clear_cache_and_refresh_thumbs():
 					dlg.update(pct, f"Downloaded {i}/{total} logos")
 
 			dlg.close()
-			xbmcgui.Dialog().notification("DistroTV EPG", "Cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+			xbmcgui.Dialog().notification("LocalNow EPG", "Cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
 			log(f"[UTILS_FETCH] Cached {total} channel logos", xbmc.LOGINFO)
 
 		except Exception as e:

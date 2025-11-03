@@ -30,6 +30,6 @@ class PlayerMonitor(xbmc.Player):
                 try:
                     ctrl.selectItem(self.selection)
                 except Exception:
-                    xbmc.log("[DistroTV EPG] Failed to restore selection", xbmc.LOGWARNING)
+                    xbmc.log("[LocalNow EPG] Failed to restore selection", xbmc.LOGWARNING)
         except Exception as e:
-            xbmc.log(f"[DistroTV EPG] Error reopening EPG: {e}", xbmc.LOGERROR)
+            xbmc.log(f"[LocalNow EPG] Error reopening EPG: {e}", xbmc.LOGERROR)

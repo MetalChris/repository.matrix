@@ -241,7 +241,7 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2025.10.07" provider-name="MetalChris">
+<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2025.10.08" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>

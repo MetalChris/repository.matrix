@@ -54,6 +54,18 @@
             <texture>special://home/addons/metalchris.lgchannels.epg/resources/media/row_focus.png</texture>
         </control>
 
+        <!-- Header: Channel Name -->
+        <control type="label">
+            <posx>550</posx>
+            <posy>56</posy>
+            <width>250</width>
+            <height>30</height>
+            <align>left</align>
+            <font>font24_title</font>
+            <label>$INFO[ListItem.Property(channel)]</label>
+            <textcolor>grey</textcolor>
+        </control>
+
         <!-- Channel Heading -->
         <control type="label">
             <posx>60</posx>

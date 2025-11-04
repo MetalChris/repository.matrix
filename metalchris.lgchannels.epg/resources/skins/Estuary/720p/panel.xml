@@ -23,18 +23,6 @@
             <texture colordiffuse="dd101010" border="40">special://home/addons/metalchris.lgchannels.epg/resources/media/header.png</texture>
         </control>
 
-        <!-- Clock -->
-        <control type="label" id="1001">
-            <posx>1268</posx>
-            <posy>1</posy>
-            <width>200</width>
-            <height>50</height>
-            <label>$INFO[System.Time]</label>
-            <font>font_clock</font>
-            <textcolor>grey</textcolor>
-            <align>right</align>
-        </control>
-
         <!-- Title -->
         <control type="label" id="1">
             <left>80</left>
@@ -42,8 +30,32 @@
             <width>87.5%</width>
             <height>60</height>
             <align>center</align>
-            <label>XumoPlay EPG</label>
+            <label>CW Live EPG</label>
             <font>font30_title</font>
+        </control>
+
+        <!-- Header: Channel Name -->
+        <control type="label">
+            <left>90</left>
+            <top>50</top>
+            <width>25%</width>
+            <height>30</height>
+            <align>left</align>
+            <font>font30_title</font>
+            <label>$INFO[ListItem.Property(channel)]</label>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Clock -->
+        <control type="label" id="1001">
+            <posx>1190</posx>
+            <posy>50</posy>
+            <width>200</width>
+            <height>50</height>
+            <label>$INFO[System.Time]</label>
+            <font>font30_title</font>
+            <textcolor>white</textcolor>
+            <align>right</align>
         </control>
 
         <!-- Header -->

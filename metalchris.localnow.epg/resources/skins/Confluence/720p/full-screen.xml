@@ -76,6 +76,18 @@
             <textcolor>grey</textcolor>
         </control>
 
+        <!-- Header: Channel Name -->
+        <control type="label">
+            <left>500</left>
+            <top>56</top>
+            <width>25%</width>
+            <height>50</height>
+            <align>left</align>
+            <font>font24_title</font>
+            <label>$INFO[ListItem.Property(channel)]</label>
+            <textcolor>grey</textcolor>
+        </control>
+
         <!-- Next Heading -->
         <control type="label">
             <posx>920</posx>

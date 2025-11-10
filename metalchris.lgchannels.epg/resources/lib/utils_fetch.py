@@ -47,6 +47,7 @@ HEADERS = {
 	'user-agent': ua,
 	'x-device-country': 'US',
 	'x-device-language': 'en',
+	'referer': 'https://lgchannels.com/'
 }
 
 def _cache_path(name):

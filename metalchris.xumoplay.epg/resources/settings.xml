@@ -1,0 +1,21 @@
+<settings>
+    <category label="General">
+        <setting id="sort_alpha" type="bool" label="Sort channels alphabetically" default="false" />
+        <setting id="remember_genre" type="bool" label="Remember last genre filter" default="false" />
+        <setting id="last_genre" type="text" default="" visible="false" />
+        <setting id="epg_mode" type="enum" label="EPG Mode" values="Panel|Fullscreen" default="0" />
+    </category>
+
+    <category label="Advanced">
+        <setting id="debug_logging" type="bool" label="Enable debug logging" default="false" />
+        <setting id="cache_ttl" type="slider" label="EPG cache duration (hours)" default="5" range="1,12" option="int" step="1" />
+        <setting id="first_run" type="bool" label="Hidden: first run" default="true" visible="false" />
+        <setting id="clear_cache_on_next_start"
+         type="bool"
+         label="Clear EPG cache on next startup"
+         help="Check to clear EPG cache and thumbnails the next time the add-on starts. This will be cleared automatically after running."
+         default="false" />
+         />
+    </category>
+
+</settings>

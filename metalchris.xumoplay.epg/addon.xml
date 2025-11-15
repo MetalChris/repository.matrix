@@ -1,0 +1,28 @@
+<addon id="metalchris.xumoplay.epg" name="XumoPlay" version="2025.11.01" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="inputstream.adaptive" />
+        <import addon="script.module.inputstreamhelper" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">EPG Viewer for XumoPlay</summary>
+        <description lang="en">Stream live channels from XumoPlay. Watch action, comedy, drama, romance, blockbuster films, timeless classics and more on XumoPlay.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+</addon>

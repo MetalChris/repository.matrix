@@ -29,7 +29,7 @@
             <width>200</width>
             <height>50</height>
             <label>$INFO[System.Time]</label>
-            <font>font30_title</font>
+            <font>font16</font>
             <textcolor>white</textcolor>
             <align>right</align>
         </control>
@@ -41,7 +41,7 @@
             <width>1240</width>
             <height>50</height>
             <label>XumoPlay EPG</label>
-            <font>font30_title</font>
+            <font>font16</font>
             <textcolor>white</textcolor>
         </control>
 
@@ -73,6 +73,18 @@
             <height>30</height>
             <label>Now</label>
             <font>font24_title</font>
+            <textcolor>grey</textcolor>
+        </control>
+
+        <!-- Header: Channel Name -->
+        <control type="label">
+            <left>500</left>
+            <top>56</top>
+            <width>25%</width>
+            <height>50</height>
+            <align>left</align>
+            <font>font24_title</font>
+            <label>$INFO[ListItem.Property(channel)]</label>
             <textcolor>grey</textcolor>
         </control>
 

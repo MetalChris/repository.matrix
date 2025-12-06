@@ -95,10 +95,16 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 		if channel_info:
 
+			if not (channel_info["title"]):
+				log(f"[BUILD ITEMS] No Channel Title: {channelId}", xbmc.LOGDEBUG)
+				continue
 			title = (channel_info["title"])
 			contentType = 'Channel'
 			image = (channel_info["logo"])
 			info = (channel_info["chan_desc"])
+			if not program_info:
+				log(f"[BUILD ITEMS] No Program Info: {channelId}", xbmc.LOGDEBUG)
+				continue
 			onNow = (program_info["title"])
 			now_desc = (program_info["descriptions"])
 			onNext = (program_info["title2"])

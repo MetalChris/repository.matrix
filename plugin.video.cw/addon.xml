@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.cw" name="CW TV Network" version="2025.10.04" provider-name="MetalChris,QianyuLi">
+<addon id="plugin.video.cw" name="CW TV Network" version="2026.01.02" provider-name="MetalChris,QianyuLi">
   <requires>
-    <import addon="xbmc.python" version="3.0.1"/>
+    <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
-    <import addon="script.module.inputstreamhelper"/>
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
@@ -20,10 +19,15 @@
     <website>https://www.cwtv.com/</website>
     <email></email>
     <source>https://github.com/MetalChris/repository.matrix/tree/master/plugin.video.cw</source>
-    <news>Version 2025.10.04 - Updated to include on demand movies from CW website. Code compliance for Kodi makes this version incompatible with Matrix.</news>
+    <news>Version 2026.01.01 - </news>
     <assets>
-        <icon>resources/media/icon.png</icon>
-        <fanart>resources/media/fanart.jpg</fanart>
+        <icon>icon.png</icon>
+        <fanart>fanart.jpg</fanart>
+        <screenshot>resources/media/screenshot001.png</screenshot>
+        <screenshot>resources/media/screenshot002.png</screenshot>
+        <screenshot>resources/media/screenshot003.png</screenshot>
+        <screenshot>resources/media/screenshot004.png</screenshot>
+        <screenshot>resources/media/screenshot005.png</screenshot>
     </assets>
   </extension>
 </addon>

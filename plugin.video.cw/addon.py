@@ -11,12 +11,13 @@ import xbmcvfs
 import json
 import requests
 from bs4 import BeautifulSoup
-import inputstreamhelper
+#import inputstreamhelper
 
 ADDON = xbmcaddon.Addon()
-ADDON_ID = "metalchris.cwlive.epg"
+ADDON_ID = "plugin.video.cw"
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_VERSION = ADDON.getAddonInfo("version")
+
 artbase = 'special://home/addons/plugin.video.cw/resources/media/'
 _addon = xbmcaddon.Addon()
 _addon_path = _addon.getAddonInfo('path')
@@ -53,9 +54,9 @@ xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
 
 plugin = "CW TV Network"
 
-defaultimage = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
-defaultfanart = 'special://home/addons/plugin.video.cw/resources/media/fanart.jpg'
-defaulticon = 'special://home/addons/plugin.video.cw/resources/media/icon.png'
+defaultimage = 'special://home/addons/plugin.video.cw/icon.png'
+defaultfanart = 'special://home/addons/plugin.video.cw/fanart.jpg'
+defaulticon = 'special://home/addons/plugin.video.cw/icon.png'
 
 
 local_string = xbmcaddon.Addon(id='plugin.video.cw').getLocalizedString
@@ -103,20 +104,20 @@ def get_shows(name,url,iconimage):
 	for row in data.get("rows", []):
 		row_name = row.get("name")
 		if name == row_name:
-			xbmc.log(f"MATCH: {row_name}", xbmc.LOGDEBUG)
+			xbmc.log(f"MATCH: {row_name}", level=log_level)
 
 			items = row.get("items", [])
-			xbmc.log(f"SHOWS: {len(items)}", xbmc.LOGDEBUG)
+			xbmc.log(f"SHOWS: {len(items)}", level=log_level)
 
 			for show in items:
 				title_dict = show.get("title", {})
 				title_en = title_dict.get("en")
-				xbmc.log(f"SHOW: {title_en}", xbmc.LOGDEBUG)
+				xbmc.log(f"SHOW: {title_en}", level=log_level)
 				#xbmc.log('TITLE: ' + str(title),level=log_level)
 				try:
-					artwork = show["images"][-1]["url"]
+				    artwork = show["images"][-1]["url"]
 				except (IndexError, KeyError, TypeError):
-					artwork = defaultfanart
+				    artwork = defaultfanart
 				desc = show.get("description")
 				plot = desc["en"]
 				meta = show.get("metadata")
@@ -137,14 +138,13 @@ def get_shows(name,url,iconimage):
 
 #40
 def get_eps(name,url,iconimage):
-	xbmc.log('[GET EPS] NAME: ' + str(name),xbmc.LOGINFO)
 	response = s.get(url)
 	xbmc.log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
 	xbmc.log('RESPONSE: ' + str(response.text[:200]),xbmc.LOGINFO)
 	html = response.content
 	soup = BeautifulSoup(html, "html.parser")
 	xbmc.log('SOUP: ' + str(len(soup)),level=log_level)
-	divs = soup.find_all("div", {'class':'videowrapped thumbgrow slide'})
+	divs = soup.find_all("div", {'class':'thumbgrow'})
 	xbmc.log('DIVS: ' + str(len(divs)),level=log_level)
 	for div in divs:
 		url = str('https://www.cwtv.com' + div.find('a')['href'])
@@ -160,9 +160,12 @@ def get_eps(name,url,iconimage):
 		streamUrl = 'plugin://plugin.video.cw?mode=45&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title) + '&iconimage=' + urllib.parse.quote_plus(artwork)
 
 		li = xbmcgui.ListItem(title)
+		info = li.getVideoInfoTag()
+		info.setTitle(title)
+		info.setPlot(plot)
 		li.setArt({'icon': artwork, 'thumb': artwork})
 		li.setProperty('fanart_image', artwork)
-		li.setInfo(type="Video", infoLabels={"Title": title, "Plot": plot})#, "Episode": ep, "Premiered": airdate})
+		#li.setInfo(type="Video", infoLabels={"Title": title, "Plot": plot})#, "Episode": ep, "Premiered": airdate})
 		#li.addStreamInfo('video', { 'duration': duration })
 		xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li)
 		xbmcplugin.setContent(addon_handle, 'episodes')
@@ -178,7 +181,8 @@ def video_id(name,url,iconimage):
 	html = response.content
 	soup = BeautifulSoup(html, "html.parser")
 	xbmc.log('SOUP: ' + str(len(soup)),level=log_level)
-	videoId = re.search(r"curPlayingBCVideoId\s*=\s*'([^']+)'", str(soup)).group(1)
+	#videoId = re.search(r"curPlayingBCVideoId\s*=\s*'([^']+)'", str(soup)).group(1)
+	videoId = re.compile('curPlayingBCVideoId = "(.+?)"').findall(str(soup))[0]
 	xbmc.log('VIDEOID: ' + str(videoId),xbmc.LOGINFO)
 	url = 'https://edge.api.brightcove.com/playback/v1/accounts/6415823816001/videos/' + videoId
 	xbmc.log('URL: ' + str(url),xbmc.LOGINFO)
@@ -205,9 +209,9 @@ def get_stuff(name,url,iconimage):
 
 	license_key = license_url + '|User-Agent=' + ua + '&Referer=' + referer +'/&Origin=' + referer + '&Content-Type= |R{SSM}|'
 	xbmc.log('LICENSE KEY: ' + str(license_key),level=log_level)
-	is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
-	if not is_helper.check_inputstream():
-		sys.exit()
+	#is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+	#if not is_helper.check_inputstream():
+		#sys.exit()
 	listitem = xbmcgui.ListItem(path=url, label=name)
 	listitem.setProperty('IsPlayable', 'true')
 	listitem.setArt({'icon': iconimage, 'thumb': iconimage})
@@ -216,7 +220,7 @@ def get_stuff(name,url,iconimage):
 	#if captions != '':
 		#listitem.setSubtitles([captions])
 	listitem.setProperty('inputstream', 'inputstream.adaptive')
-	#listitem.setProperty('inputstream.adaptive.manifest_type', "mpd")
+	listitem.setProperty('inputstream.adaptive.manifest_type', "mpd")
 	listitem.setProperty('inputstream.adaptive.manifest_headers', f"User-Agent={ua}")
 	listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
 	listitem.setProperty('inputstream.adaptive.license_key', license_key)
@@ -276,11 +280,12 @@ def add_directory2(name,url,mode,fanart,thumbnail,plot,showcontext=False):
 	u=sys.argv[0]+"?url="+urllib.parse.quote_plus(url)+"&mode="+str(mode)+"&name="+urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(thumbnail)
 	ok=True
 	liz=xbmcgui.ListItem(name)
-	liz.setArt({'icon': thumbnail})
-	liz.setArt({'thumb': thumbnail})
 	info = liz.getVideoInfoTag()
 	info.setTitle(name)
 	info.setPlot(plot)
+	liz.setArt({'icon': "DefaultFolder.png"})
+	liz.setArt({'thumb': fanart})
+	liz.setInfo(type="Video", infoLabels={"Title": name})
 	if not fanart:
 		fanart=''
 	liz.setProperty('fanart_image',fanart)
@@ -290,15 +295,13 @@ def add_directory2(name,url,mode,fanart,thumbnail,plot,showcontext=False):
 	return ok
 
 
-def addDir(name, url, mode, iconimage, fanart=False, infoLabels=False):
+def addDir(name, url, mode, iconimage, fanart=False, infoLabels=True):
 	u = sys.argv[0] + "?url=" + urllib.parse.quote_plus(url) + "&mode=" + str(mode) + "&name=" + urllib.parse.quote_plus(name) + "&iconimage=" + urllib.parse.quote_plus(iconimage)
 	ok = True
 	liz = xbmcgui.ListItem(name)
-	liz.setArt({'icon': iconimage})
+	liz.setArt({'icon': "DefaultFolder.png"})
 	liz.setArt({'thumb': iconimage})
-	info = liz.getVideoInfoTag()
-	info.setTitle(name)
-	#info.setPlot(plot)
+	liz.setInfo(type="Video", infoLabels={"Title": name})
 	liz.setProperty('IsPlayable', 'true')
 	if not fanart:
 		fanart=defaultfanart

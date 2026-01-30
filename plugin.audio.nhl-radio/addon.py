@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 2024.12.06
+# Written by MetalChris 2026.01.11
 # Released under GPL(v2 or later)
 
 import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
@@ -162,21 +162,15 @@ def get_streams(url):
 		PLAY(title, awayRadio)
 	if ret == 1:
 		PLAY(title, homeRadio)
-	sys.exit()
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
 
 #99
-def PLAY(name,url):
-	addon_handle = int(sys.argv[1])
-	listitem = xbmcgui.ListItem(path=url)
-	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
-	listitem.setProperty('IsPlayable', 'true')
-	#background = [{'image':image}]
-	#listitem.setAvailableFanart(background)
-	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
-	xbmc.log('URL: ' + str(url), level=log_level)
-	xbmcplugin.endOfDirectory(addon_handle)
+def PLAY(name, url):
+    li = xbmcgui.ListItem(label=name, path=url)
+    li.setProperty('IsPlayable', 'true')
+
+    xbmc.Player().play(url, li)
 
 
 def ordinal(num):
@@ -230,7 +224,7 @@ def addDir(name, url, mode, thumbnail, fanart, infoLabels=True):
 	liz.setInfo(type="Video", infoLabels={"Title": name})
 	liz.setArt({'thumb':thumbnail,'fanart':fanart})
 	if url != 'Future':
-		liz.setProperty('IsPlayable', 'true')
+		liz.setProperty('IsPlayable', 'false')
 	else:
 		liz.setProperty('IsPlayable', 'false')
 	if not fanart:

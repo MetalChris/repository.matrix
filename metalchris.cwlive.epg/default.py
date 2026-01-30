@@ -10,7 +10,7 @@ from itertools import islice
 import time
 import sys
 from urllib.parse import parse_qs
-import inputstreamhelper
+#import inputstreamhelper
 
 from resources.lib.utils_fetch import *
 from resources.lib.uas import *

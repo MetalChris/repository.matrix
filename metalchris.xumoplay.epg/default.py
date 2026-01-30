@@ -10,7 +10,7 @@ from itertools import islice
 import time
 import sys
 from urllib.parse import parse_qs
-import inputstreamhelper
+#import inputstreamhelper
 
 from resources.lib.utils_fetch import *
 from resources.lib.uas import *
@@ -43,6 +43,7 @@ plugin = "Xumo Play"
 local_string = xbmcaddon.Addon(id='metalchris.xumoplay.epg').getLocalizedString
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
+ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
 
 
 class EPGPanel(xbmcgui.WindowXML):
@@ -73,7 +74,7 @@ class EPGPanel(xbmcgui.WindowXML):
 		last_genre = addon.getSetting("last_genre")
 		if last_genre:
 			self.setProperty(GENRE_FILTER_PROP, last_genre)
-			log(f"[XumoPlay EPG Demo] [INFO] GENRE_FILTER_PROP set to: {last_genre}", xbmc.LOGINFO)
+			log(f"[XumoPlay EPG] [INFO] GENRE_FILTER_PROP set to: {last_genre}", xbmc.LOGINFO)
 
 
 		if not self.player_monitor:
@@ -102,10 +103,10 @@ class EPGPanel(xbmcgui.WindowXML):
 
 def run():
 	xbmcgui.Dialog().notification(
-		"XumoPlay EPG",
-		"Building EPG...",
-		xbmcgui.NOTIFICATION_INFO,
-		3000,
+		heading = "XumoPlay EPG",
+		message = "Building EPG...",
+		icon = ICON,
+		time = 3000,
 		sound=False
 	)
 	# Clear cached EPG and thumbs
@@ -121,10 +122,10 @@ def run():
 			log("[SETTINGS] Clearing EPG cache and thumbnails (requested from settings)")
 			clear_cache_and_refresh_thumbs()
 			xbmcgui.Dialog().notification(
-				"XumoPlay EPG",
-				"EPG cache and thumbnails cleared",
-				xbmcgui.NOTIFICATION_INFO,
-				3000,
+				heading = "XumoPlay EPG",
+				message = "EPG cache and thumbnails cleared",
+				icon = ICON,
+				time = 3000,
 				sound=False
 			)
 		else:
@@ -160,7 +161,7 @@ def run():
 	from resources.lib.skin_utils import get_epg_skin_file
 	XML_FILE, theme = get_epg_skin_file()
 	if not XML_FILE or not theme:
-		xbmcgui.Dialog().notification("XumoPlay EPG", "EPG skin XML missing", xbmcgui.NOTIFICATION_ERROR, 5000, sound=False)
+		xbmcgui.Dialog().notification(heading = "XumoPlay EPG", message = "EPG skin XML missing", icon = ICON, time = 5000, sound=False)
 		return
 
 

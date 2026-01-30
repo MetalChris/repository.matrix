@@ -4,7 +4,7 @@ import requests
 
 from resources.lib.uas import ua
 from resources.lib.logger import *
-import inputstreamhelper
+#import inputstreamhelper
 
 s = requests.Session()
 
@@ -40,9 +40,9 @@ def play_episode_isa(title, url, image, captions, epg_window):
 		referer = 'https://play.xumo.com/'
 
 		license_key = lic_url + '|User-Agent=' + ua + '&Referer=' + referer +'/&Origin=' + referer + '&Content-Type= |R{SSM}|'
-		is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
-		if not is_helper.check_inputstream():
-			sys.exit()
+		#is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+		#if not is_helper.check_inputstream():
+			#sys.exit()
 
 		li.setProperty('IsPlayable', 'true')
 		#li.setProperty('title', title)

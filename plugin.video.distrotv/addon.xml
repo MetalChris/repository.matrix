@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.distrotv" name="DistroTV" version="2024.04.09" provider-name="MetalChris">
+<addon id="plugin.video.distrotv" name="DistroTV" version="2025.12.31" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
-    <import addon="script.module.inputstreamhelper"/>
+    <import addon="inputstream.adaptive" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>

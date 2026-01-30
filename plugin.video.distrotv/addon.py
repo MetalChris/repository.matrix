@@ -9,7 +9,7 @@ import json
 import time
 from time import strftime, localtime, mktime
 import requests
-import inputstreamhelper
+#import inputstreamhelper
 
 today = time.strftime("%Y-%m-%d")
 
@@ -187,6 +187,8 @@ def channels(name,url):
 
 #24
 def get_channel(channels,url):
+	xbmc.log('URL: ' + str(url),level=log_level)
+	xbmc.log('CHANNELS: ' + str(channels),level=log_level)
 	response = s.get(channelsUrl)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
@@ -206,6 +208,7 @@ def get_channel(channels,url):
 			li.setArt({'thumb':image,'fanart':image})
 			xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
 			xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	xbmc.log('[DistroTV] CHANNEL URL: ' + str(url),level=log_level)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 

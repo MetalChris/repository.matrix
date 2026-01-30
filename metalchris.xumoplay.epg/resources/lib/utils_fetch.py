@@ -25,6 +25,7 @@ ADDON = Addon("metalchris.xumoplay.epg")
 apiUrl = 'https://valencia-app-mds.xumo.com/v2/'
 baseUrl = 'https://play.xumo.com/'
 FEED_URL = apiUrl + 'proxy/channels/list/10006.json'
+ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
 
 # Read TTL from settings (slider returns string → cast to int)
 try:
@@ -226,10 +227,10 @@ def get_channel_thumbs(data):
 		dlg.close()
 
 		xbmcgui.Dialog().notification(
-			"XumoPlay EPG",
-			f"Downloaded {total} new channel logos",
-			xbmcgui.NOTIFICATION_INFO,
-			3000,
+			heading = "XumoPlay EPG",
+			message = f"Downloaded {total} new channel logos",
+			icon = ICON,
+			time = 3000,
 			sound=False
 		)
 		log(f"[UTILS_FETCH] Cached {total} new channel logos (.webp only)", xbmc.LOGINFO)
@@ -410,10 +411,10 @@ def clear_cache():
 			xbmcvfs.mkdirs(THUMBS_DIR)
 
 		xbmcgui.Dialog().notification(
-			"XumoPlay EPG",
-			"Cache cleared",
-			xbmcgui.NOTIFICATION_INFO,
-			3000,
+			heading = "XumoPlay EPG",
+			message = "Cache cleared",
+			icon = ICON,
+			time = 3000,
 			sound=False
 		)
 		log("[CLEAR_CACHE] Manual cache clear completed", xbmc.LOGINFO)
@@ -481,7 +482,7 @@ def clear_cache_and_refresh_thumbs():
 					dlg.update(pct, f"Downloaded {i}/{total} logos")
 
 			dlg.close()
-			xbmcgui.Dialog().notification("XumoPlay EPG", "Cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+			xbmcgui.Dialog().notification(heading = "XumoPlay EPG", message = "Cache refresh complete", icon = ICON, time = 3000, sound=False)
 			log(f"[UTILS_FETCH] Cached {total} channel logos", xbmc.LOGINFO)
 
 		except Exception as e:

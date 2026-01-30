@@ -21,6 +21,7 @@ PROFILE_PATH = xbmcvfs.translatePath(f"special://profile/addon_data/{ADDON_ID}/"
 EPG_JSON = os.path.join(PROFILE_PATH, "cache", "epg.json")
 apiUrl = 'https://valencia-app-mds.xumo.com/v2/'
 FEED_URL = apiUrl + 'proxy/channels/list/10006.json'
+ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
 
 def run_first_run():
 	"""
@@ -85,7 +86,7 @@ def run_first_run():
 		except Exception as e:
 		    log(f"[FIRST RUN] Error setting {SETTING_ID}: {e}", xbmc.LOGERROR)
 
-		xbmcgui.Dialog().notification("XumoPlay EPG", "First run setup complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+		xbmcgui.Dialog().notification(heading = "XumoPlay EPG", message = "First run setup complete", icon = ICON, time = 3000, sound=False)
 
 	except Exception as e:
 		log(f"[FIRST RUN] Error during first-run setup: {e}", xbmc.LOGERROR)

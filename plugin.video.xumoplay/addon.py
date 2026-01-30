@@ -10,7 +10,7 @@ import time
 from time import strftime, localtime
 import requests
 import datetime
-import inputstreamhelper
+#import inputstreamhelper
 from random import randint
 
 
@@ -667,9 +667,9 @@ def PLAY(name,url,captions):
 	referer = 'https://play.xumo.com/'
 
 	license_key = lic_url + '|User-Agent=' + ua + '&Referer=' + referer +'/&Origin=' + referer + '&Content-Type= |R{SSM}|'
-	is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
-	if not is_helper.check_inputstream():
-		sys.exit()
+	#is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
+	#if not is_helper.check_inputstream():
+		#sys.exit()
 
 	listitem.setProperty('IsPlayable', 'true')
 	#if hls != 'false':

@@ -1,6 +1,8 @@
 import xbmc
 import xbmcgui
 
+ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
+
 def play_episode(ep, epg_window=None):
     """
     Play a video stream directly without using InputStream Adaptive.
@@ -13,10 +15,10 @@ def play_episode(ep, epg_window=None):
 
         if not url:
             xbmcgui.Dialog().notification(
-                "XumoPlay EPG",
-                "No stream URL",
-                xbmcgui.NOTIFICATION_ERROR,
-                3000,
+                heading = "XumoPlay EPG",
+                message = "No stream URL",
+                icon = ICON,
+                time = 3000,
                 sound=False
             )
             return

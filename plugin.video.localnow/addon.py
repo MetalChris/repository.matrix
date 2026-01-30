@@ -9,7 +9,7 @@ import json
 import time
 from time import strftime, localtime
 import requests
-import inputstreamhelper
+#import inputstreamhelper
 
 
 today = time.strftime("%Y-%m-%d")
@@ -125,7 +125,7 @@ def genres(url):
 	xbmc.log('GENRES: ' + str(genres),level=log_level)
 	for genre in genres:
 		title = genre
-		streamUrl = 'plugin://plugin.video.localnow?mode=3&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(title)
+		streamUrl = 'plugin://plugin.video.localnow?mode=3&url=' + urllib.parse.quote_plus(TylerUrl) + '&name=' + urllib.parse.quote_plus(title)
 		li = xbmcgui.ListItem(title)
 		li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title})
 		li.setArt({'thumb':defaultimage,'fanart':defaultfanart})
@@ -134,8 +134,8 @@ def genres(url):
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
 
 #3
-def channels(url, name):
-	response = s.get(url, headers = {'User-Agent': ua})
+def channels(TylerUrl, name):
+	response = s.get(TylerUrl, headers = {'User-Agent': ua})
 	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
 	data = json.loads(response.text)
 	for count, item in enumerate(data['channels']):

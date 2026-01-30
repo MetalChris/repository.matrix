@@ -14,7 +14,7 @@ import ssl
 import requests
 import urllib3
 from urllib3 import poolmanager
-import inputstreamhelper
+#import inputstreamhelper
 
 #LOGDEBUG
 

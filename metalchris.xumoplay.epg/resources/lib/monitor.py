@@ -14,14 +14,14 @@ class PlayerMonitor(xbmc.Player):
     def __init__(self, epg_window):
         super().__init__()
         self.epg_window = epg_window
-        log("[XumoPlay EPG] [MONITOR] [MONITOR] PlayerMonitor initialized and listening for playback events", xbmc.LOGINFO)
+        log("[XumoPlay EPG] [MONITOR] PlayerMonitor initialized and listening for playback events", xbmc.LOGINFO)
 
     def onPlayBackStopped(self):
-        log("[XumoPlay EPG] [MONITOR] [MONITOR] Playback stopped — restoring EPG title and focus", xbmc.LOGINFO)
+        log("[XumoPlay EPG] [MONITOR] Playback stopped — restoring EPG title and focus", xbmc.LOGINFO)
         self.restore_epg_state()
 
     def onPlayBackEnded(self):
-        log("[XumoPlay EPG] [MONITOR] [MONITOR] Playback ended — restoring EPG title and focus", xbmc.LOGINFO)
+        log("[XumoPlay EPG] [MONITOR] Playback ended — restoring EPG title and focus", xbmc.LOGINFO)
         self.restore_epg_state()
 
     def restore_epg_state(self):

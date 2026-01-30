@@ -4,16 +4,15 @@
 # Written by MetalChris 2024.05.23
 # Released under GPL(v2 or later)
 
-import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, re, os
+import urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmc, xbmcplugin, xbmcaddon, xbmcgui, sys, xbmcvfs, os
 import json
 import time
-from time import strftime, localtime
 import requests
 from requests import Request, Session
 import datetime
 import shutil
 import tempfile
-import inputstreamhelper
+#import inputstreamhelper
 
 today = time.strftime("%Y-%m-%d")
 

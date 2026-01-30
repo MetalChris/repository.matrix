@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.americasvoice" name="Real America's Voice" version="2024.04.18" provider-name="MetalChris">
+<addon id="plugin.video.americasvoice" name="Real America's Voice" version="2025.12.31" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
     <import addon="script.module.requests" version="2.9.1"/>
     <import addon="script.module.html5lib" version="0.999.0"/>
     <import addon="script.module.mechanize" version="0.2.6"/>
-    <import addon="script.module.inputstreamhelper"/>
+    <import addon="inputstream.adaptive" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>

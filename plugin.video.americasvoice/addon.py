@@ -16,7 +16,7 @@ from urllib.request import urlopen
 import html5lib
 import mechanize
 #import http.cookiejar
-import inputstreamhelper
+#import inputstreamhelper
 
 
 
@@ -136,19 +136,12 @@ def striphtml(data):
 
 #999
 def play(url):
-	xbmc.log('URL: ' + str(url),level=log_level)
-	xbmc.log(('##### SETRESOLVEDURL #####'),level=log_level)
-	#item = xbmcgui.ListItem(path=url + '&m3u8=yes')
 	listitem = xbmcgui.ListItem(path=url)
+	xbmc.log('### SETRESOLVEDURL ###')
 	listitem.setProperty('IsPlayable', 'true')
-	listitem.setProperty('inputstream', 'inputstream.adaptive')
-	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
-	#listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
-	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-	#listitem.setProperty('inputstream.adaptive.license_key', license_key)
-	#listitem.setMimeType('application/dash+xml')
-	listitem.setContentLookup(False)
-	return xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
+	xbmcplugin.setResolvedUrl(int(sys.argv[1]), False, listitem)
+	xbmc.log('URL: ' + str(url),level=log_level)
+	xbmcplugin.endOfDirectory(addon_handle)
 
 
 def get_page(url):

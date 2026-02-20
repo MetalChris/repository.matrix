@@ -1,4 +1,4 @@
-<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2025.10.09" provider-name="MetalChris">
+<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2026.01.31" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>

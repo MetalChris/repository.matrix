@@ -1,4 +1,4 @@
-<addon id="metalchris.cwlive.epg" name="CW Live EPG" version="2025.12.31" provider-name="MetalChris">
+<addon id="metalchris.cwlive.epg" name="CW Live EPG" version="2026.01.31" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.1"/>
         <import addon="script.module.requests" version="2.9.1"/>

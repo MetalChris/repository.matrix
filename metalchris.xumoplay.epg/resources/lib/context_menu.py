@@ -22,8 +22,7 @@ def handle_context_menu(epg_window, listitem):
 
 		# --- Base options ---
 		options = [
-			"Show Now program info",
-			"Show Next program info",
+			"Show Program Info"
 		]
 
 		# Only show genre search if NOT in favorites
@@ -55,12 +54,15 @@ def handle_context_menu(epg_window, listitem):
 		sel = options[choice]
 
 		# --- Handlers ---
-		if sel == "Show Now program info":
+		if sel == "Show Program Info":
 			channel = listitem.getProperty("channel") or "No description available."
 			title = listitem.getProperty("Label") or "No description available."
 			description = listitem.getProperty("Label2") or "No description available."
 			times = listitem.getProperty("nowtimes") or "No description available."
-			xbmcgui.Dialog().textviewer(f"{channel} – {title}", f"{description}\n\n{times}")
+			title2 = listitem.getProperty("Label5") or "No description available."
+			description2 = listitem.getProperty("Label4") or "No description available."
+			times2 = listitem.getProperty("nexttimes") or "No description available."
+			xbmcgui.Dialog().textviewer(f"{channel}", f"{title} – {description}  {times}\n\n\n\n{title2} – {description2}  {times2}")
 
 
 		elif sel == "Show Next program info":

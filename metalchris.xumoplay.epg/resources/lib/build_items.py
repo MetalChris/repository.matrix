@@ -112,13 +112,19 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 			""" Time Formatting """
 			#(format_unix_time_kodi(ts))
+			
+			try:
 
-			nowstart = format_unix_time_kodi(int(program_info["start"]))
-			nowend = format_unix_time_kodi(int(program_info["end"]))
-			nowtimes = nowstart + ' - ' + nowend
-			nextstart = format_unix_time_kodi(int(program_info["start2"]))
-			nextend = format_unix_time_kodi(int(program_info["end2"]))
-			nexttimes = nextstart + ' - ' + nextend
+				nowstart = format_unix_time_kodi(int(program_info["start"]))
+				nowend = format_unix_time_kodi(int(program_info["end"]))
+				nowtimes = nowstart + ' - ' + nowend			
+				nextstart = format_unix_time_kodi(int(program_info["start2"]))
+				nextend = format_unix_time_kodi(int(program_info["end2"]))
+				nexttimes = nextstart + ' - ' + nextend
+				
+			except (ValueError, TypeError) as e:
+				log(f"[BUILD ITEMS] Skipping channel {title} due to invalid time data: {e}", xbmc.LOGWARNING)
+				continue
 
 			slug = (channel_info["slug"])
 			url = apiUrl + 'channels/channel/' + str(slug) + '/broadcast.json?hour=3'

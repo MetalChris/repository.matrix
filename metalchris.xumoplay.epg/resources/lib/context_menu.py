@@ -35,6 +35,7 @@ def handle_context_menu(epg_window, listitem):
 		# Dynamically add favorites-related options
 		if has_favorites():
 			if in_favorites:
+				options.append("Reload Favorites")
 				options.append("Exit Favorites")
 				options.append("Remove channel from Favorites")
 				options.append("Clear All Favorites")  # new option
@@ -94,7 +95,7 @@ def handle_context_menu(epg_window, listitem):
 					sound=False
 				)
 
-		elif sel == "View Favorites":
+		elif sel == "View Favorites" or sel == "Reload Favorites":
 			# Save current genre filter
 			current_genre = win.getProperty(GENRE_FILTER_PROP)
 			if current_genre:

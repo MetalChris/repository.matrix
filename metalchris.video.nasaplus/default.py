@@ -198,8 +198,8 @@ def live_menu(url):
 					"poster": thumb,
 					"fanart": thumb
 				})
-
-			list_item.setProperty("IsPlayable", "true")
+				
+			list_item.setProperty("IsPlayable", "true")				
 			
 			# ✅ Required for Kodi Matrix
 			list_item.setInfo("video", {"title": title})
@@ -278,10 +278,17 @@ def video_menu(url):
 	soup = fetch_page(url)
 	videos = soup.find_all("a", class_="video-grid--link")
 
+	seen = set()  # track URLs we've already added
+
 	for a in videos:
 		href = a.get("href")
 		h4 = a.find("h4")
 		title = h4.get_text(strip=True) if h4 else "Untitled"
+		
+		# 🚫 Skip duplicates
+		if href in seen:
+			continue
+		seen.add(href)
 
 		# Duration (append to title in parentheses)
 		duration_tag = a.find("p", class_="font-family-mono")
@@ -324,6 +331,7 @@ def video_menu(url):
 			isFolder=False
 		)
 
+	xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_TITLE)
 	xbmcplugin.endOfDirectory(HANDLE)
 
 
@@ -334,6 +342,8 @@ def series_menu(url):
 	soup = fetch_page(url)
 	links = soup.find_all("a", class_="series-grid--link")
 
+	items = []
+
 	for a in links:
 		href = a.get("href")
 
@@ -341,7 +351,7 @@ def series_menu(url):
 		h4 = a.find("h4")
 		title = h4.get_text(strip=True) if h4 else "Untitled"
 
-		# Episode count (append to title in parentheses)
+		# Episode count
 		p = a.find("p")
 		if p:
 			title = f"{title} ({p.get_text(strip=True)})"
@@ -356,9 +366,23 @@ def series_menu(url):
 			if start != -1 and end != -1:
 				thumb = style[start+4:end].strip()
 
+		# Store data instead of ListItem
+		items.append((title, href, thumb))
+
+	# ✅ SORT BEFORE ADDING
+	items.sort(key=lambda x: x[0].lower())
+
+	# Now add to Kodi
+	for title, href, thumb in items:
 		list_item = xbmcgui.ListItem(label=title)
+
 		if thumb:
-			list_item.setArt({"thumb": thumb, "icon": thumb, "poster": thumb, "fanart": thumb})
+			list_item.setArt({
+				"thumb": thumb,
+				"icon": thumb,
+				"poster": thumb,
+				"fanart": thumb
+			})
 
 		log(f"[SERIES]: found menu: title='{title}' href='{href}'")
 
@@ -374,6 +398,8 @@ def series_menu(url):
 
 
 def play_video(url):
+	use_inputstream = ADDON.getSettingBool("use_inputstream")
+	
 	"""Resolve and play a NASA+ video page."""
 	soup = fetch_page(url)
 
@@ -387,20 +413,44 @@ def play_video(url):
 
 	list_item = xbmcgui.ListItem(path=stream_url)
 	list_item.setProperty("IsPlayable", "true")
-
-	# Enable inputstream.adaptive
-	list_item.setProperty("inputstream", "inputstream.adaptive")
-	list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
+	
+	if use_inputstream:
+		# Enable inputstream.adaptive
+		log(f"[PLAYBACK] InputStream", xbmc.LOGINFO)
+		list_item.setProperty("inputstream", "inputstream.adaptive")
+		list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
+	else:
+		# --- FFMPEG (Kodi default player) ---
+		# Do nothing special — Kodi will use FFmpeg automatically
+		log(f"[PLAYBACK] FFMPEG", xbmc.LOGINFO)
+		pass
 
 	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
 
 
 def stream_video(url):
+	use_inputstream = ADDON.getSettingBool("use_inputstream")
+	
+	"""Fetch the live stream URL from a NASA+ event page."""
+	#html = fetch_page(url)  # make sure this returns raw HTML string
+
+	# --- 404 / ENDED EVENT CHECK ---
+	#if "countdownclock" in html:
+		#xbmcgui.Dialog().notification(ADDON_NAME,"This event has ended.",ICON,3000,False)
+		#return
+        
 	"""Fetch the live stream URL from a NASA+ event page."""
 	soup = fetch_page(url)
+	
+	#start_tag = soup.find("div", id="countdownclock")
+	#if start_tag:
+		#xbmcgui.Dialog().notification(ADDON_NAME,"This event has not yet started.",ICON,3000,False)
+		#return
 
 	video_tag = soup.find("video", id="main-video")
 	if not video_tag:
+		xbmcgui.Dialog().notification(ADDON_NAME,"No Stream URL Found.",ICON,3000,False)
+		#return
 		return None
 
 	# Prefer the data-video-url attribute, fallback to <source src>
@@ -418,10 +468,17 @@ def stream_video(url):
 
 	# Set path AFTER creation
 	list_item.setPath(stream_url)
-
-	# inputstream.adaptive
-	list_item.setProperty("inputstream", "inputstream.adaptive")
-	list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
+	
+	if use_inputstream:
+		# Enable inputstream.adaptive
+		log(f"[PLAYBACK] InputStream", xbmc.LOGINFO)
+		list_item.setProperty("inputstream", "inputstream.adaptive")
+		list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
+	else:
+		# --- FFMPEG (Kodi default player) ---
+		# Do nothing special — Kodi will use FFmpeg automatically
+		log(f"[PLAYBACK] FFMPEG", xbmc.LOGINFO)
+		pass
 
 	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
 	

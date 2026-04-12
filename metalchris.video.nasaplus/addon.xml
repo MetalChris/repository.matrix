@@ -1,4 +1,4 @@
-<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.03" provider-name="MetalChris">
+<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.05" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>

@@ -22,5 +22,6 @@
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>
     </assets>
+    <broken>Website changes broke the add-on.</broken>
   </extension>
 </addon>

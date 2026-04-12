@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2 or later)
 
-#2023.02.21
+#2026.03.01
 
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs, string, os, platform, re, xbmcplugin, sys
 import json
@@ -46,7 +46,7 @@ plugin = "Newsmax TV"
 defaultimage = 'special://home/addons/plugin.video.newsmax2/resources/media/icon.png'
 defaultfanart = 'special://home/addons/plugin.video.newsmax2/resources/media/fanart.jpg'
 defaulticon = 'special://home/addons/plugin.video.newsmax2/resources/media/icon.png'
-baseurl = 'https://www.newsmaxtv.com'
+baseurl = 'https://www.newsmaxtv.com/n2'
 
 local_string = xbmcaddon.Addon(id='plugin.video.newsmax2').getLocalizedString
 addon_handle = int(sys.argv[1])
@@ -77,9 +77,9 @@ def get_live(url):
 	xbmc.log('RESPONSE: ' + str(page),level=log_level)
 	#page = get_page(url)
 	soup = BeautifulSoup(page.text,'html5lib')
-	stream = re.compile('src: "(.+?)",').findall(str(soup.text))
+	stream = re.compile("HLSstream\s*=\s*'(.+?)';").findall(str(soup.text))
 	xbmc.log('STREAM: ' + str(stream),level=log_level)
-	PLAY('Newsmax TV Live', stream[1])
+	PLAY('Newsmax2 Live', stream[1])
 	xbmcplugin.endOfDirectory(addon_handle)
 
 

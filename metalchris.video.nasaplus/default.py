@@ -106,10 +106,6 @@ def get_main_menu():
 # -------------------
 # Handlers for each menu
 # -------------------
-
-#def live_menu(url):
-	#xbmcgui.Dialog().notification("NASA+ [LIVE]", "Live menu not implemented yet", ICON, 3000, False)
-	#xbmcplugin.endOfDirectory(HANDLE)
 	
 def live_menu(url):
 	"""Scrape NASA+ Scheduled Events page."""
@@ -218,24 +214,6 @@ def live_menu(url):
 			log(f"[LIVE] Parse error: {e}", error=True)
 
 	xbmcplugin.endOfDirectory(HANDLE)
-	
-	
-def get_live_stream(url):
-	"""Fetch the live stream URL from a NASA+ event page."""
-	soup = fetch_page(url)
-
-	video_tag = soup.find("video", id="main-video")
-	if not video_tag:
-		return None
-
-	# Prefer the data-video-url attribute, fallback to <source src>
-	stream_url = video_tag.get("data-video-url")
-	if not stream_url:
-		source_tag = video_tag.find("source")
-		if source_tag and source_tag.get("src"):
-			stream_url = source_tag["src"]
-
-	return stream_url	
 	
 
 def topics_menu(url):
@@ -413,6 +391,7 @@ def play_video(url):
 
 	list_item = xbmcgui.ListItem(path=stream_url)
 	list_item.setProperty("IsPlayable", "true")
+	list_item.setProperty('metalchris.nasaplus', 'true')
 	
 	if use_inputstream:
 		# Enable inputstream.adaptive
@@ -434,20 +413,46 @@ def stream_video(url):
 	"""Fetch the live stream URL from a NASA+ event page."""
 	#html = fetch_page(url)  # make sure this returns raw HTML string
 
-	# --- 404 / ENDED EVENT CHECK ---
-	#if "countdownclock" in html:
-		#xbmcgui.Dialog().notification(ADDON_NAME,"This event has ended.",ICON,3000,False)
-		#return
+	try:
+		html = fetch_page(url)
+	except Exception as e:
+		# 👇 Catch 404 or any fetch failure
+		log(f"[LIVE] fetch failed for {url}: {e}")
+
+		# Treat as ended event
+		xbmcgui.Dialog().notification(ADDON_NAME,"This event has ended.",ICON,3000,False)
+		return
+		
+	log(f"[LIVE] No Fetch Failure, Continuing...")
+		
+	date_div = html.find("div", class_="nasatv-event-date")
+
+	is_live = False
+	is_upcoming = False
+
+	if date_div and date_div.has_attr("data-event-timestamp"):
+		ts_raw = date_div["data-event-timestamp"].strip()
+
+		if ts_raw.isdigit():
+			event_ts = int(ts_raw)
+			import time
+			now = int(time.time())
+
+			if now < event_ts:
+				xbmcgui.Dialog().notification(ADDON_NAME,"This event has not yet started.",ICON,3000,False)		
+				log(f"[LIVE] Event Not Started.")
+				return		
+	
         
 	"""Fetch the live stream URL from a NASA+ event page."""
-	soup = fetch_page(url)
+	#soup = fetch_page(url)
 	
 	#start_tag = soup.find("div", id="countdownclock")
 	#if start_tag:
 		#xbmcgui.Dialog().notification(ADDON_NAME,"This event has not yet started.",ICON,3000,False)
 		#return
 
-	video_tag = soup.find("video", id="main-video")
+	video_tag = html.find("video", id="main-video")
 	if not video_tag:
 		xbmcgui.Dialog().notification(ADDON_NAME,"No Stream URL Found.",ICON,3000,False)
 		#return
@@ -465,6 +470,7 @@ def stream_video(url):
 	list_item = xbmcgui.ListItem()
 
 	list_item.setProperty("IsPlayable", "true")
+	list_item.setProperty('metalchris.nasaplus', 'true')
 
 	# Set path AFTER creation
 	list_item.setPath(stream_url)

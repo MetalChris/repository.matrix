@@ -300,7 +300,7 @@ v4.2.7
     </extension>
 </addon>
 
-<addon id="plugin.video.newsmax2" name="Newsmax 2" version="2024.04.01" provider-name="MetalChris">
+<addon id="plugin.video.newsmax2" name="Newsmax 2" version="2026.03.01" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.1.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -321,7 +321,7 @@ v4.2.7
     <website></website>
     <email></email>
     <source></source>
-    <news>Updates for Nexus - xbmcvfs.translatepath</news>
+    <news>Fixes for website changes</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>
@@ -418,6 +418,28 @@ v4.2.7
         <fanart>resources/media/fanart.jpg</fanart>
     </assets>
   </extension>
+</addon>
+
+<addon id="service.metalchris.nasaplus.audio"
+       name="Auto Audio Track 2 Selector"
+       version="1.0.4"
+       provider-name="MetalChris">
+
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+
+    <extension point="xbmc.service" library="service.py" start="login" />
+
+    <extension point="xbmc.addon.metadata">
+        <summary>Automatically switches to second audio track for NASA+</summary>
+        <description>Auto Audio Track 2 Selector for NASA+. Forces Kodi to select the second audio track after playback starts.</description>
+        <platform>all</platform>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
 </addon>
 
 <addon id="plugin.video.vuit" name="VUit" version="2022.04.08" provider-name="MetalChris">
@@ -536,7 +558,7 @@ v4.2.7
     </extension>
 </addon>
 
-<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.03" provider-name="MetalChris">
+<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.05" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -730,6 +752,7 @@ v4.2.7
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>
     </assets>
+    <broken>Website changes broke the add-on.</broken>
   </extension>
 </addon>
 
@@ -884,7 +907,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.03.03" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.03.04" provider-name="MetalChris">
     <extension point="xbmc.addon.repository" name="Official MetalChris Matrix Repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -896,7 +919,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Add option to select either inputstream or FFmpeg for playback in NASA+ add-on.</news>
+        <news>Update NASA+ add-on.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>

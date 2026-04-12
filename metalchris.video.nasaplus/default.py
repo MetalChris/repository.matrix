@@ -12,9 +12,9 @@ import json
 import time
 import hashlib
 import threading
-from resources.lib.parse_duration import *
-from resources.lib.logger import *
-from resources.lib.convert_to_local import *
+from resources.lib.parse_duration import parse_duration
+from resources.lib.logger import log
+from resources.lib.convert_to_local import format_unix_time_kodi
 
 ADDON      = xbmcaddon.Addon()
 ADDON_PATH = ADDON.getAddonInfo('path')
@@ -208,8 +208,8 @@ def notify_meta_progress(scope, done, total):
 	if done >= total:
 		try:
 			dialog.close()
-		except Exception:
-			pass
+		except Exception as e:
+			log(f"[META] Failed to close progress dialog for '{scope}': {e}", xbmc.LOGWARNING)
 		META_PROGRESS.pop(scope, None)
 
 
@@ -220,8 +220,8 @@ def close_meta_progress(scope):
 		return
 	try:
 		dialog.close()
-	except Exception:
-		pass
+	except Exception as e:
+		log(f"[META] Failed to close progress dialog for '{scope}': {e}", xbmc.LOGWARNING)
 
 
 def fetch_series_og_description(url, session=None):
@@ -537,7 +537,7 @@ def live_menu(url):
 			directory_items.append((get_url(action="stream", url=href), list_item, False))
 
 		except Exception as e:
-			log(f"[LIVE] Parse error: {e}", error=True)
+			log(f"[LIVE] Parse error: {e}", xbmc.LOGERROR)
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))

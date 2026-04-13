@@ -1,6 +1,7 @@
 <settings>
     <category label="Playback">
         <setting id="use_inputstream" type="bool" label="Use inputstream.adaptive for playback" default="true" />
+        <setting id="load_descriptions" type="bool" label="Load series and video descriptions (slower)" default="true" />
     </category>
     <category label="Log Notifications">
         <setting id="debug" type="bool" label="Enable debug logging" default="false" />

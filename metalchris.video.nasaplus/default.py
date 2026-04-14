@@ -12,6 +12,8 @@ import json
 import time
 import hashlib
 import threading
+import shutil
+
 from resources.lib.parse_duration import parse_duration
 from resources.lib.logger import log
 from resources.lib.convert_to_local import format_unix_time_kodi
@@ -224,21 +226,35 @@ def close_meta_progress(scope):
 		log(f"[META] Failed to close progress dialog for '{scope}': {e}", xbmc.LOGWARNING)
 
 
-def fetch_series_og_description(url, session=None):
-	"""Fetch og:description text from a single series page."""
-	try:
-		requester = session or requests
-		resp = requester.get(url, timeout=(2, 4))
-		resp.raise_for_status()
-		soup = BeautifulSoup(resp.text, "html.parser")
-		meta = soup.find("meta", attrs={"property": "og:description"}) or soup.find("meta", attrs={"name": "description"})
-		if not meta:
-			return ""
-		content = meta.attrs.get("content", "")
-		return content.strip() if isinstance(content, str) else ""
-	except Exception as e:
-		log(f"[SERIES] Description fetch failed for '{url}': {e}")
-		return ""
+def fetch_series_full_description(url, session=None):
+    try:
+        requester = session or requests
+        resp = requester.get(url, timeout=(2, 4))
+        resp.raise_for_status()
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # Try full description first
+        container = soup.select_one("div.usa-prose.banner--info-text.margin-bottom-2 p")
+        if container:
+            text = container.get_text(strip=True)
+            if text:
+                return text
+
+        # Fallback to meta
+        meta = soup.find("meta", attrs={"property": "og:description"}) \
+            or soup.find("meta", attrs={"name": "description"})
+
+        if meta:
+            content = meta.attrs.get("content", "")
+            if isinstance(content, str):
+                return content.strip()
+
+        return ""
+
+    except Exception as e:
+        log(f"[SERIES] Description fetch failed for '{url}': {e}")
+        return ""
 
 
 def fetch_series_descriptions(urls):
@@ -261,16 +277,16 @@ def fetch_series_descriptions(urls):
 
 	total_missing = len(missing_urls)
 	completed = 0
-	next_notify_percent = 25
+	update_step = max(1, total_missing // 30)
 	notify_meta_progress("Series", 0, total_missing)
 
 	session = requests.Session()
-	max_workers = min(12, len(missing_urls))
+	max_workers = min(10, max(4, len(missing_urls) // 2))
 	fresh_entries = {}
 	try:
 		with ThreadPoolExecutor(max_workers=max_workers) as executor:
 			future_map = {
-				executor.submit(fetch_series_og_description, url, session): url
+				executor.submit(fetch_series_full_description, url, session): url
 				for url in missing_urls
 			}
 			for future in as_completed(future_map):
@@ -282,11 +298,9 @@ def fetch_series_descriptions(urls):
 				results[url] = description
 				fresh_entries[_cache_key("desc", url)] = description
 				completed += 1
-				current_percent = int((completed * 100) / total_missing)
-				if completed == total_missing or current_percent >= next_notify_percent:
+				if completed == total_missing or completed % update_step == 0:
 					notify_meta_progress("Series", completed, total_missing)
-					while next_notify_percent <= current_percent:
-						next_notify_percent += 25
+    
 	finally:
 		session.close()
 		close_meta_progress("Series")
@@ -298,20 +312,35 @@ def fetch_series_descriptions(urls):
 
 
 def fetch_video_page_description(url, session=None):
-	"""Fetch meta description text from a single video page."""
-	try:
-		requester = session or requests
-		resp = requester.get(url, timeout=(2, 4))
-		resp.raise_for_status()
-		soup = BeautifulSoup(resp.text, "html.parser")
-		meta = soup.find("meta", attrs={"name": "description"}) or soup.find("meta", attrs={"property": "og:description"})
-		if not meta:
-			return ""
-		content = meta.attrs.get("content", "")
-		return content.strip() if isinstance(content, str) else ""
-	except Exception as e:
-		log(f"[VIDEO] Description fetch failed for '{url}': {e}")
-		return ""
+    """Fetch full video description, fallback to meta."""
+    try:
+        requester = session or requests
+        resp = requester.get(url, timeout=(2, 4))
+        resp.raise_for_status()
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # --- Try full description first ---
+        p = soup.select_one("div.entry-content.usa-prose p")
+        if p:
+            text = p.get_text(strip=True)
+            if text:
+                return text
+
+        # --- Fallback to meta ---
+        meta = soup.find("meta", attrs={"name": "description"}) \
+            or soup.find("meta", attrs={"property": "og:description"})
+
+        if meta:
+            content = meta.attrs.get("content", "")
+            if isinstance(content, str):
+                return content.strip()
+
+        return ""
+
+    except Exception as e:
+        log(f"[VIDEO] Description fetch failed for '{url}': {e}")
+        return ""
 
 
 def fetch_video_descriptions(urls):
@@ -334,11 +363,11 @@ def fetch_video_descriptions(urls):
 
 	total_missing = len(missing_urls)
 	completed = 0
-	next_notify_percent = 25
+	update_step = max(1, total_missing // 30)
 	notify_meta_progress("Videos", 0, total_missing)
 
 	session = requests.Session()
-	max_workers = min(12, len(missing_urls))
+	max_workers = min(10, max(4, len(missing_urls) // 2))
 	fresh_entries = {}
 	try:
 		with ThreadPoolExecutor(max_workers=max_workers) as executor:
@@ -355,11 +384,9 @@ def fetch_video_descriptions(urls):
 				results[video_url] = description
 				fresh_entries[_cache_key("vdesc", video_url)] = description
 				completed += 1
-				current_percent = int((completed * 100) / total_missing)
-				if completed == total_missing or current_percent >= next_notify_percent:
+				if completed == total_missing or completed % update_step == 0:
 					notify_meta_progress("Videos", completed, total_missing)
-					while next_notify_percent <= current_percent:
-						next_notify_percent += 25
+    
 	finally:
 		session.close()
 		close_meta_progress("Videos")
@@ -579,6 +606,7 @@ def topics_menu(url):
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))
+		xbmcplugin.setContent(HANDLE, 'episodes')
 
 	xbmcplugin.endOfDirectory(HANDLE)
 	
@@ -656,6 +684,7 @@ def video_menu(url):
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))
+		xbmcplugin.setContent(HANDLE, 'episodes')
 
 	xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_TITLE)
 	xbmcplugin.endOfDirectory(HANDLE)
@@ -730,6 +759,7 @@ def series_menu(url):
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))
+		xbmcplugin.setContent(HANDLE, 'episodes')
 
 	xbmcplugin.endOfDirectory(HANDLE)
 
@@ -849,6 +879,33 @@ def stream_video(url):
 	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
 	
 
+def clear_cache():
+    try:
+        if xbmcvfs.exists(CACHE_FILE):
+            xbmcvfs.delete(CACHE_FILE)
+
+        # Optional: wipe entire cache directory instead
+        # if xbmcvfs.exists(CACHE_DIR):
+        #     shutil.rmtree(CACHE_DIR)
+        #     xbmcvfs.mkdirs(CACHE_DIR)
+
+        xbmcgui.Dialog().notification(
+            "NASA+",
+            "Cache cleared",
+            xbmcgui.NOTIFICATION_INFO,
+            3000
+        )
+
+    except Exception as e:
+        log(f"[CACHE] Clear failed: {e}")
+        xbmcgui.Dialog().notification(
+            "NASA+",
+            "Failed to clear cache",
+            xbmcgui.NOTIFICATION_ERROR,
+            3000
+        )
+
+
 # -------------------
 # Router
 # -------------------
@@ -871,6 +928,9 @@ def router(params):
 			play_video(url)
 		elif action == "stream":
 			stream_video(url)
+		if action == "clear_cache":
+			if xbmcgui.Dialog().yesno("NASA+", "Clear cached data?"):
+				clear_cache()
 		else:
 			get_main_menu()
 	finally:

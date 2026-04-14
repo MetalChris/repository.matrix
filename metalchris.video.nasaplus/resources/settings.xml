@@ -6,4 +6,8 @@
     <category label="Log Notifications">
         <setting id="debug" type="bool" label="Enable debug logging" default="false" />
     </category>
+    <category label="Cache">
+        <setting id="clear_cache" type="action" label="Clear Cache" 
+        action="RunPlugin(plugin://metalchris.video.nasaplus/?action=clear_cache)" />
+    </category>
 </settings>

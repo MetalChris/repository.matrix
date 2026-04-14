@@ -1,4 +1,4 @@
-<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.05" provider-name="MetalChris">
+<addon id="metalchris.video.nasaplus" name="NASA+" version="2026.03.11" provider-name="MetalChris,Nigel1992">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -11,6 +11,7 @@
     <extension point="xbmc.addon.metadata">
         <summary>NASA+ Kodi Add-on</summary>
         <description>NASA+ is a new ad-free, no-cost, family-friendly streaming service that embeds you into our missions through new original video series. Watch NASA+ dynamically from https://plus.nasa.gov</description>
+		<disclaimer lang="en">This add-on was created as a hobby project. Not endorsed by or affiliated with NASA.</disclaimer>
         <platform>all</platform>
         <assets>
             <icon>resources/media/icon.png</icon>

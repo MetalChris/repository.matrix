@@ -4,7 +4,7 @@
 # Written by MetalChris
 # Released under GPL(v2 or later)
 
-#2024.05.07
+#2026.03.01
 
 import urllib.request, urllib.parse, urllib.error, urllib.request, urllib.error, urllib.parse, xbmcplugin, xbmcaddon, xbmcgui, xbmcvfs, string, os, platform, re, xbmcplugin, sys
 import json
@@ -14,9 +14,7 @@ import html.parser
 from bs4 import BeautifulSoup
 from urllib.request import urlopen
 import html5lib
-import mechanize
-#import http.cookiejar
-#import inputstreamhelper
+import mechanicalsoup
 
 
 
@@ -37,13 +35,9 @@ __resource__   = xbmcvfs.translatePath( os.path.join( _addon_path, 'resources', 
 sys.path.append(__resource__)
 
 from uas import *
+from logger import*
 
-#CookieJar = http.cookiejar.LWPCookieJar(os.path.join(addon_path_profile, 'cookies.lwp'))
-br = mechanize.Browser()
-br.set_handle_robots(False)
-br.set_handle_equiv(False)
-br.addheaders = [('User-agent', ua)]
-br.addheaders = [('Accept', 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8')]
+browser = mechanicalsoup.Browser(soup_config={'features': 'html.parser'})
 
 plugin = "Real America's Voice"
 
@@ -54,7 +48,6 @@ baseurl = 'https://api.americasvoice.news/public/live/feed'
 
 local_string = xbmcaddon.Addon(id='plugin.video.americasvoice').getLocalizedString
 addon_handle = int(sys.argv[1])
-pluginhandle = int(sys.argv[1])
 #QUALITY = settings.getSetting(id="quality")
 confluence_views = [500,501,502,503,504,508,515]
 
@@ -64,7 +57,7 @@ if log_notice != 'false':
 else:
 	log_level = 1
 xbmc.log('LOG_NOTICE: ' + str(log_notice),level=log_level)
-xbmc.log(('AMERICA\'S VOICE 05.07.2024'),level=log_level)
+xbmc.log(('AMERICA\'S VOICE 2026.03.01'),level=log_level)
 
 
 def index():
@@ -136,23 +129,24 @@ def striphtml(data):
 
 #999
 def play(url):
-	listitem = xbmcgui.ListItem(path=url)
-	xbmc.log('### SETRESOLVEDURL ###')
-	listitem.setProperty('IsPlayable', 'true')
-	xbmcplugin.setResolvedUrl(int(sys.argv[1]), False, listitem)
-	xbmc.log('URL: ' + str(url),level=log_level)
-	xbmcplugin.endOfDirectory(addon_handle)
+	
+	list_item = xbmcgui.ListItem()
+
+	list_item.setProperty("IsPlayable", "true")
+
+	# Set path AFTER creation
+	list_item.setPath(url)
+	# Enable inputstream.adaptive
+	log(f"[PLAYBACK] InputStream", xbmc.LOGINFO)
+	list_item.setProperty("inputstream", "inputstream.adaptive")
+	list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
+
+	xbmcplugin.setResolvedUrl(addon_handle, True, list_item)
 
 
 def get_page(url):
-	br.set_handle_robots( False )
-	#br.set_cookiejar(CookieJar)
-	response = br.open(url)
-	#for cookie in CookieJar:
-		#xbmc.log('COOKIE: ' + str(cookie),level=log_level)
-		#CookieJar.set_cookie(cookie)
-	#CookieJar.save(ignore_discard=True)
-	page = response.get_data()#.encode('utf-8')
+	response = browser.get(url)
+	page = response.text#.encode('utf-8')
 	return page
 
 
@@ -196,21 +190,7 @@ def addDir2(name,url,mode,thumbnail, fanart=False, infoLabels=True):
 	liz.setProperty('fanart_image', defaultfanart)
 	ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=False)
 	return ok
-
-
-def get_html(url):
-	req = urllib.request.Request(url)
-	req.add_header('User-Agent','User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:44.0) Gecko/20100101 Firefox/44.0')
-	#req.add_header('Accept','text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8')
-
-	try:
-		response = urllib.request.urlopen(req)
-		html = response.read()
-		response.close()
-	except urllib.error.HTTPError:
-		response = False
-		html = False
-	return html
+	
 
 def get_params():
 	param = []

@@ -1,0 +1,25 @@
+<addon id="metalchris.video.history_free" name="History Channel Free" version="2026.03.09" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="inputstream.adaptive" />
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+      <provides>video</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">Watch free shows from History.com</summary>
+        <description lang="en">Watch free shows from History.com - this add-on provides access to unlocked content only.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

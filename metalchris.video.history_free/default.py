@@ -87,7 +87,7 @@ def list_shows():
 			if item.get("isBehindWall", True):
 				continue
 
-			title = html.unescape(item.get("title"))
+			title = (item.get("title"))
 			slug = item.get("canonical")
 			slug = slug.replace("/shows/", "").strip("/")
 			slug = f"{slug}/unlocked"

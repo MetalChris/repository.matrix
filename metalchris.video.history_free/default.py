@@ -87,6 +87,19 @@ def list_shows():
 			if item.get("isBehindWall", True):
 				continue
 
+			# --- ADD THIS BLOCK ---
+			episode_count = item.get("displayMetadata", {}).get("episodeCount")
+
+			try:
+				episode_count = int(episode_count)
+			except (TypeError, ValueError):
+				episode_count = 0
+
+			if episode_count == 0:
+				log(f"SKIPPING SHOW (no episodes): {item.get('title')}", xbmc.LOGINFO)
+				continue
+			# --- END BLOCK ---				
+
 			title = (item.get("title"))
 			slug = item.get("canonical")
 			slug = slug.replace("/shows/", "").strip("/")
@@ -104,7 +117,7 @@ def list_shows():
 
 			base = sys.argv[0]
 			url = f"{base}?action=episodes&slug={slug}"
-			#xbmc.log(f"HISTORY URL: {url}", xbmc.LOGERROR)
+			#xbmc.log(f"HISTORY URL: {url}", xbmc.LOGERROR)	
 
 			li = xbmcgui.ListItem(label=title)
 

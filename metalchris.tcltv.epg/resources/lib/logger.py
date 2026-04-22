@@ -15,7 +15,7 @@ def log(msg, level=xbmc.LOGDEBUG):
     """
 
     try:
-        debug_enabled = ADDON.getSettingBool("debug")
+        debug_enabled = ADDON.getSettingBool("debug_logging")
     except Exception:
         debug_enabled = False
 
@@ -28,7 +28,7 @@ def log(msg, level=xbmc.LOGDEBUG):
     level_name = level_map.get(level, "LOG")
 
     # Prefix with name, version, and level
-    message = f"[{ADDON_NAME} v{ADDON_VERSION}] [{level_name}] {msg}"
+    message = f"[{ADDON_NAME}] [{level_name}] {msg}"
 
     if level == xbmc.LOGERROR:
         xbmc.log(message, xbmc.LOGERROR)

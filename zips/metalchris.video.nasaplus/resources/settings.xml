@@ -1,5 +1,0 @@
-<settings>
-    <category label="Log Notifications">
-        <setting id="debug" type="bool" label="Enable debug logging" default="false" />
-    </category>
-</settings>

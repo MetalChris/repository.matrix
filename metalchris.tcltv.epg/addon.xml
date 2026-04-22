@@ -1,0 +1,28 @@
+<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.03.05" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+		<import addon="xbmc.addon" version="20.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="inputstream.adaptive" />
+    </requires>
+
+    <!-- Program add-on entry point -->
+    <extension point="xbmc.python.script"
+               library="default.py">
+        <provides>executable</provides>
+    </extension>
+
+    <extension point="xbmc.addon.metadata">
+        <summary lang="en">EPG Viewer for TCLTV.plus</summary>
+        <description lang="en">TCLtv+ is the flagship streaming service offered by leading consumer electronics company, TCL. TCLtv+ offers consumers in North America access to a wide array of entertainment, news, sports, and lifestyle programming. The expanding service now includes over 350 FAST Channels and growing, and tons of premium film and TV series.</description>
+        <platform>all</platform>
+        <license>GPL(v2) or Later</license>
+        <forum></forum>
+        <website></website>
+        <email></email>
+        <source></source>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+        </assets>
+    </extension>
+</addon>

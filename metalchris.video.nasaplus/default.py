@@ -39,7 +39,7 @@ CACHE_FILE = os.path.join(CACHE_DIR, 'nasa_plus_cache.json')
 
 # Cache TTLs (time-to-live in seconds)
 CACHE_TTL_PAGES = 3600 * 6            # 6 hours for HTML pages
-CACHE_TTL_DESCRIPTIONS = 3600 * 24    # 24 hours for series descriptions
+CACHE_TTL_DESCRIPTIONS = 3600 * 24 * 7   # 7 days for series descriptions
 SERIES_DESCRIPTION_FALLBACK = "Description unavailable."
 
 # In-memory cache state for this addon run
@@ -54,6 +54,14 @@ CACHE_DIRTY = False
 # -------------------
 # Helpers
 # -------------------
+
+def compute_hash(value, normalize=False):
+    if not isinstance(value, str):
+        return None
+    if normalize:
+        value = normalize_html(value)
+    return hashlib.sha1(value.encode()).hexdigest()
+
 
 def _cache_key(prefix, url):
 	return f"{prefix}:{hashlib.md5(url.encode()).hexdigest()}"
@@ -124,7 +132,8 @@ def cache_set(key, value, ttl):
 		_cache_ensure_loaded()
 		CACHE_DATA[key] = {
 			'value': value,
-			'expires': time.time() + ttl
+			'expires': time.time() + ttl,
+			'hash': hashlib.sha1(normalize_html(value).encode()).hexdigest() if isinstance(value, str) else None
 		}
 		CACHE_DIRTY = True
 
@@ -138,9 +147,26 @@ def cache_set_many(entries, ttl):
 		for key, value in entries.items():
 			CACHE_DATA[key] = {
 				'value': value,
-				'expires': now + ttl
+				'expires': time.time() + ttl,
+				'hash': hashlib.sha1(normalize_html(value).encode()).hexdigest() if isinstance(value, str) else None
 			}
 		CACHE_DIRTY = True
+		
+		
+def cache_get_with_meta(key):
+    """Return (value, meta, is_expired) without deleting entry."""
+    with CACHE_LOCK:
+        _cache_ensure_loaded()
+        entry = CACHE_DATA.get(key)
+        if not entry:
+            return None, None, True
+
+        expired = entry.get('expires', 0) <= time.time()
+        return entry.get('value'), entry, expired
+        
+        
+def normalize_html(html):
+    return " ".join(html.split())
 
 
 def get_url(**kwargs):
@@ -151,17 +177,46 @@ def fetch_page(url):
 	"""Fetch and parse HTML page with caching."""
 	cache_key = _cache_key("page", url)
 	
-	cached_html = cache_get(cache_key)
-	if cached_html:
+	cached_html, meta, expired = cache_get_with_meta(cache_key)
+
+	# ✅ Fresh cache → no request
+	if cached_html and not expired:
+		xbmc.log(f"[{ADDON_NAME}] [CACHE NOT EXPIRED]: {url}", xbmc.LOGINFO)
 		return BeautifulSoup(cached_html, "html.parser")
-	
-	xbmc.log(f"[{ADDON_NAME}] [FETCHING]: {url}", xbmc.LOGINFO)
+
+	# 🔄 Expired → validate via hash
+	if cached_html and expired:
+		try:
+			xbmc.log(f"[{ADDON_NAME}] [CACHE EXPIRED]: {url}", xbmc.LOGINFO)
+			xbmc.log(f"[{ADDON_NAME}] [VALIDATING]: {url}", xbmc.LOGINFO)
+			resp = requests.get(url, timeout=(3, 10))
+			resp.raise_for_status()
+			new_html = resp.text
+
+			new_hash = hashlib.sha1(normalize_html(new_html).encode()).hexdigest()
+			old_hash = meta.get('hash')
+
+			if new_hash == old_hash:
+				# ✅ unchanged → extend TTL only
+				cache_set(cache_key, cached_html, CACHE_TTL_PAGES)
+				return BeautifulSoup(cached_html, "html.parser")
+
+			# 🔄 changed → update cache
+			cache_set(cache_key, new_html, CACHE_TTL_PAGES)
+			return BeautifulSoup(new_html, "html.parser")
+
+		except Exception:
+			# 🚨 network fail → serve stale
+			return BeautifulSoup(cached_html, "html.parser")
+
+	# 🚀 No cache → normal fetch
+	xbmc.log(f"[{ADDON_NAME}] [NO CACHE FETCHING]: {url}", xbmc.LOGINFO)
 	resp = requests.get(url, timeout=(3, 10))
 	resp.raise_for_status()
 	html = resp.text
-	
+
 	cache_set(cache_key, html, CACHE_TTL_PAGES)
-	
+
 	return BeautifulSoup(html, "html.parser")
 
 
@@ -276,6 +331,7 @@ def fetch_series_descriptions(urls):
 		return results
 
 	total_missing = len(missing_urls)
+	xbmc.log(f"[{ADDON_NAME}] [MISSING URLS]: {total_missing}", xbmc.LOGINFO)
 	completed = 0
 	update_step = max(1, total_missing // 30)
 	notify_meta_progress("Series", 0, total_missing)
@@ -362,6 +418,7 @@ def fetch_video_descriptions(urls):
 		return results
 
 	total_missing = len(missing_urls)
+	xbmc.log(f"[{ADDON_NAME}] [MISSING URLS]: {total_missing}", xbmc.LOGINFO)
 	completed = 0
 	update_step = max(1, total_missing // 30)
 	notify_meta_progress("Videos", 0, total_missing)

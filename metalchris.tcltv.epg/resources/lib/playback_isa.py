@@ -3,7 +3,7 @@ import xbmcgui
 
 from resources.lib.uas import ua
 from resources.lib.logger import *
-#from resources.lib.playback_utils import *
+from resources.lib.playback_utils import *
 
 
 def play_episode_isa(title, url, image, epg_window=None):
@@ -29,6 +29,8 @@ def play_episode_isa(title, url, image, epg_window=None):
 			xbmcgui.Dialog().notification("TCLTV+ EPG", "No stream URL", xbmcgui.NOTIFICATION_ERROR, 3000, sound=False)
 			return
 			
+		play_url = pre_play(url)
+			
 		channel_name = li.getProperty("channel")	
 			
 		li = xbmcgui.ListItem(label=channel_name)
@@ -49,8 +51,8 @@ def play_episode_isa(title, url, image, epg_window=None):
 			
 
 
-		xbmc.log(f"[PLAYBACK] Playing with InputStream Adaptive: {title} ({url})", xbmc.LOGINFO)
-		xbmc.Player().play(item=url, listitem=li)
+		xbmc.log(f"[PLAYBACK] Playing with InputStream Adaptive: {title} ({play_url})", xbmc.LOGINFO)
+		xbmc.Player().play(item=play_url, listitem=li)
 
 	except Exception as e:
 		xbmc.log(f"[PLAYBACK] play_episode failed: {e}", xbmc.LOGERROR)

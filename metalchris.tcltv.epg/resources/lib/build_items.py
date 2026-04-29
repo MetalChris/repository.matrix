@@ -51,6 +51,7 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
+	xbmc.log(f"[build_items] fav_ids = {fav_ids}", xbmc.LOGDEBUG)
 
 	xbmc.log(f"[build_items] TYPE = {type(data)} SAMPLE = {str(data)[:200]}", xbmc.LOGDEBUG)
 
@@ -96,6 +97,9 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 
 		for ch in channels:
 			channel_id = ch.get("id")
+			if ADDON.getSettingBool("favorites_mode"):
+				if channel_id not in fav_ids:
+					continue
 			title = ch.get("name")
 			image = ch.get("logo_color")
 			chan_desc = ch.get("description")
@@ -175,6 +179,7 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 			li.setProperty("label5", onNext)
 			li.setProperty("now_start", str(nowstart))
 			li.setProperty("now_end", 'Ends at ' + str(nowend))
+			li.setProperty("nowendTime", str(nowendTime))
 			li.setProperty("next_start", str(nextstart))
 			li.setProperty("next_end", str(nextend))
 			li.setProperty("channel_id", str(ch['id']))
@@ -198,7 +203,7 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 	log(f"[BUILD ITEMS] GENRE: {genre_filter}", xbmc.LOGINFO)
 	log(f"[BUILD ITEMS] SOURCES: {sources}", xbmc.LOGDEBUG)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	log(f"[BUILD ITEMS] EPG built with: {kept} channels", xbmc.LOGINFO)

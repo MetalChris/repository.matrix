@@ -66,8 +66,8 @@ HEADERS = {
 	'x-device-language': 'en',
 }
 
-
 class EPGPanel(xbmcgui.WindowXML):
+	
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)
 		self.listitems = kwargs.get("listitems", [])
@@ -163,12 +163,35 @@ def run():
 			win.clearProperty(GENRE_FILTER_PROP)
 	else:
 		win.clearProperty(GENRE_FILTER_PROP)
+	
+	# apply startup preference BEFORE first load
+	if addon.getSettingBool("startup_favorites"):		
+		win.clearProperty(GENRE_FILTER_PROP)
+		addon.setSettingBool("favorites_mode", True)
+		fav_dict = list_favorites()
+
+		fav_ids = set(fav_dict.keys()) if fav_dict else set()
+		xbmc.log(f"[DEFAULT] fav_ids = {fav_ids}", xbmc.LOGERROR)
+	else:
+		addon.setSettingBool("favorites_mode", False)
+		
+	favorites_mode = addon.getSettingBool("startup_favorites")
+	# override if no favorites exist
+	if favorites_mode and not fav_ids:
+		xbmc.log("[DEFAULT] No favorites exist - forcing All Channels mode", xbmc.LOGWARNING)
+		addon.setSettingBool("favorites_mode", False)
+		xbmcgui.Dialog().notification(
+			"TCLTV+ EPG",
+			"No favorites exist. Loading All Channels.",
+			ICON,
+			3000
+		)
 		
 	xbmc.log(f"[DEFAULT] data type = {type(data)}", xbmc.LOGERROR)
 	xbmc.log(f"[DEFAULT] data preview = {str(data)[:300]}", xbmc.LOGERROR)
 
 	#listitems, kept, title = build_items(data, thumbs_map, desc_map, category_map, win, fav_ids=None)
-	listitems, kept, title = build_items(data, thumbs_map, category_map, win, fav_ids=None)
+	listitems, kept, title = build_items(data, thumbs_map, category_map, win, fav_ids=fav_ids if favorites_mode else None)
 
 	# Resolve which XML to load for EPG skin
 	from resources.lib.skin_utils import get_epg_skin_file
@@ -178,6 +201,7 @@ def run():
 		return
 
 	w = EPGPanel(xml_file, ADDON_PATH, theme, "720p")
+	
 	w.listitems = listitems
 	w.title = title
 	#w = EPGPanel(xml_file, ADDON_PATH, theme, "720p", listitems=listitems, title=title)

@@ -36,12 +36,13 @@ SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
 GENRE_FILTER_PROP = "localnow_epg_genre_filter"
 #EPG_JSON = os.path.join(ADDON_PATH, "epg.json")  # cached JSON in addon root
 EPG_JSON = os.path.join(USERDATA_PATH,"cache/epg.json")
+ICON = 'special://home/addons/metalchris.localnow.epg/resources/media/icon.png'
 
 XML_FILE = "script-panel-demo.xml"
 SKIN = "default"
 RESOLUTION = "1080i"
 XML_PATH = os.path.join(ADDON_PATH, "resources", "skins", SKIN, RESOLUTION, XML_FILE)
-FEED_URL = "https://tv.jsrdn.com/tv_v5/getfeed.php?type=live"
+#FEED_URL = "https://tv.jsrdn.com/tv_v5/getfeed.php?type=live"
 
 apiUrl = 'https://localnow.com/_next/data/qtV7yILDmnCBIm1lP-ToB/'
 apiBase = 'https://localnow.com/_next/data/'
@@ -114,7 +115,7 @@ def run():
 	xbmcgui.Dialog().notification(
 		"LocalNow EPG",
 		"Building EPG...",
-		xbmcgui.NOTIFICATION_INFO,
+		ICON,
 		3000,
 		sound=False
 	)
@@ -133,7 +134,7 @@ def run():
 			xbmcgui.Dialog().notification(
 				"LocalNow EPG",
 				"EPG cache and thumbnails cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)
@@ -149,7 +150,7 @@ def run():
 	#if episode_ids:
 	epg_url = get_ln(baseUrl)
 		#epg_url = "https://tv.jsrdn.com/epg/query.php?range=now,2h&id=" + ",".join(map(str, episode_ids))
-	log(f"EPG URL {epg_url}", xbmc.LOGINFO)
+	log(f"[DEFAULT] EPG URL {epg_url}", xbmc.LOGINFO)
 		#log(f"EPG URL: {epg_url}", xbmc.LOGDEBUG)
 	data = fetch_epg(epg_url)
 	#data = channels(TylerUrl)
@@ -171,9 +172,33 @@ def run():
 	else:
 		win.clearProperty(GENRE_FILTER_PROP)
 		addon.setSetting("last_genre", "")
+	
+	# apply startup preference BEFORE first load
+	if addon.getSettingBool("startup_favorites"):
+		xbmc.log(f"[DEFAULT] START IN FAVORITES", xbmc.LOGINFO)	
+		win.clearProperty(GENRE_FILTER_PROP)
+		addon.setSettingBool("favorites_mode", True)
+		fav_dict = list_favorites()
+
+		fav_ids = set(fav_dict.keys()) if fav_dict else set()
+		xbmc.log(f"[DEFAULT] fav_ids = {fav_ids}", xbmc.LOGERROR)
+	else:
+		addon.setSettingBool("favorites_mode", False)
+		
+	favorites_mode = addon.getSettingBool("startup_favorites")
+	# override if no favorites exist
+	if favorites_mode and not fav_ids:
+		xbmc.log("[DEFAULT] No favorites exist - forcing All Channels mode", xbmc.LOGWARNING)
+		addon.setSettingBool("favorites_mode", False)
+		xbmcgui.Dialog().notification(
+			"LocalNow EPG",
+			"No favorites exist. Loading All Channels.",
+			ICON,
+			3000
+		)
 
 	#listitems, kept, title = build_items(data, thumbs_map, desc_map, genre_map, win, fav_ids=None)
-	listitems, kept, title = build_items(data, thumbs_map, desc_map, genre_map, win, fav_ids=None)
+	listitems, kept, title = build_items(data, thumbs_map, desc_map, genre_map, win, fav_ids=fav_ids if favorites_mode else None)
 
 	# Resolve which XML to load for EPG skin
 	from resources.lib.skin_utils import get_epg_skin_file

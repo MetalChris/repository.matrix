@@ -20,7 +20,7 @@ USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
 #addon_handle = int(sys.argv[1])
 SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
-#START_FAVORITES = ADDON.getSettingBool("start_favorites")
+START_FAVORITES = ADDON.getSettingBool("startup_favorites")
 
 
 def _matches_language(channel_lang, selected_lang):
@@ -48,6 +48,7 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_favorites(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_favorites(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None):
+	log(f"[BUILD_ITEMS] fav_ids={fav_ids}", xbmc.LOGERROR)
 	"""
 	Build Kodi ListItem objects from EPG `data`.
 	Optional fav_ids (list of string ids) will filter channels to only those IDs.
@@ -67,11 +68,18 @@ def build_favorites(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=N
 	kept = 0
 
 	items = []
+	
+	if not fav_ids:
+		favorites_mode = False
 
 	for count, item in enumerate(data['channels']):
 		#if item['genres'][0] != name:
 			#continue
 		title = str(item['channel_number']) + ' ' + item['name']
+
+		if fav_ids and item['channel_number'] not in fav_ids:
+			continue
+			
 		contentType = 'Channel'
 		image = item['wallpaper']
 		info = item['description']
@@ -134,7 +142,7 @@ def build_favorites(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=N
 		items.append(li)
 		#log(f"[BUILD FAVORITES] ListItem: {li(1)}", xbmc.LOGINFO)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
 	log(f"[BUILD FAVORITES] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	#xbmcplugin.setContent(addon_handle, 'episodes')
@@ -146,7 +154,7 @@ def build_favorites(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=N
 	#log(f"[BUILD FAVORITES]Channels kept: {kept}, skipped: {skipped}, filter_lang={filter_lang_display}, filter_genre={genre_filter}", xbmc.LOGINFO)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"LocalNow - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"LocalNow EPG - {genre_filter.capitalize()} ({kept} Channels)"

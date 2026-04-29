@@ -9,6 +9,7 @@ from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
 from resources.lib.program_info import *
+from resources.lib.convert_to_local import *
 
 GENRE_FILTER_PROP = "tcltv_epg_genre_filter"
 addon = xbmcaddon.Addon()
@@ -63,8 +64,12 @@ def handle_context_menu(epg_window, listitem):
 		if sel == "Show Program Info":
 			channel = listitem.getProperty("channel") or "No description available."
 			now_id = listitem.getProperty("now_id")
+			now_end = listitem.getProperty("nowendTime")
+			ends_in = iso_to_unix(now_end)
+			endTime = time_remaining_text(ends_in)
 			next_id = listitem.getProperty("next_id")
-			show_program_info(channel,now_id,next_id)
+			next_time = listitem.getProperty("label4")
+			show_program_info(channel,now_id,next_id,endTime,next_time)
 			#xbmcgui.Dialog().textviewer(f"{channel}", f"{now_id} – {next_id}\n\n{now_id}\n\n\n\n{next_id} – {now_id}\n\n{url}")
 			return
 

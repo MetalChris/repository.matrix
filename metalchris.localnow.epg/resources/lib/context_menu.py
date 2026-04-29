@@ -8,8 +8,11 @@ from resources.lib.logger import *
 from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
+from resources.lib.program_info import *
+from resources.lib.convert_to_local import *
 
 GENRE_FILTER_PROP = "localnow_epg_genre_filter"
+ICON = 'special://home/addons/metalchris.localnow.epg/resources/media/icon.png'
 addon = xbmcaddon.Addon()
 
 def handle_context_menu(epg_window, listitem):
@@ -32,8 +35,10 @@ def handle_context_menu(epg_window, listitem):
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
+		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
+				options.append("Reload Favorites")
 				options.append("Exit Favorites")
 				options.append("Remove channel from Favorites")
 				options.append("Clear All Favorites")  # new option
@@ -56,10 +61,15 @@ def handle_context_menu(epg_window, listitem):
 		if sel == "Show Program Info":
 			channel = listitem.getProperty("channel") or "No description available."
 			title = listitem.getProperty("Label") or "No description available."
+			now_end = listitem.getProperty("now_end") or "No description available."
+			now_meta = listitem.getProperty("now_meta")
+			endTime = time_remaining_text(int(now_end))
 			description = listitem.getProperty("Label2") or "No description available."
 			title2 = listitem.getProperty("Label5") or "No description available."
+			next_times = listitem.getProperty("next_times") or "No description available."
+			next_meta = listitem.getProperty("next_meta")
 			description2 = listitem.getProperty("Label4") or "No description available."
-			xbmcgui.Dialog().textviewer(f"{channel}", f"{title} – {description}\n\n\n\n{title2} – {description2}")
+			xbmcgui.Dialog().textviewer(f"{channel}", f"[B][I]Now: [/I] {title}[/B]\n[I]{now_meta}[/I]\n{description}\n• [I]{endTime}[/I]\n\n\n\n[B][I]Next: [/I] {title2}[/B]\n[I]{next_meta}[/I]\n{description2}\n• [I]{(next_times)}[/I]")
 
 		elif sel == "Show Next program info":
 			channel = listitem.getProperty("channel") or "No description available."
@@ -88,13 +98,14 @@ def handle_context_menu(epg_window, listitem):
 					sound=False
 				)
 
-		elif sel == "View Favorites":
+		elif sel == "View Favorites" or sel == "Reload Favorites":
 			# Save current genre filter
 			current_genre = win.getProperty(GENRE_FILTER_PROP)
 			if current_genre:
 				win.setProperty("PREV_GENRE_FILTER", current_genre)
 
 			# Clear genre filter and load favorites
+			addon.setSettingBool("favorites_mode", True)
 			win.clearProperty(GENRE_FILTER_PROP)
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
@@ -105,7 +116,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"LocalNow EPG",
 				"Genre filter cleared for Favorites view",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -113,6 +124,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
+			addon.setSettingBool("favorites_mode", False)
 			epg_window.clearProperty("FAVORITES_FILTER")
 
 			# Restore previous genre filter if exists

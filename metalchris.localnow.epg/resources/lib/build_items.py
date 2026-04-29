@@ -11,7 +11,7 @@ from resources.lib.utils_fetch import *
 from resources.lib.logger import log  # use custom logger
 from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
-#from resources.lib.favorites import list_favorites
+from resources.lib.extra import *
 
 ADDON = xbmcaddon.Addon()
 GENRE_FILTER_PROP = "localnow_epg_genre_filter"
@@ -68,6 +68,9 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			#continue
 		title = str(item['channel_number']) + ' ' + item['name']
 
+		if fav_ids and str(item['channel_number']) not in fav_ids:
+			continue
+
 		#   Skip Key Error Channels
 		#if str(item['channel_number']) == '1412':
 			#continue
@@ -82,11 +85,23 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 		language = item['language']
 		genres = str(item['genres'])
 		onNow = item['program'][0]['program_title']
+		now_id = item['program'][0]['program_id']
 		now_desc = item['program'][0]['program_description']
+		now_end = item['program'][0]['ends_at']
+		now_s = str(item['program'][0]['season'])
+		now_e = str(item['program'][0]['episode'])
+		now_d = str(item['program'][0]['duration'])
+		now_meta = extra_meta(now_s,now_e,now_d)
 		onNext = item['program'][1]['program_title']
+		next_id = item['program'][1]['program_id']
 		next_desc = item['program'][1]['program_description']
-		startTime = item['program'][1]['starts_at']
-		lN = strftime('%H:%M', localtime(startTime))
+		startTime = format_unix_time_kodi(item['program'][1]['starts_at'])
+		endTime = format_unix_time_kodi(item['program'][1]['ends_at'])
+		next_s = str(item['program'][1]['season'])
+		next_e = str(item['program'][1]['episode'])
+		next_d = str(item['program'][1]['duration'])
+		next_meta = extra_meta(next_s,next_e,next_d)
+		lN = strftime('%H:%M', localtime(item['program'][1]['starts_at']))
 		plot = '[B]'+ str(onNow) +'[/B]' + ' ' + str(now_desc) + '\n\n[NEXT @' + str(lN) + '] ' + '[B]'+ str(onNext) +'[/B]'
 		videoId = item['video_id']
 		slug = item['slug']
@@ -107,9 +122,13 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 		li.setProperty("label", onNow)
 		li.setProperty("label3", str(lN) + ' - ' + onNext)
 		li.setProperty("label2", now_desc)
+		li.setProperty("now_end", str(now_end))
+		li.setProperty("now_meta", str(now_meta))
 		li.setProperty("label4", next_desc)
 		li.setProperty("label5", onNext)
+		li.setProperty("next_meta", str(next_meta))
 		li.setProperty("next_start", str(startTime))
+		li.setProperty("next_times", str(startTime) + ' - ' + str(endTime))
 		li.setProperty("channel_id", str(item['channel_number']))
 		li.setProperty('url', url)
 		li.setProperty('IsPlayable', 'true')
@@ -138,7 +157,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 		items.append(li)
 		#log(f"[BUILD ITEMS] ListItem: {li(1)}", xbmc.LOGINFO)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	#xbmcplugin.setContent(addon_handle, 'episodes')
@@ -150,7 +169,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 	#log(f"[BUILD ITEMS]Channels kept: {kept}, skipped: {skipped}, filter_lang={filter_lang_display}, filter_genre={genre_filter}", xbmc.LOGINFO)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"LocalNow - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"LocalNow EPG - {genre_filter.capitalize()} ({kept} Channels)"

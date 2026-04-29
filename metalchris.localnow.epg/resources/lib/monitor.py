@@ -49,7 +49,7 @@ class PlayerMonitor(xbmc.Player):
             heading_ctrl = self.epg_window.getControl(1)
             if heading_ctrl:
                 heading_ctrl.setLabel(prop_title)
-                log(f"[LocalNow EPG] [MONITOR] Restored EPG title: {prop_title}", xbmc.LOGINFO)
+                log(f"[LocalNow EPG] [MONITOR] Restored EPG title: {prop_title}", xbmc.LOGDEBUG)
             else:
                 log("[LocalNow EPG] [MONITOR] Heading control not found — could not restore title", xbmc.LOGWARNING)
 
@@ -68,7 +68,7 @@ class PlayerMonitor(xbmc.Player):
                         index = int(last_index)
                         if 0 <= index < ctrl.size():
                             ctrl.selectItem(index)
-                            log(f"[LocalNow EPG] [MONITOR] Focus restored to index {index} (fallback)", xbmc.LOGINFO)
+                            log(f"[LocalNow EPG] [MONITOR] Focus restored to index {index} (fallback)", xbmc.LOGDEBUG)
                             restored = True
                     except Exception as e:
                         log(f"[LocalNow EPG] [MONITOR] Failed to restore focus by index: {e}", xbmc.LOGERROR)

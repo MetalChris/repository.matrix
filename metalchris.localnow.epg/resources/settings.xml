@@ -2,7 +2,9 @@
     <category label="General">
         <setting id="sort_alpha" type="bool" label="Sort channels alphabetically" default="false" />
         <setting id="remember_genre" type="bool" label="Remember last genre filter" default="false" />
+        <setting id="startup_favorites" type="bool" label="Start Favorites (Overrides last genre)" default="false" />
         <setting id="last_genre" type="text" default="" visible="false" />
+        <setting id="favorites_mode" type="bool" default="false" visible="false" />
         <setting id="epg_mode" type="enum" label="EPG Mode" values="Panel|Fullscreen" default="0" />
     </category>
 

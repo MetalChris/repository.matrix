@@ -1,4 +1,4 @@
-<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.01.31" provider-name="MetalChris">
+<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.03.01" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="inputstream.adaptive" />
@@ -22,5 +22,6 @@
         <assets>
             <icon>resources/media/icon.png</icon>
         </assets>
+        <broken>Streams not working in the EPG add-on, but can be accessed via the Video add-on.</broken>
     </extension>
 </addon>

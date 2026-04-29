@@ -40,7 +40,7 @@
             <posy>15</posy>
             <width>1240</width>
             <height>50</height>
-            <label>XumoPlay EPG</label>
+            <label>TCLTV+ EPG</label>
             <font>font30_title</font>
             <textcolor>white</textcolor>
         </control>

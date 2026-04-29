@@ -12,6 +12,7 @@ from resources.lib.logger import log  # use custom logger
 from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
 from resources.lib.get_items import *
+from resources.lib.write_channels import write_refresh_channels
 
 ADDON = xbmcaddon.Addon()
 GENRE_FILTER_PROP = "xumoplay_epg_genre_filter"
@@ -51,6 +52,7 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, fav_ids=None):
+	log(f"[BUILD_ITEMS] fav_ids={fav_ids}", xbmc.LOGERROR)
 	"""
 	Build Kodi ListItem objects from EPG `data`.
 	Optional fav_ids (list of string ids) will filter channels to only those IDs.
@@ -64,6 +66,8 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 	items = []
 
+	refresh_data = {}
+
 	try:
 	    if xbmcvfs.exists(map_all_programs_path):
 	        with open(map_all_programs_path, "r", encoding="utf-8") as f:
@@ -76,13 +80,19 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 	channels = data.get("channel", [])
 	log(f"[BUILD_ITEMS] data length: {len(channels)}", xbmc.LOGINFO)
+	log(f"[BUILD_ITEMS] Channel Keys: {list(channels.keys())}", xbmc.LOGINFO)
 	log(f"[BUILD_ITEMS] Channels type: {type(channels)}", xbmc.LOGINFO)
 	if isinstance(channels, dict):
 		channels = channels.values()
 
+
 	for count, item in enumerate(data['channel']['item']):
 		chan_id = str(item['number'])
-		log(f"[BUILD_ITEMS] Channel: {chan_id}", xbmc.LOGDEBUG)
+
+		if fav_ids and chan_id not in fav_ids:
+			continue
+					
+		#log(f"[BUILD_ITEMS] Channel: {chan_id}", xbmc.LOGDEBUG)
 		genres = (item.get('genre', []))[-1]
 		genres = str(genres['value'])
 		slug = str(item['guid']['value'])
@@ -117,6 +127,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 				nowstart = format_unix_time_kodi(int(program_info["start"]))
 				nowend = format_unix_time_kodi(int(program_info["end"]))
+				endTime = (program_info["end"])
 				nowtimes = nowstart + ' - ' + nowend			
 				nextstart = format_unix_time_kodi(int(program_info["start2"]))
 				nextend = format_unix_time_kodi(int(program_info["end2"]))
@@ -136,6 +147,11 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 				continue
 
 			kept += 1
+			
+			refresh_data[chan_id] = {
+				"name": title,
+				"logo": chan_id
+			}
 
 			li = xbmcgui.ListItem(label=title)
 
@@ -144,6 +160,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 			li.setProperty("label3", str(nextstart + ' - ' + onNext))
 			li.setProperty("label2", str(now_desc))
 			li.setProperty("nowtimes", str(nowtimes))
+			li.setProperty("endTime", str(endTime))
 			li.setProperty("label4", str(next_desc))
 			li.setProperty("nexttimes", str(nexttimes))
 			li.setProperty("label5", str(onNext))
@@ -157,11 +174,11 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 			items.append(li)
 
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"XumoPlay - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"XumoPlay EPG - {genre_filter.capitalize()} ({kept} Channels)"
@@ -171,5 +188,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 	log(f"[BUILD ITEMS] Window title set to: {title}", xbmc.LOGINFO)
 	# Set the window property so the UI can use it
 	epg_window.setProperty("EPG_TITLE", title)
+	
+	write_refresh_channels(refresh_data)
 
 	return items, kept, title

@@ -54,3 +54,40 @@ def format_unix_time_kodi(unix_ts, context_info=""):
     except Exception as e:
         xbmc.log(f"[EPG] ❌ Failed to format Unix timestamp '{unix_ts}' for {context_info} ({e})", xbmc.LOGWARNING)
         return ""
+
+
+def format_duration(seconds):
+	if not seconds:
+		return ""
+
+	minutes_total = seconds // 60
+	hours = minutes_total // 60
+	minutes = minutes_total % 60
+
+	if hours > 0 and minutes > 0:
+		return f"{hours} Hour{'s' if hours > 1 else ''} {minutes} Minutes"
+	elif hours > 0:
+		return f"{hours} Hour{'s' if hours > 1 else ''}"
+	else:
+		return f"{minutes_total} Minutes"
+
+
+def time_remaining_text(end_ts):
+	if not end_ts:
+		return ""
+
+	now = int(time.time())
+	remaining = end_ts - now
+
+	# Already ended or invalid
+	if remaining < 60:
+		return "Ending now"
+	if remaining <= 0:
+		return "Ended"
+
+	duration_text = format_duration(remaining)
+
+	if duration_text:
+		return f"Ends in {duration_text}"
+
+	return ""

@@ -8,6 +8,8 @@ from resources.lib.logger import *
 from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
+from default import run
+from resources.lib.convert_to_local import *
 
 GENRE_FILTER_PROP = "xumoplay_epg_genre_filter"
 ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
@@ -33,6 +35,7 @@ def handle_context_menu(epg_window, listitem):
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
+		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
 				options.append("Reload Favorites")
@@ -59,11 +62,12 @@ def handle_context_menu(epg_window, listitem):
 			channel = listitem.getProperty("channel") or "No description available."
 			title = listitem.getProperty("Label") or "No description available."
 			description = listitem.getProperty("Label2") or "No description available."
-			times = listitem.getProperty("nowtimes") or "No description available."
+			endTime = int(listitem.getProperty("endTime")) or "No description available."
+			now_end = time_remaining_text(endTime)
 			title2 = listitem.getProperty("Label5") or "No description available."
 			description2 = listitem.getProperty("Label4") or "No description available."
 			times2 = listitem.getProperty("nexttimes") or "No description available."
-			xbmcgui.Dialog().textviewer(f"{channel}", f"{title} – {description}  {times}\n\n\n\n{title2} – {description2}  {times2}")
+			xbmcgui.Dialog().textviewer(f"{channel}", f"[B][I]Now: [/I]{title}[/B]\n{description}\n[I]{now_end}[/I]\n\n\n\n[B][I]Next: [/I]{title2}[/B]\n{description2}\n[I]{times2}[/I]")
 
 
 		elif sel == "Show Next program info":
@@ -102,6 +106,7 @@ def handle_context_menu(epg_window, listitem):
 				win.setProperty("PREV_GENRE_FILTER", current_genre)
 
 			# Clear genre filter and load favorites
+			addon.setSettingBool("favorites_mode", True)
 			win.clearProperty(GENRE_FILTER_PROP)
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
@@ -120,6 +125,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
+			addon.setSettingBool("favorites_mode", False)
 			epg_window.clearProperty("FAVORITES_FILTER")
 
 			# Restore previous genre filter if exists

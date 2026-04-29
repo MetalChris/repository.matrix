@@ -9,6 +9,7 @@ from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
 
+ICON = 'special://home/addons/metalchris.lgchannels.epg/resources/media/icon.png'
 GENRE_FILTER_PROP = "lgchannels_epg_genre_filter"
 addon = xbmcaddon.Addon()
 
@@ -32,6 +33,7 @@ def handle_context_menu(epg_window, listitem):
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
+		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
 				options.append("Exit Favorites")
@@ -77,7 +79,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"LG Channels EPG",
 					f"{chan_name} added to Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -85,7 +87,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"LG Channels EPG",
 					f"{chan_name} already in Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -97,6 +99,7 @@ def handle_context_menu(epg_window, listitem):
 				win.setProperty("PREV_GENRE_FILTER", current_genre)
 
 			# Clear genre filter and load favorites
+			addon.setSettingBool("favorites_mode", True)
 			win.clearProperty(GENRE_FILTER_PROP)
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
@@ -107,7 +110,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"LG Channels EPG",
 				"Genre filter cleared for Favorites view",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -138,7 +141,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"LG Channels EPG",
 					f"{chan_name} removed from Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -186,7 +189,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"LG Channels EPG",
 				"All favorites have been cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)
@@ -198,7 +201,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"LG Channels EPG",
 						"No genres found in EPG.",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						3000,
 						sound=False
 					)
@@ -220,7 +223,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"LG Channels EPG",
 						"Genre filter cleared",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -233,7 +236,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"LG Channels EPG",
 						f"Genre filter set: {selected_genre} ({len(channels_for_genre)} channels)",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -260,7 +263,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"LG Channels EPG",
 				"Genre filter cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -272,7 +275,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"LG Channels EPG",
 				"EPG cache and logos cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)

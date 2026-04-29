@@ -36,7 +36,7 @@ s = requests.Session()
 def get_buildid():
 	log(('GET BUILD_ID'),xbmc.LOGINFO)
 	response = s.get(baseUrl)
-	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
 	data = json.loads(jsob)
 	BUILD_ID = data['buildId']
@@ -47,7 +47,7 @@ def get_buildid():
 def get_token():
 	log(('GET TOKEN'),xbmc.LOGINFO)
 	response = s.get(baseUrl)
-	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
 	data = json.loads(jsob)
 	DSP_TOKEN = data['runtimeConfig']['DSP_TOKEN']
@@ -61,7 +61,7 @@ def get_token():
 def get_ln(baseUrl):
 	log(('GET LOCATION'),xbmc.LOGINFO)
 	response = s.get(baseUrl)
-	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 	jsob = re.compile('application/json">(.+?)</script>').findall(response.text)[0]
 	data = json.loads(jsob)
 	LN_API_KEY = data['runtimeConfig']['LN_API_KEY']
@@ -70,7 +70,7 @@ def get_ln(baseUrl):
 	log('LNURL: ' + str(lnUrl),xbmc.LOGINFO)
 	headers = {'User-Agent': ua, 'X-Api-Key': str(LN_API_KEY)}
 	response = s.get(lnUrl, headers=headers)
-	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 	data = json.loads(response.text)
 	market = data['city']['market']
 	#market = 'txTyler'# data['city']['market']
@@ -86,7 +86,7 @@ def get_ln(baseUrl):
 def channels(TylerUrl):
 	response = s.get(TylerUrl, headers = {'User-Agent': ua})
 	log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
-	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGINFO)
+	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
 	data = json.loads(response.text)
 	return(data)
 
@@ -101,11 +101,11 @@ def get_stream(title, image, url, epg_window):
 	jsob = (str(response.text))
 	data = json.loads(jsob)
 	stream = data['video_m3u8']
-	log('STREAM: ' + str(stream[:150]),xbmc.LOGINFO)
+	log('STREAM: ' + str(stream[:150]),xbmc.LOGDEBUG)
 	#return(name, stream)
 	use_isa = ADDON.getSettingBool("use_isa")
 	xbmc.log(f"[GET_ITEMS] Playing {title} from {stream[:150]}", xbmc.LOGINFO)
-	xbmc.log(f"[GET_ITEMS] Image for video {image}", xbmc.LOGINFO)
+	xbmc.log(f"[GET_ITEMS] Image for video {image}", xbmc.LOGDEBUG)
 	if use_isa:
 		play_episode_isa(title, stream, image, epg_window)
 	else:

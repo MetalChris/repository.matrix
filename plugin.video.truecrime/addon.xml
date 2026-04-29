@@ -27,5 +27,6 @@
             <icon>resources/media/icon.png</icon>
             <fanart>resources/media/fanart.jpg</fanart>
         </assets>
+        <broken>True Crime Network no longer uses an API to populate the website.</broken>
     </extension>
 </addon>

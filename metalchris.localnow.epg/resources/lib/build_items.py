@@ -157,7 +157,13 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 		items.append(li)
 		#log(f"[BUILD ITEMS] ListItem: {li(1)}", xbmc.LOGINFO)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		#items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	#xbmcplugin.setContent(addon_handle, 'episodes')
@@ -183,3 +189,8 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 
 	#return items, kept, title
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text

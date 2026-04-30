@@ -8,9 +8,12 @@ from resources.lib.logger import *
 from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
+from resources.lib.convert_to_local import *
+from resources.lib.extra import *
 
 GENRE_FILTER_PROP = "cwlive_epg_genre_filter"
 addon = xbmcaddon.Addon()
+ICON = 'special://home/addons/metalchris.localnow.epg/resources/media/icon.png'
 
 def handle_context_menu(epg_window, listitem):
 	log("[CONTEXT_MENU] handle_context_menu called")
@@ -32,8 +35,10 @@ def handle_context_menu(epg_window, listitem):
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
+		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
+				options.append("Reload Favorites")
 				options.append("Exit Favorites")
 				options.append("Remove channel from Favorites")
 				options.append("Clear All Favorites")  # new option
@@ -56,12 +61,24 @@ def handle_context_menu(epg_window, listitem):
 		if sel == "Show Program Info":
 			channel = listitem.getProperty("channel") or "No description available."
 			title = listitem.getProperty("Label") or "No description available."
+			subtitle_now = listitem.getProperty("subtitle_now")
 			description = listitem.getProperty("Label2") or "No description available."
-			times = listitem.getProperty("nowtimes") or "No description available."
+			if listitem.getProperty("subtitle_now") != "":
+				description = '"' + subtitle_now + '"' + ' - ' + description
+			times = time_remaining_text(int(listitem.getProperty("end_now"))) or "No description available."
+			ratings_now = listitem.getProperty("ratings_now") or "Not Rated"
+			duration_now = int(listitem.getProperty("duration_now")) or "No duration available."
+			meta_now = extra_meta(ratings_now,duration_now)
 			title2 = listitem.getProperty("Label5") or "No description available."
+			subtitle_next = listitem.getProperty("subtitle_next")
 			description2 = listitem.getProperty("Label4") or "No description available."
+			if listitem.getProperty("subtitle_next") != "":
+				description2 = '"' + subtitle_next + '"' + ' - ' + description2
 			times2 = listitem.getProperty("nexttimes") or "No description available."
-			xbmcgui.Dialog().textviewer(f"{channel}", f"{title} – {description}  {times}\n\n\n\n{title2} – {description2}  {times2}")
+			ratings_next = listitem.getProperty("ratings_next") or "Not Rated"
+			duration_next = int(listitem.getProperty("duration_next")) or "No duration available."
+			meta_next = extra_meta(ratings_next,duration_next)
+			xbmcgui.Dialog().textviewer(f"{channel}", f"[B][I]Now: [/I]{title}[/B]\n[I]{meta_now}[/I]\n{description}\n[I]• {times}[/I]\n\n\n\n[B][I]Next: [/I]{title2}[/B]\n[I]{meta_next}[/I]\n{description2}\n[I]• {times2}[/I]")
 
 		elif sel == "Show Next program info":
 			channel = listitem.getProperty("channel") or "No description available."
@@ -78,7 +95,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"CW Live EPG",
 					f"{chan_name} added to Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -86,18 +103,19 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"CW Live EPG",
 					f"{chan_name} already in Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
 
-		elif sel == "View Favorites":
+		elif sel == "View Favorites" or sel == "Reload Favorites":
 			# Save current genre filter
 			current_genre = win.getProperty(GENRE_FILTER_PROP)
 			if current_genre:
 				win.setProperty("PREV_GENRE_FILTER", current_genre)
 
 			# Clear genre filter and load favorites
+			addon.setSettingBool("favorites_mode", True)
 			win.clearProperty(GENRE_FILTER_PROP)
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
@@ -108,7 +126,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"CW Live EPG",
 				"Genre filter cleared for Favorites view",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -116,6 +134,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
+			addon.setSettingBool("favorites_mode", False)
 			epg_window.clearProperty("FAVORITES_FILTER")
 
 			# Restore previous genre filter if exists
@@ -142,7 +161,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"CW Live EPG",
 					f"{chan_name} removed from Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -190,7 +209,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"CW Live EPG",
 				"All favorites have been cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)
@@ -243,7 +262,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"CW Live EPG",
 						"No genres available in EPG.",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						3000,
 						sound=False
 					)
@@ -267,7 +286,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"CW Live EPG",
 						"Genre filter cleared",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -279,7 +298,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"CW Live EPG",
 						f"Genre filter set: {selected_genre}",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -304,7 +323,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"CW Live EPG",
 				"Genre filter cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -317,7 +336,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"CW Live EPG",
 				"EPG cache and logos cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)

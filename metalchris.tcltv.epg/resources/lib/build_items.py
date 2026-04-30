@@ -85,6 +85,9 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 
 	items = []
 	sources = []
+	
+	if not fav_ids:
+		favorites_mode = False
 
 	# --- MAIN LOOP (FIXED) ---
 	for category in categories:
@@ -203,7 +206,13 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 	log(f"[BUILD ITEMS] GENRE: {genre_filter}", xbmc.LOGINFO)
 	log(f"[BUILD ITEMS] SOURCES: {sources}", xbmc.LOGDEBUG)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		#items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	log(f"[BUILD ITEMS] EPG built with: {kept} channels", xbmc.LOGINFO)
@@ -227,3 +236,8 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 	epg_window.setProperty("EPG_TITLE", title)
 
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text

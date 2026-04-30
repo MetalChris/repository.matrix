@@ -174,7 +174,13 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 			items.append(li)
 
 	if SORT_ALPHA:
-		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		#items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	# --- Title ---
@@ -192,3 +198,9 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 	write_refresh_channels(refresh_data)
 
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+

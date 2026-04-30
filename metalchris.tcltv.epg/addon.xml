@@ -1,4 +1,4 @@
-<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.03.15" provider-name="MetalChris">
+<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.03.16" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
 		<import addon="xbmc.addon" version="20.0.0"/>

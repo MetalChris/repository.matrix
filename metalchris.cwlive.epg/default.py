@@ -159,10 +159,33 @@ def run():
 	else:
 		win.clearProperty(GENRE_FILTER_PROP)
 		addon.setSetting("last_genre", "")
+	
+	# apply startup preference BEFORE first load
+	if addon.getSettingBool("startup_favorites"):
+		xbmc.log(f"[DEFAULT] START IN FAVORITES", xbmc.LOGINFO)	
+		win.clearProperty(GENRE_FILTER_PROP)
+		addon.setSettingBool("favorites_mode", True)
+		fav_dict = list_favorites()
 
+		fav_ids = set(fav_dict.keys()) if fav_dict else set()
+		xbmc.log(f"[DEFAULT] fav_ids = {fav_ids}", xbmc.LOGERROR)
+	else:
+		addon.setSettingBool("favorites_mode", False)
+		
+	favorites_mode = addon.getSettingBool("startup_favorites")
+	# override if no favorites exist
+	if favorites_mode and not fav_ids:
+		xbmc.log("[DEFAULT] No favorites exist - forcing All Channels mode", xbmc.LOGWARNING)
+		addon.setSettingBool("favorites_mode", False)
+		xbmcgui.Dialog().notification(
+			"CW Live EPG",
+			"No favorites exist. Loading All Channels.",
+			ICON,
+			3000
+		)
 
 	#listitems, kept, title = build_items(data, thumbs_map, desc_map, program_map, genre_map, win, fav_ids=None)
-	listitems, kept, title = build_items(data, thumbs_map, genre_map, win, fav_ids=None)
+	listitems, kept, title = build_items(data, thumbs_map, genre_map, win, fav_ids=fav_ids if favorites_mode else None)
 
 	# Resolve which XML to load for EPG skin
 	from resources.lib.skin_utils import get_epg_skin_file

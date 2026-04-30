@@ -20,7 +20,7 @@ USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = "special://profile/addon_data/metalchris.cwlive.epg/thumbs"#os.path.join(USERDATA_PATH, "thumbs")
 apiUrl = 'https://data.cwtv.com/feed/app-2/landing/epg/page_1/pagesize_75/device_web/apiversion_24/cacheversion_202510142100'
 SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
-#START_FAVORITES = ADDON.getSettingBool("start_favorites")
+#START_FAVORITES = ADDON.getSettingBool("startup_favorites")
 PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
 map_all_programs_path = os.path.join(CACHE_DIR, "map_all_programs.json")
 
@@ -154,12 +154,16 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 		desc_now        = current_program.get("description", "") if current_program else ""
 		start_now       = current_program.get("program_start_ts", 0) if current_program else 0
 		end_now         = current_program.get("program_end_ts", 0) if current_program else 0
+		duration_now	= end_now - start_now
+		ratings_now 	= current_program.get("ratings", "") if current_program else ""
 
 		title_next      = next_program.get("title", "") if next_program else ""
 		subtitle_next   = next_program.get("subtitle", "") if next_program else ""
 		desc_next       = next_program.get("description", "") if next_program else ""
 		start_next      = next_program.get("program_start_ts", 0) if next_program else 0
 		end_next        = next_program.get("program_end_ts", 0) if next_program else 0
+		duration_next	= end_next - start_next
+		ratings_next 	= current_program.get("ratings", "") if current_program else ""
 
 		nowstart = format_unix_time_kodi(int(start_now))
 		nowend = format_unix_time_kodi(int(end_now))
@@ -175,10 +179,17 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 		li.setProperty("label", title_now)
 		li.setProperty("label3", nextstart + ' - ' + title_next)
 		li.setProperty("label2", desc_now)
+		li.setProperty("duration_now", str(duration_now))
+		li.setProperty("end_now", str(end_now))
+		li.setProperty("ratings_now", ratings_now)
+		li.setProperty("subtitle_now", subtitle_now)
 		li.setProperty("nowtimes", nowtimes)
-		li.setProperty("label4", desc_next)
+		li.setProperty("label5", title_next)
 		li.setProperty("nexttimes", nexttimes)
-		li.setProperty("label5", desc_next)
+		li.setProperty("label4", desc_next)
+		li.setProperty("duration_next", str(duration_next))
+		li.setProperty("ratings_next", ratings_next)
+		li.setProperty("subtitle_next", subtitle_next)
 		li.setProperty("FAVORITE_GUID", ch_guid)
 		li.setProperty("channel_id", ch_guid)
 		li.setProperty('url', ch_stream)
@@ -189,11 +200,17 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 		items.append(li)
 
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		#items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"CW Live - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"CW Live EPG - {genre_filter.capitalize()} ({kept} Channels)"
@@ -204,3 +221,8 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 	log(f"[BUILD ITEMS] Kept channels: {kept}", xbmc.LOGINFO)
 
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text

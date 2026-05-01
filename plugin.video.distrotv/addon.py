@@ -151,6 +151,7 @@ def show_episodes(code,url):
 
 #18
 def live_cats(url):
+	addDir2('All Channels', channelsUrl, 27, defaultimage, defaultfanart, infoLabels={'plot':''})
 	response = s.get(channelsUrl)
 	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
 	data = json.loads(response.text)
@@ -211,7 +212,51 @@ def get_channel(channels,url):
 	xbmc.log('[DistroTV] CHANNEL URL: ' + str(url),level=log_level)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
-
+	
+	
+#27
+def all_channels(url):
+	response = s.get(channelsUrl)
+	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	data = json.loads(response.text);genres = [];all_shows = []
+	for count, item in enumerate(data['topics']):
+		title = item['title']
+		if title not in genres:
+			genres.append(title)
+	xbmc.log('GENRES: ' + str(genres),xbmc.LOGDEBUG)
+	for count, genre in enumerate(data['topics']):
+		shows = genre['shows']
+		for item in shows:
+			if item not in all_shows:
+				all_shows.append(str(item)); titles = []
+	xbmc.log('All_SHOWS: ' + str(all_shows),xbmc.LOGDEBUG)
+	for show in all_shows:
+		#xbmc.log('SHOW: ' + str(show),level=log_level)
+		for count, item in enumerate(data['shows'][show]['seasons'][0]['episodes']):
+			title = item['title']
+			if title not in titles:
+				titles.append(title)
+			else:
+				continue
+			xbmc.log('Title: ' + str(title),xbmc.LOGDEBUG)
+			li = xbmcgui.ListItem(title)
+			#description = item['description'] + '\n(' + (data['shows'][show]['genre']).replace(',',', ') + ')'
+			description = '[I](' + (data['shows'][show]['genre']).replace(',',', ') + ')  ' + '[/I]' + (item['description'])
+			image = item['img_thumbh']
+			if item['id'] is not None:
+				epgId = str(item['id'])
+				li.addContextMenuItems([('Program Info', 'RunPlugin(%s?mode=82&url=%s)' % (sys.argv[0], (epgId)))])
+			url = (data['shows'][show]['seasons'][0]['episodes'][0]['content']['url'])# + '|User-Agent=' + ua
+			streamUrl = 'plugin://plugin.video.distrotv?mode=99&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(show)
+			li.setProperty('IsPlayable', 'true')
+			li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':description})
+			li.setArt({'thumb':image,'fanart':image})
+			xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
+			xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	#xbmc.log('[DistroTV] CHANNEL URL: ' + str(url),level=log_level)
+	xbmcplugin.setContent(addon_handle, 'episodes')
+	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
+	
 
 #82
 def desc(url):
@@ -272,6 +317,7 @@ def PLAY(name,url):
 	listitem.setProperty('inputstream.adaptive.manifest_type', 'hls')
 	listitem.setProperty('inputstream.adaptive.stream_headers', f"User-Agent={ua}")
 	listitem.setProperty('inputstream.adaptive.manifest_headers', f"User-Agent={ua}")
+	xbmc.log(f"HEADERS: {ua}", xbmc.LOGINFO)
 	#listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
 	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
@@ -383,6 +429,9 @@ elif mode == 21:
 elif mode == 24:
 	xbmc.log(("Get Live Stream"),level=log_level)
 	get_channel(name,url)
+elif mode == 27:
+	xbmc.log(("Get All Channels"),level=log_level)
+	all_channels(url)
 elif mode == 82:
 	xbmc.log(("Get Show Info"),level=log_level)
 	desc(url)

@@ -12,6 +12,7 @@ from resources.lib.logger import *
 
 ADDON = Addon("metalchris.distrotv.epg")
 FEED_URL = "https://tv.jsrdn.com/tv_v5/getfeed.php?type=live"
+ICON = 'special://home/addons/metalchris.distrotv.epg/resources/media/icon.png'
 
 # Read TTL from settings (slider returns string → cast to int)
 try:
@@ -328,7 +329,7 @@ def clear_cache():
         xbmcgui.Dialog().notification(
             "DistroTV EPG",
             "Cache cleared",
-            xbmcgui.NOTIFICATION_INFO,
+            ICON,
             3000,
             sound=False
         )
@@ -397,7 +398,7 @@ def clear_cache_and_refresh_thumbs():
                     dlg.update(pct, f"Downloaded {i}/{total} logos")
 
             dlg.close()
-            xbmcgui.Dialog().notification("DistroTV EPG", "Cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+            xbmcgui.Dialog().notification("DistroTV EPG", "Cache refresh complete", ICON, 3000, sound=False)
             log(f"[UTILS_FETCH] Cached {total} channel logos", xbmc.LOGINFO)
 
         except Exception as e:

@@ -9,7 +9,6 @@ Sort channels alphabetically
 Remember last genre filter
 Filter channels by language
 Enable add-on specific debug logging
-Disable use of ISA for playback
 EPG cache duration
 Clear EPG cache and thumbs
 

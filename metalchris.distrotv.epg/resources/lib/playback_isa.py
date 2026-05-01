@@ -1,11 +1,28 @@
 import xbmc
 import xbmcgui
+import urllib
+import sys
 
-from resources.lib.uas import ua
+from resources.lib.uas import *
 from resources.lib.logger import log
-
+from resources.lib import playback_service
 
 def play_episode_isa(ep, epg_window=None):
+	title = epg_window.getControl(1).getLabel()
+	if title:
+		epg_window.setProperty("EPG_TITLE", title)
+		xbmc.executebuiltin(f'SetProperty(EPG_TITLE,"{title}",home)')
+		log(f"[PLAYBACK_ISA] Window Title: {title}", xbmc.LOGDEBUG)
+
+	list_control = epg_window.getControl(9000)
+	index = list_control.getSelectedPosition()
+	li = list_control.getSelectedItem()
+	if li:
+		slug = li.getProperty("channel_slug")
+		epg_window.setProperty("LAST_SELECTED_SLUG", slug)
+		epg_window.setProperty("LAST_SELECTED_INDEX", str(index))
+		log(f"[PLAYBACK_ISA] Last Selected Channel: {index} ({slug})", xbmc.LOGDEBUG)
+			
 	try:
 		title = ep.get("episode_title") or ep.get("title") or "Unknown"
 		desc  = ep.get("episode_description") or ep.get("description") or ""
@@ -37,20 +54,6 @@ def play_episode_isa(ep, epg_window=None):
 				#epg_window.close()
 		#except Exception:
 			#pass
-		title = epg_window.getControl(1).getLabel()
-		if title:
-			epg_window.setProperty("EPG_TITLE", title)
-			xbmc.executebuiltin(f'SetProperty(EPG_TITLE,"{title}",home)')
-			log(f"[PLAYBACK_ISA] Window Title: {title}", xbmc.LOGDEBUG)
-
-		list_control = epg_window.getControl(9000)
-		index = list_control.getSelectedPosition()
-		li = list_control.getSelectedItem()
-		if li:
-			slug = li.getProperty("channel_slug")
-			epg_window.setProperty("LAST_SELECTED_SLUG", slug)
-			epg_window.setProperty("LAST_SELECTED_INDEX", str(index))
-			log(f"[PLAYBACK_ISA] Last Selected Channel: {index} ({slug})", xbmc.LOGDEBUG)
 
 		xbmc.log(f"[PLAYBACK] Playing with InputStream Adaptive: {title} ({url})", xbmc.LOGINFO)
 		xbmc.Player().play(item=url, listitem=li)

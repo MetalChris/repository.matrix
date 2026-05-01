@@ -3,6 +3,8 @@
         <setting id="sort_alpha" type="bool" label="Sort channels alphabetically" default="false" />
         <setting id="remember_genre" type="bool" label="Remember last genre filter" default="false" />
         <setting id="last_genre" type="text" default="" visible="false" />
+        <setting id="startup_favorites" type="bool" label="Start Favorites (Overrides last genre)" default="false" />
+        <setting id="favorites_mode" type="bool" default="false" visible="false" />
         <setting id="epg_mode" type="enum" label="EPG Mode" values="Panel|Fullscreen" default="0" />
         <setting id="filter_language"
                  type="labelenum"
@@ -13,7 +15,6 @@
 
     <category label="Advanced">
         <setting id="debug_logging" type="bool" label="Enable debug logging" default="false" />
-        <setting id="use_isa" type="bool" label="Use InputStream Adaptive (ISA)" default="true" />
         <setting id="cache_ttl" type="slider" label="EPG cache duration (minutes)" default="5" range="1,120" option="int" step="1" />
         <setting id="first_run" type="bool" label="Hidden: first run" default="true" visible="false" />
         <setting id="clear_cache_on_next_start"

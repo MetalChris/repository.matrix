@@ -91,6 +91,7 @@ def ensure_content_length(
 
 
 def genres(apiUrl):
+	addDir2('All Channels', apiUrl, 6, defaultfanart, defaultfanart)
 	xbmc.log(('GET GENRES'),level=log_level)
 	response = ensure_content_length(apiUrl, headers=headers)
 	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
@@ -146,6 +147,53 @@ def channels(apiUrl, name):
 				li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':plot})
 				li.setArt({'thumb':image,'fanart':fanart})
 				xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
+	xbmcplugin.setContent(addon_handle, 'episodes')
+	if force_views != 'false':
+		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
+	xbmcplugin.addSortMethod(addon_handle, xbmcplugin.SORT_METHOD_TITLE)
+	xbmcplugin.endOfDirectory(addon_handle, cacheToDisc=True)
+
+#6
+def all_channels(apiUrl):
+	xbmc.log('ALL CHANNELS',level=log_level)
+	response = s.get(apiUrl, headers = headers)
+	xbmc.log('RESPONSE CODE: ' + str(response.status_code),level=log_level)
+	xbmc.log('RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
+	#xbmc.log('RESPONSE: ' + str(response.text),level=log_level)
+	data = json.loads(response.text);genres = []
+	for count, item in enumerate(data['categories']):
+		genre = item['categoryName']
+		if genre not in genres:
+			genres.append(genre)
+	xbmc.log('GENRES: ' + str(genres),level=log_level)
+	for item in genres:
+		genre = item
+		for count, item in enumerate(data['categories']):
+			if item['categoryName'] == genre:
+				xbmc.log(('MATCH'),level=log_level)
+				xbmc.log(('COUNT: ' + str(count)),level=log_level)
+				c = count
+				for count, item in enumerate(data['categories'][c]['channels']):
+					title = str(item['channelName'])
+					image = item['programs'][0]['imageUrl']
+					fanart = item['programs'][0]['previewImgUrl']
+					if fanart == None:
+						fanart = image
+					#xbmc.log('IMAGE: ' + str(image),level=log_level)
+					description = item['programs'][0]['description']
+					programTitle = item['programs'][0]['programTitle']
+					endDateTime = item['programs'][0]['endDateTime']
+					remaining = ends(endDateTime)
+					NextprogramTitle = item['programs'][1]['programTitle']
+					#xbmc.log('NEXT: ' + str(NextprogramTitle),level=log_level)
+					plot = '[B]' + programTitle + '[/B]: ' + description + ' (Ends in ' + remaining + ')\n\nNext: ' + '[B]' + NextprogramTitle + '[/B]'
+					url = item['mediaStaticUrl'].split('?')[0]
+					streamUrl = 'plugin://plugin.video.lgchannels?mode=99&url=' + urllib.parse.quote_plus(url) + '&name=' + urllib.parse.quote_plus(programTitle)
+					li = xbmcgui.ListItem(title)
+					li.setProperty('IsPlayable', 'true')
+					li.setInfo(type="Video", infoLabels={"mediatype":"video","title":title,'plot':plot})
+					li.setArt({'thumb':image,'fanart':fanart})
+					xbmcplugin.addDirectoryItem(handle=addon_handle, url=streamUrl, listitem=li, isFolder=False)
 	xbmcplugin.setContent(addon_handle, 'episodes')
 	if force_views != 'false':
 		xbmc.executebuiltin("Container.SetViewMode("+str(confluence_views[int(settings.getSetting(id="views"))])+")")
@@ -273,6 +321,9 @@ if mode == None or url == None or len(url) < 1:
 elif mode == 3:
 	xbmc.log(("Get Channels"),level=log_level)
 	channels(url,name)
+elif mode == 6:
+	xbmc.log(("Get All Channels"),level=log_level)
+	all_channels(url)
 elif mode == 99:
 	xbmc.log("Play Stream", level=log_level)
 	PLAY(name,url)

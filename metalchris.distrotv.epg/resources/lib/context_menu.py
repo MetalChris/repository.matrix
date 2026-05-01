@@ -8,9 +8,13 @@ from resources.lib.logger import *
 from resources.lib.utils_fetch import *
 from resources.lib.favorites import add_favorite, has_favorites, list_favorites, fetch_favorites, remove_favorite, _save_favorites
 from resources.lib.refresh_addon_settings import *
+from resources.lib.convert_to_local import *
+from resources.lib.extra import *
+from default import run
 
 GENRE_FILTER_PROP = "distro_epg_genre_filter"
 addon = xbmcaddon.Addon()
+ICON = 'special://home/addons/metalchris.distrotv.epg/resources/media/icon.png'
 
 def handle_context_menu(epg_window, listitem):
 	log("[CONTEXT_MENU] handle_context_menu called")
@@ -25,15 +29,17 @@ def handle_context_menu(epg_window, listitem):
 		]
 
 		# Only show genre search if NOT in favorites
-		if not in_favorites:
+		if not in_favorites and not addon.getSettingBool("favorites_mode"):
 			options.append("Search by Genre...")
 
 		if win.getProperty(GENRE_FILTER_PROP):
 			options.append("Clear Genre Filter")
 
 		# Dynamically add favorites-related options
+		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
+				#options.append("Reload Favorites")
 				options.append("Exit Favorites")
 				options.append("Remove channel from Favorites")
 				options.append("Clear All Favorites")  # new option
@@ -56,10 +62,18 @@ def handle_context_menu(epg_window, listitem):
 		if sel == "Show Program Info":
 			channel = listitem.getProperty("channel") or "No description available."
 			title = listitem.getProperty("Label") or "No description available."
-			description = listitem.getProperty("Label2") or "No description available."
+			description = listitem.getProperty("desc") or "No description available."
+			now_start = listitem.getProperty("now_start") or "No description available."
+			now_end = listitem.getProperty("now_end") or "No description available."
+			now_duration = format_duration(iso_to_unix(now_end) - iso_to_unix(now_start))
+			time_remaining = time_remaining_text(iso_to_unix(now_end))
 			title2 = listitem.getProperty("Label5") or "No description available."
-			description2 = listitem.getProperty("Label4") or "No description available."
-			xbmcgui.Dialog().textviewer(f"{channel}", f"{title} – {description}\n\n\n\n{title2} – {description2}")
+			description2 = listitem.getProperty("desc2") or "No description available."
+			next_times = listitem.getProperty("next_times") or "Times not available."
+			next_start = listitem.getProperty("next_start_raw") or "No description available."
+			next_end = listitem.getProperty("next_end_raw") or "No description available."
+			next_duration = format_duration(iso_to_unix(next_end) - iso_to_unix(next_start))
+			xbmcgui.Dialog().textviewer(f"{channel}", f"[B][I]Now: [/I]{title}[/B]\n[I]{now_duration}[/I]\n{description}\n[I]{time_remaining}[/I]\n\n\n\n[B][I]Next: [/I]{title2}[/B]\n[I]{next_duration}[/I]\n{description2}\n[I]{next_times}[/I]")
 
 		elif sel == "Show Next program info":
 			channel = listitem.getProperty("channel") or "No description available."
@@ -75,7 +89,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"DistroTV EPG",
 					f"{chan_name} added to Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -83,10 +97,13 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"DistroTV EPG",
 					f"{chan_name} already in Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
+				
+		elif sel == "Reload Favorites":
+			run()
 
 		elif sel == "View Favorites":
 			# Save current genre filter
@@ -95,6 +112,7 @@ def handle_context_menu(epg_window, listitem):
 				win.setProperty("PREV_GENRE_FILTER", current_genre)
 
 			# Clear genre filter and load favorites
+			addon.setSettingBool("favorites_mode", True)
 			win.clearProperty(GENRE_FILTER_PROP)
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
@@ -105,7 +123,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"DistroTV EPG",
 				"Genre filter cleared for Favorites view",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -113,6 +131,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
+			addon.setSettingBool("favorites_mode", False)
 			epg_window.clearProperty("FAVORITES_FILTER")
 
 			# Restore previous genre filter if exists
@@ -136,7 +155,7 @@ def handle_context_menu(epg_window, listitem):
 				xbmcgui.Dialog().notification(
 					"DistroTV EPG",
 					f"{chan_name} removed from Favorites",
-					xbmcgui.NOTIFICATION_INFO,
+					ICON,
 					3000,
 					sound=False
 				)
@@ -184,7 +203,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"DistroTV EPG",
 				"All favorites have been cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)
@@ -198,7 +217,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"My EPG Add-on",
 						"No genres available. Try refreshing EPG.",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						3000,
 						sound=False
 					)
@@ -219,7 +238,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"My EPG Add-on",
 						"No genres available in EPG.",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						3000,
 						sound=False
 					)
@@ -242,7 +261,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"My EPG Add-on",
 						"Genre filter cleared",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -253,7 +272,7 @@ def handle_context_menu(epg_window, listitem):
 					xbmcgui.Dialog().notification(
 						"My EPG Add-on",
 						f"Genre filter set: {selected_genre}",
-						xbmcgui.NOTIFICATION_INFO,
+						ICON,
 						2000,
 						sound=False
 					)
@@ -280,7 +299,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"DistroTV EPG",
 				"Genre filter cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				2000,
 				sound=False
 			)
@@ -292,7 +311,7 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().notification(
 				"DistroTV EPG",
 				"EPG cache and logos cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)

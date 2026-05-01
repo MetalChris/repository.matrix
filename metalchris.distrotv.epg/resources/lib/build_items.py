@@ -14,6 +14,8 @@ GENRE_FILTER_PROP = "distro_epg_genre_filter"
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
+SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
+ICON = 'special://home/addons/metalchris.localnow.epg/resources/media/icon.png'
 
 
 def _matches_language(channel_lang, selected_lang):
@@ -74,10 +76,6 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 	# We iterate epg items; chan_items is list of (chan_id, channel_dict)
 	chan_items = list(epg.items())
 
-	# apply alphabetical sort at the channel level if enabled
-	if sort_alpha:
-		chan_items.sort(key=lambda kv: kv[1].get("title", "").lower())
-
 	for idx, (chan_id, ch) in enumerate(chan_items, start=1):
 		try:
 			# --- FAVORITES FILTER (same style as genre/language) ---
@@ -132,6 +130,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 
 			now_desc = f"{desc}\n\n{now_start} - {now_end}"
 			next_desc = f"{desc2}\n\n{next_start} - {next_end}"
+			next_times = f"{next_start} - {next_end}"
 
 			if next_start and next_title != "No data":
 				next_label = f"{next_start} – {next_title}"
@@ -146,9 +145,16 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			li.setProperty("label", now_title)
 			li.setProperty("label3", next_label)
 			li.setProperty("label2", now_desc)
+			li.setProperty("desc", desc)
+			li.setProperty("now_start", str(slots[0].get("start", "")))
+			li.setProperty("now_end", str(slots[0].get("end", "")))
 			li.setProperty("label4", next_desc)
 			li.setProperty("label5", next_title)
+			li.setProperty("desc2", desc2)
+			li.setProperty("next_times", next_times)
 			li.setProperty("next_start", next_start)
+			li.setProperty("next_start_raw", next_start_raw)
+			li.setProperty("next_end_raw", next_end_raw)
 			li.setProperty("channel_id", str(chan_id))
 			li.setProperty("channel_slug", str(chan_id))
 			#log(f"[DistroTV EPG] Set slug={li.getProperty('channel_slug')} for {channel_name}", xbmc.LOGDEBUG)
@@ -175,14 +181,30 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			li.setProperty("row_parity", parity)
 
 			items.append(li)
+	
 		except Exception as e:
 			log(f"[BUILD ITEMS]Error building item for chan_id {chan_id}: {e}", xbmc.LOGERROR)
 			skipped += 1
 
+	# apply alphabetical sort at the channel level if enabled
+	if sort_alpha:
+		#chan_items.sort(key=lambda kv: kv[1].get("title", "").lower())
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
+	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
+		
+	#log(f"[BUILD ITEMS]Desc2: {slots}", xbmc.LOGINFO)
+	
+	#log(f"[BUILD ITEMS]Channel Slot: {slots}", xbmc.LOGDEBUG)
+	
 	log(f"[BUILD ITEMS]Channels kept: {kept}, skipped: {skipped}, filter_lang={filter_lang_display}, filter_genre={genre_filter}", xbmc.LOGINFO)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"DistroTV - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"DistroTV EPG - {genre_filter.capitalize()} ({kept} Channels)"
@@ -198,3 +220,8 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 
 
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text

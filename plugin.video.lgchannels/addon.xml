@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.lgchannels" name="LG Channels" version="2025.12.31" provider-name="MetalChris">
+<addon id="plugin.video.lgchannels" name="LG Channels" version="2026.03.15" provider-name="MetalChris">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
     <import addon="script.module.requests" version="2.9.1"/>
@@ -18,7 +18,8 @@
     <forum></forum>
     <website>https://lgchannels.com</website>
     <email></email>
-    <source></source>
+    <source></source>    
+    <news>Add All Channels selection to Live categories listing.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

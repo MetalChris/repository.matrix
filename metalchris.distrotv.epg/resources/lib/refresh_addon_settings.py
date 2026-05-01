@@ -5,7 +5,7 @@ from resources.lib.logger import *
 ADDON = xbmcaddon.Addon()
 
 # Global settings, persistent across restarts
-use_inputstream = ADDON.getSettingBool("use_isa")
+#use_inputstream = ADDON.getSettingBool("use_isa")
 remember_genre = ADDON.getSettingBool("remember_genre")
 language_filter = ADDON.getSetting("filter_language")
 #start_in_favorites = ADDON.getSettingBool("start_in_favorites")

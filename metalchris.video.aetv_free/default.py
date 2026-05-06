@@ -87,6 +87,19 @@ def list_shows():
 
 			if item.get("isBehindWall", True):
 				continue
+				
+			# --- ADD THIS BLOCK ---
+			episode_count = item.get("displayMetadata", {}).get("episodeCount")
+
+			try:
+				episode_count = int(episode_count)
+			except (TypeError, ValueError):
+				episode_count = 0
+
+			if episode_count == 0:
+				log(f"SKIPPING SHOW (no episodes): {item.get('title')}", xbmc.LOGINFO)
+				continue
+			# --- END BLOCK ---	
 
 			title = (item.get("title"))
 			slug = item.get("canonical")
@@ -121,7 +134,7 @@ def list_shows():
 				li,
 				True  # <-- IMPORTANT: folder now
 			)
-		xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_TITLE)
+		xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_LABEL)
 		xbmcplugin.endOfDirectory(HANDLE)
 
 	except Exception as e:

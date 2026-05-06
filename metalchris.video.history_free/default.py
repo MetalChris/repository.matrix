@@ -133,7 +133,7 @@ def list_shows():
 				li,
 				True  # <-- IMPORTANT: folder now
 			)
-		xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_TITLE)
+		xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_LABEL)
 		xbmcplugin.endOfDirectory(HANDLE)
 
 	except Exception as e:

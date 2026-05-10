@@ -1,0 +1,39 @@
+<settings>
+    <category label="Audio Stream">		
+        <setting type="lsep" label="Automatically select second audio stream." />
+		<setting id="auto_audio_select" type="bool" label="Auto-select audio stream" default="false" />
+    </category>
+    <category label="Live Events">	
+		<setting id="notify_schedule_events"
+         type="bool"
+         label="Notify About New Scheduled Events"
+         default="true"/>
+        <setting type="lsep" label="Interval for checking for new scheduled events." />
+		<setting id="schedule_interval"
+         type="slider"
+         label="Schedule Check Interval (hours)"
+         default="6"
+         range="1,24"
+         option="int" />
+		<setting id="check_live_events" type="bool" label="Check for live events" default="true" />	
+        <setting type="lsep" label="Interval for checking if event stream is live." />
+		<setting id="live_idle_interval"
+         type="slider"
+         label="Live Polling (Idle Minutes)"
+         default="5"
+         range="1,30"
+         option="int" />
+
+		<setting id="live_active_interval"
+         type="slider"
+         label="Live Polling (Active Window Seconds)"
+         default="60"
+         range="15,300"
+         option="int" />
+		<setting id="notify_live_events" type="bool" label="Notify when event goes live" default="true" />
+    </category>
+    <category label="Debug Log">
+        <setting id="debug_logging" type="bool" label="Enable debug logging" default="false" />
+    </category>
+
+</settings>

@@ -1,0 +1,21 @@
+<addon id="service.metalchris.nasaplus"
+       name="NASA+ Service"
+       version="1.1.1"
+       provider-name="MetalChris">
+    
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+    </requires>
+
+    <extension point="xbmc.service" library="service.py" start="login" />
+
+    <extension point="xbmc.addon.metadata">
+        <summary>A companion service for my NASA+ add-on.</summary>
+        <description>Provides notifications when live events are added to the schedule, and when scheduled events are streaming live. Can also be set to automatically select the second audio track after playback starts.</description>
+        <platform>all</platform>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

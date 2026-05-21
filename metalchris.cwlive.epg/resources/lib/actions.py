@@ -50,7 +50,7 @@ def handle_action(epg_window, action):
 			log(f"[ACTIONS] URL for video {url}", xbmc.LOGDEBUG)
 			image = li.getArt("icon")
 			log(f"[ACTIONS] Image for video {image}", xbmc.LOGDEBUG)
-			captions = ''
+			addon_info = li.getProperty("addon_info")
 
 			# --- Save current EPG state on the window (existing approach) ---
 			title_ctrl = epg_window.getControl(1)
@@ -88,7 +88,7 @@ def handle_action(epg_window, action):
 
 
 
-			safe_playback(title, stream, image, captions, epg_window)
+			safe_playback(title, stream, image, addon_info, epg_window)
 			# or replace with safe_playback if you want the safeguard
 			#safe_playback(title, stream, image, captions, epg_window)
 

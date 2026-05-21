@@ -91,7 +91,7 @@ def channels(TylerUrl):
 	return(data)
 
 
-def get_stream(title, image, url, epg_window):
+def get_stream(title, image, url, addon_info, epg_window):
 	log(('GET STREAM'),xbmc.LOGINFO)
 	token = get_token()
 	log('TOKEN: ' + str(token),xbmc.LOGINFO)
@@ -107,9 +107,9 @@ def get_stream(title, image, url, epg_window):
 	xbmc.log(f"[GET_ITEMS] Playing {title} from {stream[:150]}", xbmc.LOGINFO)
 	xbmc.log(f"[GET_ITEMS] Image for video {image}", xbmc.LOGDEBUG)
 	if use_isa:
-		play_episode_isa(title, stream, image, epg_window)
+		play_episode_isa(title, stream, image, addon_info, epg_window)
 	else:
-		play_episode_hls(title, stream, image, epg_window)
+		play_episode_hls(title, stream, image, addon_info, epg_window)
 
 
 	log(f"[GET_ITEMS] Playback Using {'InputStream Adaptive' if use_isa else 'native HLS (FFmpeg)'}", xbmc.LOGINFO)

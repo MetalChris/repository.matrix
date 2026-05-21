@@ -135,13 +135,13 @@ def fetch_all_programs(data):
 
 
 
-def get_stream(title, stream, image, captions, epg_window=None):
+def get_stream(title, stream, image, captions, addon_info, epg_window=None):
 	captions = None
 	log('[GET_ITEMS] LIVE URL: ' + str(stream),xbmc.LOGINFO)
 	#channel = url.split('/')[-2]
 	if 'Local Now' in title:
 		log(('##### LOCAL NOW #####'),xbmc.LOGINFO)
-		local_now(title, stream, image, captions, epg_window)
+		local_now(title, stream, image, captions, addon_info, epg_window)
 	response = s.get(stream, headers = {'User-Agent': ua})
 	log('RESPONSE CODE: ' + str(response.status_code),xbmc.LOGINFO)
 	log('RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
@@ -152,7 +152,7 @@ def get_stream(title, stream, image, captions, epg_window=None):
 		captions = ''
 		#if epg_window:
 		    #epg_window.close()
-		play_episode_isa(title, stream, image, captions, epg_window)
+		play_episode_isa(title, stream, image, captions, addon_info, epg_window)
 	else:
 		assetId = data['assets'][0]['id']
 		streamUrl = apiUrl + 'assets/asset/' + assetId + '.json?f=providers&f=connectorId&f=keywords'
@@ -171,7 +171,7 @@ def get_stream(title, stream, image, captions, epg_window=None):
 					log(('##### CAPTIONS #####'),xbmc.LOGINFO)
 		else:
 			captions = ''
-		play_episode_isa(title, stream, image, captions, epg_window)
+		play_episode_isa(title, stream, image, captions, addon_info, epg_window)
 
 def local_now(title, stream, image, captions, epg_window):
 	log(('##### LOCAL NOW #####'),level=xbmc.LOGDEBUG)
@@ -216,4 +216,4 @@ def local_now(title, stream, image, captions, epg_window):
 	log('RESPONSE: ' + str(response.text),level=xbmc.LOGDEBUG)
 	stream = response.text[1:-1] + '|User-Agent=' + ua
 	log(('##### LOCAL NOW #####'),xbmc.LOGINFO)
-	safe_playback(title, stream, image, captions, epg_window)
+	safe_playback(title, stream, image, captions, addon_info, epg_window)

@@ -86,6 +86,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 					continue
 
 			channel_name = ch.get("title", f"Channel {chan_id}")
+			#log(f"[BUILD ITEMS] chan_id {chan_id}", xbmc.LOGINFO)
 			slots = ch.get("slots", [])
 
 			# channel_lang pulled from genre_map (same as before)
@@ -157,6 +158,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			li.setProperty("next_end_raw", next_end_raw)
 			li.setProperty("channel_id", str(chan_id))
 			li.setProperty("channel_slug", str(chan_id))
+			li.setProperty('addon_info', 'distrotv.' + str(chan_id))
 			#log(f"[DistroTV EPG] Set slug={li.getProperty('channel_slug')} for {channel_name}", xbmc.LOGDEBUG)
 
 			li.setArt({"bg": "special://home/addons/metalchris.distrotv.epg/resources/media/row_light.png"})

@@ -19,6 +19,7 @@ def handle_context_menu(epg_window, listitem):
 	try:
 		win = xbmcgui.Window(10025)
 		in_favorites = bool(epg_window.getProperty("FAVORITES_FILTER"))
+		log(f"[CONTEXT_MENU] IN FAVORITES: {bool(epg_window.getProperty)}", xbmc.LOGINFO)
 
 		# --- Base options ---
 		options = [
@@ -26,7 +27,7 @@ def handle_context_menu(epg_window, listitem):
 		]
 
 		# Only show genre search if NOT in favorites
-		if not in_favorites:
+		if not in_favorites and not addon.getSettingBool("favorites_mode"):
 			options.append("Search by Genre...")
 
 		if win.getProperty(GENRE_FILTER_PROP):
@@ -36,6 +37,7 @@ def handle_context_menu(epg_window, listitem):
 		in_favorites = addon.getSettingBool("favorites_mode")
 		if has_favorites():
 			if in_favorites:
+				options.append("Reload Favorites")
 				options.append("Exit Favorites")
 				options.append("Remove channel from Favorites")
 				options.append("Clear All Favorites")  # new option
@@ -91,6 +93,22 @@ def handle_context_menu(epg_window, listitem):
 					3000,
 					sound=False
 				)
+				
+		elif sel == "Reload Favorites":
+			favs = list_favorites()
+			fav_channels = list(favs.keys())
+			epg_window.setProperty("FAVORITES_FILTER", ",".join(fav_channels))
+			epg_window.setProperty("EPG_TITLE", f"DistroTV - Favorites")
+			log(f"[CONTEXT MENU] Applying favorites filter: {fav_channels}")
+
+			xbmcgui.Dialog().notification(
+				"DistroTV EPG",
+				"Genre filter cleared for Favorites view",
+				ICON,
+				2000,
+				sound=False
+			)
+			epg_window.refresh_list()
 
 		elif sel == "View Favorites":
 			# Save current genre filter
@@ -104,7 +122,7 @@ def handle_context_menu(epg_window, listitem):
 			favs = list_favorites()
 			fav_channels = list(favs.keys())
 			epg_window.setProperty("FAVORITES_FILTER", ",".join(fav_channels))
-			epg_window.setProperty("EPG_TITLE", f"LocalNow - Favorites")
+			epg_window.setProperty("EPG_TITLE", f"LG Channels - Favorites")
 			log(f"[CONTEXT MENU] Applying favorites filter: {fav_channels}")
 
 			xbmcgui.Dialog().notification(
@@ -118,6 +136,7 @@ def handle_context_menu(epg_window, listitem):
 
 		elif sel == "Exit Favorites":
 			# Clear favorites filter
+			addon.setSettingBool("favorites_mode", False)
 			epg_window.clearProperty("FAVORITES_FILTER")
 
 			# Restore previous genre filter if exists

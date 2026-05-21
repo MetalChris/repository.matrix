@@ -23,6 +23,10 @@ SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
 #START_FAVORITES = ADDON.getSettingBool("start_favorites")
 EPG_JSON = os.path.join(PROFILE_PATH, "cache", "epg.json")
 #favorites_filter = ['592', '558', '578', '2118', '2110']
+#STARTUP_FAVORITES = ADDON.getSettingBool("startup_favorites")
+FAV_FILE = os.path.join(USERDATA_PATH, "favorites.json")
+
+ICON = 'special://home/addons/metalchris.lgchannels.epg/resources/media/icon.png'
 
 def _matches_language(channel_lang, selected_lang):
 	"""Return True if selected_lang matches channel_lang.
@@ -49,6 +53,8 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
+	
+	    
 
 	with open(EPG_JSON, "r", encoding="utf-8") as f:
 	    epg_data = json.load(f)
@@ -91,12 +97,32 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 
 	items = []
 	#epg_window.clearProperty("FAVORITES_FILTER")
+	#log(f"[BUILD ITEMS] FAVORITES MODE: {ADDON.getSettingBool('favorites_mode')}", xbmc.LOGINFO)
+	#favorites_mode = ADDON.getSettingBool("favorites_mode")
 
 	for category in data['categories']:
 		genres = category['categoryName']
 		for count, item in enumerate(category['channels']):
 			#title = str(item['channelNumber']) + ' ' + item['channelName']
 			title = str(item['channelName'])
+
+			#if favorites_mode and fav_ids:
+			if fav_ids:
+				if str(item['channelNumber']) not in fav_ids:
+					continue
+					
+			#if STARTUP_FAVORITES:
+				#current_genre = epg_window.getProperty(GENRE_FILTER_PROP)
+				#if current_genre:
+					#epg_window.setProperty("PREV_GENRE_FILTER", current_genre)
+
+				# Clear genre filter and load favorites
+				#addon.setSettingBool("favorites_mode", True)
+				#epg_window.clearProperty(GENRE_FILTER_PROP)
+				#fav_ids = ""
+				#if str(item['channelNumber']) not in fav_channels:
+					#continue
+				
 			#genres = str(item['channelGenreName'])
 
 			# Initialize variables
@@ -116,19 +142,30 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 						break  # found both
 
 			# Fallback if less than two programs available
-			now_program = now_program or {'programTitle': '', 'description': '', 'startDateTime': '', 'endDateTime': '', 'imageUrl': ''}
-			next_program = next_program or {'programTitle': '', 'description': '', 'startDateTime': '', 'endDateTime': '', 'imageUrl': ''}
+			now_program = now_program or {'programTitle': '', 'ratingCode': '', 'duration': '', 'description': '', 'startDateTime': '', 'endDateTime': '', 'imageUrl': ''}
+			next_program = next_program or {'programTitle': '', 'ratingCode': '', 'duration': '', 'description': '', 'startDateTime': '', 'endDateTime': '', 'imageUrl': ''}
 
 			# Assign variables
 			onNow = now_program['programTitle']
+			#now_rating = now_program['ratingCode']#, "Not Rated"
+			now_rating = now_program.get("ratingCode") or "Not Rated"
+			now_duration = now_program['duration'].strip()
 			now_desc = now_program['description']
 			nowstartTime = now_program['startDateTime']
 			nowendTime = now_program['endDateTime']
+			#log(f"[BUILD ITEMS] NOWENDTIME: {nowendTime}", xbmc.LOGDEBUG)
+			#log(f"[BUILD ITEMS] NOW_RATING: {now_rating}", xbmc.LOGDEBUG)
+			#log(f"[BUILD ITEMS] NOW_DURATION: {now_duration}", xbmc.LOGDEBUG)
 
 			onNext = next_program['programTitle']
+			next_rating = next_program.get("ratingCode") or "Not Rated"
+			next_duration = next_program['duration'].strip()
 			next_desc = next_program['description']
 			nextstartTime = next_program['startDateTime']
 			nextendTime = next_program['endDateTime']
+			#log(f"[BUILD ITEMS] NEXTENDTIME: {nextendTime}", xbmc.LOGDEBUG)
+			#log(f"[BUILD ITEMS] NEXT_RATING: {next_rating}", xbmc.LOGDEBUG)
+			#log(f"[BUILD ITEMS] NEXT_DURATION: {next_duration}", xbmc.LOGDEBUG)
 
 			preview = now_program['imageUrl']
 			desc = now_program['programTitle']
@@ -143,23 +180,33 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 				#log(f"[BUILD ITEMS]Skipping chan_id {chan_id} ('{channel_name}') due to genre filter ({genre_filter}) — channel_lang={channel_lang}", xbmc.LOGDEBUG)
 				skipped += 1
 				continue
+		
+			#log(f"START_FAVORITES: {STARTUP_FAVORITES}", xbmc.LOGINFO)
+			#if STARTUP_FAVORITES:# and ADDON.getSettingBool("favorites_mode") != True:
+				#if str(item['channelNumber']) not in fav_channels:
+					#continue
 
 			kept += 1
 
 			li = xbmcgui.ListItem(label=title)
 
-			li.setProperty("channel", str(item['channelName']))
+			li.setProperty("channel", str(item['channelName']).lstrip())
 			li.setProperty("label", onNow)
 			li.setProperty("label3", str(nextstart) + ' - ' + onNext)
 			li.setProperty("label2", now_desc)
 			li.setProperty("label4", next_desc)
 			li.setProperty("label5", onNext)
 			li.setProperty("now_start", str(nowstart))
-			li.setProperty("now_end", str(nowend))
+			li.setProperty("now_end", nowend)
 			li.setProperty("next_start", str(nextstart))
 			li.setProperty("next_end", str(nextend))
 			li.setProperty("channel_id", str(item['channelNumber']))
 			li.setProperty("channel_slug", str(item['channelNumber']))
+			li.setProperty("addon_info", "lgchannels." + str(item['channelNumber']))
+			li.setProperty("now_rating", now_rating)
+			li.setProperty("now_duration", now_duration)
+			li.setProperty("next_rating", next_rating)
+			li.setProperty("next_duration", next_duration)
 			li.setProperty('url', url)
 			li.setProperty('IsPlayable', 'true')
 			li.setProperty("desc", "desc")
@@ -175,7 +222,7 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 			#log(f"[BUILD ITEMS] ListItem: {li(1)}", xbmc.LOGDEBUG)
 	log(f"[BUILD ITEMS] GENRE: {genre_filter}", xbmc.LOGINFO)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: li.getProperty('channel').lower())
+		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	log(f"[BUILD ITEMS] EPG built with: {kept} channels", xbmc.LOGINFO)
@@ -183,8 +230,16 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 	#log(f"[BUILD ITEMS] URL: {url}", xbmc.LOGDEBUG)
 
 	# --- Title ---
-	if epg_window.getProperty("FAVORITES_FILTER"):
+	if fav_ids:
 		title = f"LG Channels - Favorites ({kept} Channels)"
+		#epg_window.setProperty("FAVORITES_FILTER", "True")
+		#if STARTUP_FAVORITES:
+			#ADDON.setSettingBool('favorites_mode',True)
+	#elif STARTUP_FAVORITES:
+		#title = f"LG Channels - Favorites ({kept} Channels)"
+		#epg_window.clearProperty("FAVORITES_FILTER")
+		#if STARTUP_FAVORITES:
+			#ADDON.setSettingBool('favorites_mode',True)
 	elif genre_filter:
 		title = f"LG Channels EPG - {genre_filter.capitalize()} ({kept} Channels)"
 	else:

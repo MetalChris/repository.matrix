@@ -47,7 +47,6 @@ PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
 log(f"Loaded addon id={ADDON_ID}, version={ADDON_VERSION}", xbmc.LOGINFO)
 
 
-
 class EPGPanel(xbmcgui.WindowXML):
 	def __init__(self, *args, **kwargs):
 		super().__init__(*args, **kwargs)

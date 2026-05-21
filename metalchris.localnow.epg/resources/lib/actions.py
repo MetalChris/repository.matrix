@@ -46,6 +46,7 @@ def handle_action(epg_window, action):
 			stream = li.getProperty("url")
 			title = li.getProperty("label")
 			image = li.getArt("icon")
+			addon_info = li.getProperty("addon_info")
 			xbmc.log(f"[ACTIONS] Image for video {image}", xbmc.LOGINFO)
 
 			# --- Save current EPG state on the window (existing approach) ---
@@ -84,7 +85,7 @@ def handle_action(epg_window, action):
 
 
 
-			get_stream(title, image, stream, epg_window)
+			get_stream(title, image, stream, addon_info, epg_window)
 
 		except Exception as exc:
 			xbmc.log(f"[ACTIONS] Error handling OK action: {exc}", xbmc.LOGERROR)

@@ -13,7 +13,7 @@ from urllib.parse import parse_qs
 
 from resources.lib.utils_fetch import *
 from resources.lib.uas import *
-from resources.lib.build_items import build_items
+from resources.lib.build_items import *
 from resources.lib.get_items import *
 from resources.lib.skin_utils import *
 from resources.lib.monitor import *
@@ -30,16 +30,16 @@ USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
 SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
 GENRE_FILTER_PROP = "lgchannels_epg_genre_filter"
-#EPG_JSON = os.path.join(ADDON_PATH, "epg.json")  # cached JSON in addon root
 EPG_JSON = os.path.join(USERDATA_PATH,"cache/epg.json")
 
 XML_FILE = "script-panel-demo.xml"
 SKIN = "default"
 RESOLUTION = "1080i"
 XML_PATH = os.path.join(ADDON_PATH, "resources", "skins", SKIN, RESOLUTION, XML_FILE)
-#FEED_URL = "https://tv.jsrdn.com/tv_v5/getfeed.php?type=live"
+ICON = 'special://home/addons/metalchris.lgchannels.epg/resources/media/icon.png'
 
 apiUrl = 'https://api.lgchannels.com/api/v1.0/schedulelist'
+#apiUrl = 'https://api.lgchannels.com/api/v1.0/channellist?deviceType=All'
 plugin = "LG Channels EPG"
 
 local_string = xbmcaddon.Addon(id='metalchris.lgchannels.epg').getLocalizedString
@@ -115,7 +115,7 @@ def run():
 	xbmcgui.Dialog().notification(
 		"LG Channels EPG",
 		"Building EPG...",
-		xbmcgui.NOTIFICATION_INFO,
+		ICON,
 		3000,
 		sound=False
 	)
@@ -134,7 +134,7 @@ def run():
 			xbmcgui.Dialog().notification(
 				"LG Channels EPG",
 				"EPG cache and thumbnails cleared",
-				xbmcgui.NOTIFICATION_INFO,
+				ICON,
 				3000,
 				sound=False
 			)
@@ -145,20 +145,10 @@ def run():
 		addon.setSetting("clear_cache_on_next_start", "false")
 
 
-	#episode_ids = fetch_all_episode_ids()
 	data = {}
-	#if episode_ids:
-	#epg_url = get_ln(apiUrl)
-		#epg_url = "https://tv.jsrdn.com/epg/query.php?range=now,2h&id=" + ",".join(map(str, episode_ids))
-	#log(f"EPG URL {epg_url}", xbmc.LOGINFO)
-		#log(f"EPG URL: {epg_url}", xbmc.LOGDEBUG)
 	data = fetch_epg(apiUrl)
-	#data = channels(TylerUrl)
-	#else:
-		#log("No episode IDs found, not fetching remote EPG", xbmc.LOGWARNING)
 
 	thumbs_map = get_channel_thumbs()
-	#desc_map   = fetch_channel_descriptions(data)
 	genre_map  = build_genre_map()
 
 	win = xbmcgui.Window(10025)
@@ -168,11 +158,38 @@ def run():
 			win.setProperty("lgchannels_epg_genre_filter", last_genre)
 		else:
 			win.clearProperty(GENRE_FILTER_PROP)
+			addon.setSetting("last_genre", "")
+
 	else:
 		win.clearProperty(GENRE_FILTER_PROP)
+		addon.setSetting("last_genre", "")
+		
+	# apply startup preference BEFORE first load
+	if addon.getSettingBool("startup_favorites"):
+		xbmc.log(f"[DEFAULT] START IN FAVORITES", xbmc.LOGINFO)	
+		win.clearProperty(GENRE_FILTER_PROP)
+		addon.setSettingBool("favorites_mode", True)
+		fav_dict = list_favorites()
 
+		fav_ids = set(fav_dict.keys()) if fav_dict else set()
+		xbmc.log(f"[DEFAULT] fav_ids = {fav_ids}", xbmc.LOGERROR)
+	else:
+		addon.setSettingBool("favorites_mode", False)
+		
+	favorites_mode = addon.getSettingBool("startup_favorites")
+	# override if no favorites exist
+	if favorites_mode and not fav_ids:
+		xbmc.log("[DEFAULT] No favorites exist - forcing All Channels mode", xbmc.LOGWARNING)
+		addon.setSettingBool("favorites_mode", False)
+		xbmcgui.Dialog().notification(
+			"DistroTV EPG",
+			"No favorites exist. Loading All Channels.",
+			ICON,
+			3000
+		)
+		
 	#listitems, kept, title = build_items(data, thumbs_map, desc_map, genre_map, win, fav_ids=None)
-	listitems, kept, title = build_items(data, thumbs_map, genre_map, win, fav_ids=None)
+	listitems, kept, title = build_items(data, thumbs_map, genre_map, win, fav_ids=fav_ids if favorites_mode else None)
 
 	# Resolve which XML to load for EPG skin
 	from resources.lib.skin_utils import get_epg_skin_file
@@ -192,18 +209,5 @@ def run():
 
 
 if __name__ == "__main__":
-	#if xbmcvfs.exists(XML_PATH):
-		#run()
-		#w = EPGPanel(XML_FILE, ADDON_PATH, SKIN, RESOLUTION)
-		#w.doModal()
-		#del w
-	#else:
-		#xbmcgui.Dialog().ok("EPG Panel", "Custom XML not found.")
-	# Check if user pressed "Clear cache" in settings
-	#if ADDON.getSetting("clear_cache") == "true":
-		#from resources.lib.utils_fetch import clear_cache
-		#clear_cache()
-		# Reset setting so it doesn’t trigger again
-		#ADDON.setSetting("clear_cache", "false")
 	run_first_run()
 	run()

@@ -8,11 +8,12 @@ from resources.lib.logger import *
 
 s = requests.Session()
 
-def play_episode_isa(title, url, image, captions, epg_window):
+def play_episode_isa(title, url, image, captions, addon_info, epg_window):
 	log('[PLAYBACK] TITLE: ' + str(title),xbmc.LOGDEBUG)
 	log('[PLAYBACK] IMAGE: ' + str(image),xbmc.LOGDEBUG)
 	try:
-		li = xbmcgui.ListItem(path=url, label=title)
+		li = xbmcgui.ListItem(path=url, label=title)		
+		li.setInfo("video", {"title": title, "plot": addon_info})
 		li.setArt({
 		    "icon": image,
 		    "thumb": image,

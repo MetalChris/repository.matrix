@@ -9,7 +9,7 @@ def log_and_notify(message, title="Playback Error"):
     xbmcgui.Dialog().notification(title, message, xbmcgui.NOTIFICATION_ERROR, 5000, sound=False)
 
 
-def play_episode_isa(title, url, image, epg_window=None):
+def play_episode_isa(title, url, image, addon_info, epg_window=None):
     try:
         if not url:
             xbmcgui.Dialog().notification("LocalNow EPG", "No stream URL", xbmcgui.NOTIFICATION_ERROR, 3000, sound=False)
@@ -17,7 +17,7 @@ def play_episode_isa(title, url, image, epg_window=None):
 
         li = xbmcgui.ListItem(label=title)
         li.setArt({'icon': image, 'thumb': image})
-        li.setInfo("video", {"title": title})
+        li.setInfo("video", {"title": title, "plot": addon_info})
         li.setProperty("IsPlayable", "true")
 
         # InputStream properties

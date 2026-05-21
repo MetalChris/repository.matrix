@@ -16,6 +16,9 @@ from resources.lib.uas import *
 
 ADDON = Addon("metalchris.lgchannels.epg")
 FEED_URL = 'https://api.lgchannels.com/api/v1.0/schedulelist'
+#FEED_URL = 'https://api.lgchannels.com/api/v1.0/channellist?deviceType=All'
+
+ICON = 'special://home/addons/metalchris.lgchannels.epg/resources/media/icon.png'
 
 # Read TTL from settings (slider returns string → cast to int)
 try:
@@ -189,7 +192,7 @@ def get_channel_thumbs():
 				dlg.update(pct, f"Downloaded {i}/{total} logos")
 
 		dlg.close()
-		xbmcgui.Dialog().notification("LG Channels EPG", "Logo cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+		xbmcgui.Dialog().notification("LG Channels EPG", "Logo cache refresh complete", ICON, 3000, sound=False)
 		log(f"[UTILS_FETCH][get_channel_thumbs] Download complete: {total} channels processed", xbmc.LOGINFO)
 
 	except Exception as e:
@@ -372,7 +375,7 @@ def clear_cache():
 		xbmcgui.Dialog().notification(
 			"LG Channels EPG",
 			"Cache cleared",
-			xbmcgui.NOTIFICATION_INFO,
+			ICON,
 			3000,
 			sound=False
 		)
@@ -441,7 +444,7 @@ def clear_cache_and_refresh_thumbs():
 					dlg.update(pct, f"Downloaded {i}/{total} logos")
 
 			dlg.close()
-			xbmcgui.Dialog().notification("LG Channels EPG", "Cache refresh complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+			xbmcgui.Dialog().notification("LG Channels EPG", "Cache refresh complete", ICON, 3000, sound=False)
 			log(f"[UTILS_FETCH] Cached {total} channel logos", xbmc.LOGINFO)
 
 		except Exception as e:

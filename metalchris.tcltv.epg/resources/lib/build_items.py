@@ -153,6 +153,8 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 			nextstartTime = next_program['start']
 			nextendTime = next_program['end']
 			next_id = next_program['id']
+			
+			slug = next_id + '&ids=' + now_id
 
 			#preview = now_program['imageUrl']
 			desc = now_program['title']
@@ -193,6 +195,8 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 			li.setProperty("desc", "desc")
 			li.setProperty("now_id", now_id)
 			li.setProperty("next_id", next_id)
+			#li.setProperty('addon_info', 'tcltv.' + str(slug))
+			li.setProperty('addon_info', 'tcltv.' + str(channel_id))
 			#li.setArt({"icon": logo})
 			#li.setInfo("video", {"title": title, "plot": now_desc})
 			li.setArt({"icon": THUMBS_PATH + '/' + str(ch['id']) + '.png'})

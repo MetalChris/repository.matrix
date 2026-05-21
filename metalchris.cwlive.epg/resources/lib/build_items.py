@@ -194,6 +194,7 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 		li.setProperty("channel_id", ch_guid)
 		li.setProperty('url', ch_stream)
 		li.setProperty('IsPlayable', 'true')
+		li.setProperty('addon_info', 'cwlive.' + str(ch_guid))
 		li.setArt({"icon": THUMBS_PATH + '/' + ch_guid + '.jpg'})
 		li.setArt({"bg": "special://home/addons/metalchris.cwlive.epg/resources/media/row_light.png"})
 		li.setArt({"focus": "special://home/addons/metalchris.cwlive.epg/resources/media/focus_row.png"})

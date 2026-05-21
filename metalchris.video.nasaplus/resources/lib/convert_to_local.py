@@ -55,3 +55,47 @@ def format_unix_time_kodi(unix_ts, context_info=""):
     except Exception as e:
         xbmc.log(f"[EPG] ❌ Failed to format Unix timestamp '{unix_ts}' for {context_info} ({e})", xbmc.LOGWARNING)
         return ""
+
+
+def fmt_time(ts):
+	try:
+		return time.strftime('%Y-%m-%d %H:%M:%S', time.localtime(ts))
+	except:
+		return "N/A"
+		
+		
+def fmt_ttl(seconds):
+    if seconds < 3600:
+        return f"{seconds // 60} minutes"
+
+    if seconds < 86400:
+        hours = seconds // 3600
+        return f"{hours} hour{'s' if hours != 1 else ''}"
+
+    days = seconds // 86400
+    return f"{days} day{'s' if days != 1 else ''}"
+
+
+def parse_duration(duration_str):
+    """
+    Convert duration strings (HH:MM:SS or MM:SS) into seconds.
+    Safe to reuse across add-ons.
+    """
+    if not duration_str:
+        return 0
+
+    parts = duration_str.strip().split(":")
+    try:
+        parts = [int(p) for p in parts]
+    except ValueError:
+        return 0
+
+    if len(parts) == 3:
+        hours, minutes, seconds = parts
+    elif len(parts) == 2:
+        hours = 0
+        minutes, seconds = parts
+    else:
+        return 0
+
+    return hours * 3600 + minutes * 60 + seconds

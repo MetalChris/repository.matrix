@@ -1,4 +1,4 @@
-<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2026.01.31" provider-name="MetalChris">
+<addon id="metalchris.lgchannels.epg" name="LG Channels EPG" version="2026.04.01" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -20,6 +20,7 @@
         <website></website>
         <email></email>
         <source></source>
+        <news>Add option in settings to start add-on in Favorites mode. Code fix for glitch in Context Menu.</news>
         <assets>
             <icon>resources/media/icon.png</icon>
         </assets>

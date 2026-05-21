@@ -15,7 +15,7 @@ def safe_playback(title, stream, image, captions, epg_window):
             #epg_window.close()
 
         # Start playback
-        play_episode_isa(title, stream, image, captions, epg_window=None)
+        play_episode_isa(title, stream, image, captions, addon_info, epg_window=None)
 
     except Exception as e:
         log(f"[SAFE_PLAYBACK] Playback failed: {e}", xbmc.LOGERROR)

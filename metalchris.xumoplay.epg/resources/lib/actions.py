@@ -45,6 +45,7 @@ def handle_action(epg_window, action):
 				return
 
 			title = li.getProperty("label")
+			addon_info = li.getProperty("addon_info")
 			url = li.getProperty("url")
 			stream = url
 			log(f"[ACTIONS] URL for video {url}", xbmc.LOGINFO)
@@ -87,7 +88,7 @@ def handle_action(epg_window, action):
 					xbmc.executebuiltin('SetProperty(LAST_SELECTED_SLUG,"{}" ,home)'.format(slug.replace('"','\\"')))
 
 
-			get_stream(title, stream, image, captions, epg_window)
+			get_stream(title, stream, image, captions, addon_info, epg_window)
 			# or replace with safe_playback if you want the safeguard
 			#safe_playback(title, stream, image, captions, epg_window)
 

@@ -5,7 +5,7 @@ from resources.lib.uas import ua
 from resources.lib.logger import *
 from resources.lib.playback_utils import *
 
-def play_episode_hls(title, url, image, epg_window=None):
+def play_episode_hls(title, url, image, addon_info, epg_window=None):
 	"""
 	Play a video stream directly without using InputStream Adaptive.
 	"""
@@ -45,7 +45,7 @@ def play_episode_hls(title, url, image, epg_window=None):
 			
 		li = xbmcgui.ListItem(label=channel_name)
 		li.setArt({'icon': image, 'thumb': image})
-		li.setInfo("video", {"title": channel_name})
+		li.setInfo("video", {"title": channel_name,"plot": addon_info})
 		li.setProperty("IsPlayable", "true")
 
 		#play_url = pre_play(url)

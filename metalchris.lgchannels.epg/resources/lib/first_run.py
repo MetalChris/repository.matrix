@@ -99,7 +99,7 @@ def run_first_run():
 
 		dlg.close()
 		ADDON.setSettingBool(SETTING_ID, False)
-		xbmcgui.Dialog().notification("LG Channels EPG", "First run setup complete", xbmcgui.NOTIFICATION_INFO, 3000, sound=False)
+		xbmcgui.Dialog().notification("LG Channels EPG", "First run setup complete", ICON, 3000, sound=False)
 		log(f"[FIRST RUN] Cached {total} channel logos", xbmc.LOGINFO)
 
 	except Exception as e:

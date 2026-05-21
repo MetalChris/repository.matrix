@@ -31,7 +31,7 @@ def handle_context_menu(epg_window, listitem):
 		]
 
 		# Only show genre search if NOT in favorites
-		if not in_favorites:
+		if not in_favorites and not addon.getSettingBool("favorites_mode"):
 			options.append("Search by Category...")
 
 		if win.getProperty(GENRE_FILTER_PROP):

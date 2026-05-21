@@ -46,15 +46,16 @@ def handle_action(epg_window, action):
 			url = li.getProperty("url")
 			title = li.getProperty("label")
 			description = li.getProperty("desc")
+			addon_info = li.getProperty("addon_info")
 			image = li.getArt("preview")
 			xbmc.log(f"[ACTIONS] Image for video {image}", xbmc.LOGINFO)
 			if url:
 				use_isa = ADDON.getSettingBool("use_isa")
 				xbmc.log(f"[ACTIONS] Playing {title} from {url}", xbmc.LOGINFO)
 				if use_isa:
-					play_episode_isa(title, url, image, epg_window)
+					play_episode_isa(title, url, image, addon_info, epg_window)
 				else:
-					play_episode_hls(title, url, image, epg_window)
+					play_episode_hls(title, url, image, addon_info, epg_window)
 
 
 				log(f"[ACTIONS] Playback Using {'InputStream Adaptive' if use_isa else 'native HLS (FFmpeg)'}", xbmc.LOGINFO)

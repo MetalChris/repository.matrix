@@ -7,7 +7,9 @@ from resources.lib.uas import *
 from resources.lib.logger import log
 from resources.lib import playback_service
 
-def play_episode_isa(ep, epg_window=None):
+def play_episode_isa(ep, addon_info, epg_window=None):
+	
+	xbmc.log(f"[PLAYBACK] addon_info: {addon_info}", xbmc.LOGINFO)
 	title = epg_window.getControl(1).getLabel()
 	if title:
 		epg_window.setProperty("EPG_TITLE", title)
@@ -36,7 +38,7 @@ def play_episode_isa(ep, epg_window=None):
 		li = xbmcgui.ListItem(label=title)
 		if image:
 			li.setArt({'icon': image, 'thumb': image})
-		li.setInfo("video", {"title": title, "plot": desc})
+		li.setInfo("video", {"title": title, "plot": addon_info})
 		li.setProperty("IsPlayable", "true")
 
 		# InputStream properties

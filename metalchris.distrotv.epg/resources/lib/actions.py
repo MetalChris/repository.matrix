@@ -61,15 +61,16 @@ def handle_action(epg_window, action):
 				url   = ep.get("content", {}).get("url")
 
 				if url:
+					addon_info = li.getProperty("addon_info")
 					#use_isa = ADDON.getSettingBool("use_isa")
 					xbmc.log(f"[ACTIONS] Playing {title} from {url}", xbmc.LOGINFO)
 					#if use_isa:
-					play_episode_isa(ep, epg_window)
+					play_episode_isa(ep, addon_info, epg_window)
 					#else:
 						#play_episode_hls(ep, epg_window)
 
 
-					log(f"[ACTIONS] Playback Using {'InputStream Adaptive' if use_isa else 'native HLS (FFmpeg)'}", xbmc.LOGINFO)
+					#log(f"[ACTIONS] Playback Using {'InputStream Adaptive' if use_isa else 'native HLS (FFmpeg)'}", xbmc.LOGINFO)
 
 				else:
 					xbmc.log(f"[ACTIONS] No content URL in episode {title}", xbmc.LOGWARNING)

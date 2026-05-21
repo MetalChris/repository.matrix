@@ -167,6 +167,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 			li.setProperty("next_start", "")
 			li.setProperty("channel_id", (channel_info["chan_id"]))
 			li.setProperty('url', url)
+			li.setProperty('addon_info', 'xumoplay.' + str(slug))
 			li.setProperty('IsPlayable', 'true')
 			li.setArt({"icon": logo})
 			li.setArt({"bg": "special://home/addons/metalchris.xumoplay.epg/resources/media/row_light.png"})

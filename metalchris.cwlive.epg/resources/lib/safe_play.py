@@ -6,16 +6,16 @@ import xbmcaddon
 from resources.lib.playback_isa import play_episode_isa
 from resources.lib.logger import *
 
-ADDON = xbmcaddon.Addon()
+ADDON = xbmcaddon.Addon(id="metalchris.cwlive.epg")
 
-def safe_playback(title, stream, image, captions, epg_window):
+def safe_playback(title, stream, image, addon_info, epg_window):
     try:
         # Attempt to close the EPG window
         #if epg_window:
             #epg_window.close()
 
         # Start playback
-        play_episode_isa(title, stream, image, captions, epg_window=None)
+        play_episode_isa(title, stream, image, addon_info, epg_window=None)
 
     except Exception as e:
         log(f"[SAFE_PLAYBACK] Playback failed: {e}", xbmc.LOGERROR)

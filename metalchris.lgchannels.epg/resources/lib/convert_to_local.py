@@ -61,3 +61,54 @@ def get_program_status(start_ts, end_ts):
         return "live"
     else:
         return "ended"
+
+
+def time_remaining_text(end_ts):
+	log(f"[CONVERT_TO_LOCAL] end_ts: {end_ts}", xbmc.LOGDEBUG)
+	if not end_ts:
+		return ""
+		
+	end_unix_ts = iso_to_unix(end_ts)
+
+	now = int(time.time())
+	remaining = end_unix_ts - now
+
+	# Already ended or invalid
+	if remaining < 60:
+		return "Ending now"
+	if remaining <= 0:
+		return "Ended"
+
+	duration_text = format_duration(remaining)
+
+	if duration_text:
+		return f"Ends in {duration_text}"
+
+	return ""
+
+
+def iso_to_unix(ts):
+	if not ts:
+		return None
+	try:
+		struct = time.strptime(ts.replace("Z", ""), "%Y-%m-%dT%H:%M:%S")
+		return calendar.timegm(struct)
+	except Exception:
+		return None
+
+
+def format_duration(seconds):
+	log(f"[CONVERT_TO_LOCAL] DURATION {seconds}", xbmc.LOGDEBUG)
+	if not seconds:
+		return ""
+
+	minutes_total = seconds // 60
+	hours = minutes_total // 60
+	minutes = minutes_total % 60
+
+	if hours > 0 and minutes > 0:
+		return f"{hours} Hour{'s' if hours > 1 else ''} {minutes} Minutes"
+	elif hours > 0:
+		return f"{hours} Hour{'s' if hours > 1 else ''}"
+	else:
+		return f"{minutes_total} Minutes"

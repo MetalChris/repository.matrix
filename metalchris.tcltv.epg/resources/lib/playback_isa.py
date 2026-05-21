@@ -6,7 +6,7 @@ from resources.lib.logger import *
 from resources.lib.playback_utils import *
 
 
-def play_episode_isa(title, url, image, epg_window=None):
+def play_episode_isa(title, url, image, addon_info, epg_window=None):
 	
 	epg_title = epg_window.getControl(1).getLabel()
 	if epg_title:
@@ -35,7 +35,7 @@ def play_episode_isa(title, url, image, epg_window=None):
 			
 		li = xbmcgui.ListItem(label=channel_name)
 		li.setArt({'icon': image, 'thumb': image})
-		li.setInfo("video", {"title": channel_name})
+		li.setInfo("video", {"title": channel_name,"plot": addon_info})
 		li.setProperty("IsPlayable", "true")
 
 		# InputStream properties

@@ -2,21 +2,17 @@ import sys
 import urllib.parse
 import requests
 from bs4 import BeautifulSoup
-from concurrent.futures import ThreadPoolExecutor, as_completed
 import xbmc, xbmcplugin
 import xbmcgui
 import xbmcaddon
 import xbmcvfs
 import os
-import json
-import time
-import hashlib
-import threading
-import shutil
 
-from resources.lib.parse_duration import parse_duration
 from resources.lib.logger import log
-from resources.lib.convert_to_local import format_unix_time_kodi
+from resources.lib.convert_to_local import format_unix_time_kodi, parse_duration
+from resources.lib.caching import fmt_time, fmt_ttl, compute_hash, _cache_key, _cache_ensure_loaded, _cache_flush, cache_get, cache_set, cache_set_many, cache_get_with_meta, normalize_html, CACHE_TTL_PAGES, CACHE_TTL_DESCRIPTIONS, clear_cache
+from resources.lib.playback import *
+from resources.lib.fetching import *
 
 ADDON      = xbmcaddon.Addon()
 ADDON_PATH = ADDON.getAddonInfo('path')
@@ -30,194 +26,12 @@ FANART = os.path.join(MEDIA_PATH, "fanart.jpg")
 BASE_URL = "https://plus.nasa.gov"
 HANDLE = int(sys.argv[1])
 
-# Cache setup
-PROFILE_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
-CACHE_DIR = os.path.join(PROFILE_PATH, 'cache')
-if not xbmcvfs.exists(CACHE_DIR):
-	xbmcvfs.mkdirs(CACHE_DIR)
-CACHE_FILE = os.path.join(CACHE_DIR, 'nasa_plus_cache.json')
 
-# Cache TTLs (time-to-live in seconds)
-CACHE_TTL_PAGES = 3600 * 6            # 6 hours for HTML pages
-CACHE_TTL_DESCRIPTIONS = 3600 * 24 * 7   # 7 days for series descriptions
-SERIES_DESCRIPTION_FALLBACK = "Description unavailable."
-
-# In-memory cache state for this addon run
-CACHE_LOCK = threading.Lock()
-CACHE_DATA = {}
-CACHE_LOADED = False
-CACHE_DIRTY = False
-
-
-#xbmc.log(f"[{ADDON_NAME} v{ADDON_VERSION}] [ADD-ON RUNNING]", xbmc.LOGINFO)
+SERIES_DESCRIPTION_FALLBACK = "No Description Available."
 
 # -------------------
 # Helpers
-# -------------------
-
-def compute_hash(value, normalize=False):
-    if not isinstance(value, str):
-        return None
-    if normalize:
-        value = normalize_html(value)
-    return hashlib.sha1(value.encode()).hexdigest()
-
-
-def _cache_key(prefix, url):
-	return f"{prefix}:{hashlib.md5(url.encode()).hexdigest()}"
-
-
-def _cache_ensure_loaded():
-	"""Load cache once into memory and purge expired entries."""
-	global CACHE_DATA, CACHE_DIRTY, CACHE_LOADED
-	if CACHE_LOADED:
-		return
-
-	loaded = {}
-	if os.path.exists(CACHE_FILE):
-		try:
-			with open(CACHE_FILE, 'r') as f:
-				loaded = json.load(f)
-		except Exception as e:
-			log(f"[CACHE] Failed to load: {e}")
-			loaded = {}
-
-	now = time.time()
-	expired = [k for k, v in loaded.items() if v.get('expires', 0) <= now]
-	for key in expired:
-		del loaded[key]
-
-	CACHE_DATA = loaded
-	CACHE_LOADED = True
-	if expired:
-		CACHE_DIRTY = True
-
-
-def _cache_flush(force=False):
-	"""Flush in-memory cache to disk once per run (or force)."""
-	global CACHE_DIRTY
-	with CACHE_LOCK:
-		_cache_ensure_loaded()
-		if not force and not CACHE_DIRTY:
-			return
-		try:
-			tmp_file = CACHE_FILE + ".tmp"
-			with open(tmp_file, 'w') as f:
-				json.dump(CACHE_DATA, f)
-			os.replace(tmp_file, CACHE_FILE)
-			CACHE_DIRTY = False
-		except Exception as e:
-			log(f"[CACHE] Failed to save: {e}")
-
-
-def cache_get(key):
-	"""Get value from cache if valid. Returns None if expired or missing."""
-	global CACHE_DIRTY
-	with CACHE_LOCK:
-		_cache_ensure_loaded()
-		entry = CACHE_DATA.get(key)
-		if not entry:
-			return None
-		if entry.get('expires', 0) <= time.time():
-			del CACHE_DATA[key]
-			CACHE_DIRTY = True
-			return None
-		return entry.get('value')
-
-
-def cache_set(key, value, ttl):
-	"""Store value in cache with given TTL (seconds)."""
-	global CACHE_DIRTY
-	with CACHE_LOCK:
-		_cache_ensure_loaded()
-		CACHE_DATA[key] = {
-			'value': value,
-			'expires': time.time() + ttl,
-			'hash': hashlib.sha1(normalize_html(value).encode()).hexdigest() if isinstance(value, str) else None
-		}
-		CACHE_DIRTY = True
-
-
-def cache_set_many(entries, ttl):
-	"""Store many cache entries in one lock/write cycle."""
-	global CACHE_DIRTY
-	now = time.time()
-	with CACHE_LOCK:
-		_cache_ensure_loaded()
-		for key, value in entries.items():
-			CACHE_DATA[key] = {
-				'value': value,
-				'expires': time.time() + ttl,
-				'hash': hashlib.sha1(normalize_html(value).encode()).hexdigest() if isinstance(value, str) else None
-			}
-		CACHE_DIRTY = True
-		
-		
-def cache_get_with_meta(key):
-    """Return (value, meta, is_expired) without deleting entry."""
-    with CACHE_LOCK:
-        _cache_ensure_loaded()
-        entry = CACHE_DATA.get(key)
-        if not entry:
-            return None, None, True
-
-        expired = entry.get('expires', 0) <= time.time()
-        return entry.get('value'), entry, expired
-        
-        
-def normalize_html(html):
-    return " ".join(html.split())
-
-
-def get_url(**kwargs):
-	"""Build plugin URL with query params."""
-	return sys.argv[0] + '?' + urllib.parse.urlencode(kwargs)
-
-def fetch_page(url):
-	"""Fetch and parse HTML page with caching."""
-	cache_key = _cache_key("page", url)
-	
-	cached_html, meta, expired = cache_get_with_meta(cache_key)
-
-	# ✅ Fresh cache → no request
-	if cached_html and not expired:
-		xbmc.log(f"[{ADDON_NAME}] [CACHE NOT EXPIRED]: {url}", xbmc.LOGINFO)
-		return BeautifulSoup(cached_html, "html.parser")
-
-	# 🔄 Expired → validate via hash
-	if cached_html and expired:
-		try:
-			xbmc.log(f"[{ADDON_NAME}] [CACHE EXPIRED]: {url}", xbmc.LOGINFO)
-			xbmc.log(f"[{ADDON_NAME}] [VALIDATING]: {url}", xbmc.LOGINFO)
-			resp = requests.get(url, timeout=(3, 10))
-			resp.raise_for_status()
-			new_html = resp.text
-
-			new_hash = hashlib.sha1(normalize_html(new_html).encode()).hexdigest()
-			old_hash = meta.get('hash')
-
-			if new_hash == old_hash:
-				# ✅ unchanged → extend TTL only
-				cache_set(cache_key, cached_html, CACHE_TTL_PAGES)
-				return BeautifulSoup(cached_html, "html.parser")
-
-			# 🔄 changed → update cache
-			cache_set(cache_key, new_html, CACHE_TTL_PAGES)
-			return BeautifulSoup(new_html, "html.parser")
-
-		except Exception:
-			# 🚨 network fail → serve stale
-			return BeautifulSoup(cached_html, "html.parser")
-
-	# 🚀 No cache → normal fetch
-	xbmc.log(f"[{ADDON_NAME}] [NO CACHE FETCHING]: {url}", xbmc.LOGINFO)
-	resp = requests.get(url, timeout=(3, 10))
-	resp.raise_for_status()
-	html = resp.text
-
-	cache_set(cache_key, html, CACHE_TTL_PAGES)
-
-	return BeautifulSoup(html, "html.parser")
+# -------------------	
 
 
 def normalize_url(url):
@@ -236,223 +50,8 @@ def load_descriptions_enabled():
 			return (ADDON.getSetting("load_descriptions") or "true").lower() == "true"
 		except Exception:
 			return True
-
-
-META_PROGRESS = {}
-
-
-def notify_meta_progress(scope, done, total):
-	"""Show/update top-right background progress text while scraping metadata."""
-	if total <= 0:
-		return
-	percent = int((done * 100) / total)
-
-	if scope == "Series":
-		text = f"Loading series descriptions {done}/{total}"
-	elif scope == "Videos":
-		text = f"Loading video descriptions {done}/{total}"
-	else:
-		text = f"Loading descriptions {done}/{total}"
-
-	dialog = META_PROGRESS.get(scope)
-	if dialog is None:
-		dialog = xbmcgui.DialogProgressBG()
-		dialog.create(ADDON_NAME, text)
-		META_PROGRESS[scope] = dialog
-	else:
-		dialog.update(percent, ADDON_NAME, text)
-
-	if done >= total:
-		try:
-			dialog.close()
-		except Exception as e:
-			log(f"[META] Failed to close progress dialog for '{scope}': {e}", xbmc.LOGWARNING)
-		META_PROGRESS.pop(scope, None)
-
-
-def close_meta_progress(scope):
-	"""Force-close metadata progress indicator for scope."""
-	dialog = META_PROGRESS.pop(scope, None)
-	if dialog is None:
-		return
-	try:
-		dialog.close()
-	except Exception as e:
-		log(f"[META] Failed to close progress dialog for '{scope}': {e}", xbmc.LOGWARNING)
-
-
-def fetch_series_full_description(url, session=None):
-    try:
-        requester = session or requests
-        resp = requester.get(url, timeout=(2, 4))
-        resp.raise_for_status()
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-
-        # Try full description first
-        container = soup.select_one("div.usa-prose.banner--info-text.margin-bottom-2 p")
-        if container:
-            text = container.get_text(strip=True)
-            if text:
-                return text
-
-        # Fallback to meta
-        meta = soup.find("meta", attrs={"property": "og:description"}) \
-            or soup.find("meta", attrs={"name": "description"})
-
-        if meta:
-            content = meta.attrs.get("content", "")
-            if isinstance(content, str):
-                return content.strip()
-
-        return ""
-
-    except Exception as e:
-        log(f"[SERIES] Description fetch failed for '{url}': {e}")
-        return ""
-
-
-def fetch_series_descriptions(urls):
-	"""Fetch series descriptions with cache-first and fast parallel fallback."""
-	results = {}
-	unique_urls = [u for u in dict.fromkeys(urls) if u]
-	if not unique_urls:
-		return results
-
-	missing_urls = []
-	for url in unique_urls:
-		cached = cache_get(_cache_key("desc", url))
-		if cached is not None:
-			results[url] = cached
-		else:
-			missing_urls.append(url)
-
-	if not missing_urls:
-		return results
-
-	total_missing = len(missing_urls)
-	xbmc.log(f"[{ADDON_NAME}] [MISSING URLS]: {total_missing}", xbmc.LOGINFO)
-	completed = 0
-	update_step = max(1, total_missing // 30)
-	notify_meta_progress("Series", 0, total_missing)
-
-	session = requests.Session()
-	max_workers = min(10, max(4, len(missing_urls) // 2))
-	fresh_entries = {}
-	try:
-		with ThreadPoolExecutor(max_workers=max_workers) as executor:
-			future_map = {
-				executor.submit(fetch_series_full_description, url, session): url
-				for url in missing_urls
-			}
-			for future in as_completed(future_map):
-				url = future_map[future]
-				try:
-					description = future.result() or ""
-				except Exception:
-					description = ""
-				results[url] = description
-				fresh_entries[_cache_key("desc", url)] = description
-				completed += 1
-				if completed == total_missing or completed % update_step == 0:
-					notify_meta_progress("Series", completed, total_missing)
-    
-	finally:
-		session.close()
-		close_meta_progress("Series")
-
-	if fresh_entries:
-		cache_set_many(fresh_entries, CACHE_TTL_DESCRIPTIONS)
-
-	return results
-
-
-def fetch_video_page_description(url, session=None):
-    """Fetch full video description, fallback to meta."""
-    try:
-        requester = session or requests
-        resp = requester.get(url, timeout=(2, 4))
-        resp.raise_for_status()
-
-        soup = BeautifulSoup(resp.text, "html.parser")
-
-        # --- Try full description first ---
-        p = soup.select_one("div.entry-content.usa-prose p")
-        if p:
-            text = p.get_text(strip=True)
-            if text:
-                return text
-
-        # --- Fallback to meta ---
-        meta = soup.find("meta", attrs={"name": "description"}) \
-            or soup.find("meta", attrs={"property": "og:description"})
-
-        if meta:
-            content = meta.attrs.get("content", "")
-            if isinstance(content, str):
-                return content.strip()
-
-        return ""
-
-    except Exception as e:
-        log(f"[VIDEO] Description fetch failed for '{url}': {e}")
-        return ""
-
-
-def fetch_video_descriptions(urls):
-	"""Fetch video descriptions with cache-first and fast parallel fallback."""
-	results = {}
-	unique_urls = [u for u in dict.fromkeys(urls) if u]
-	if not unique_urls:
-		return results
-
-	missing_urls = []
-	for url in unique_urls:
-		cached = cache_get(_cache_key("vdesc", url))
-		if cached is not None:
-			results[url] = cached
-		else:
-			missing_urls.append(url)
-
-	if not missing_urls:
-		return results
-
-	total_missing = len(missing_urls)
-	xbmc.log(f"[{ADDON_NAME}] [MISSING URLS]: {total_missing}", xbmc.LOGINFO)
-	completed = 0
-	update_step = max(1, total_missing // 30)
-	notify_meta_progress("Videos", 0, total_missing)
-
-	session = requests.Session()
-	max_workers = min(10, max(4, len(missing_urls) // 2))
-	fresh_entries = {}
-	try:
-		with ThreadPoolExecutor(max_workers=max_workers) as executor:
-			future_map = {
-				executor.submit(fetch_video_page_description, url, session): url
-				for url in missing_urls
-			}
-			for future in as_completed(future_map):
-				video_url = future_map[future]
-				try:
-					description = future.result() or ""
-				except Exception:
-					description = ""
-				results[video_url] = description
-				fresh_entries[_cache_key("vdesc", video_url)] = description
-				completed += 1
-				if completed == total_missing or completed % update_step == 0:
-					notify_meta_progress("Videos", completed, total_missing)
-    
-	finally:
-		session.close()
-		close_meta_progress("Videos")
-
-	if fresh_entries:
-		cache_set_many(fresh_entries, CACHE_TTL_DESCRIPTIONS)
-
-	return results
-
+		
+		
 # -------------------
 # Root menu
 # -------------------
@@ -470,7 +69,7 @@ def get_main_menu():
 		debug_enabled = False
 
 	status = "ENABLED" if debug_enabled else "DISABLED"
-	xbmc.log(f"[{ADDON_NAME} v{ADDON_VERSION}] [ADD-ON STARTED] [DEBUG: {status}]", level=xbmc.LOGINFO)
+	log(f"[{ADDON_NAME} v{ADDON_VERSION}] [ADD-ON STARTED] [DEBUG: {status}]", level=xbmc.LOGINFO)
 	soup = fetch_page(BASE_URL)
 	divs = soup.find_all("div", class_="tablet:grid-col banner--menus-single margin-y-1")
 
@@ -501,7 +100,7 @@ def get_main_menu():
 			action = low_title.replace(" ", "_")
 			display_name = title
 
-		log(f"[MAIN]: found menu: title='{title}' href='{href}' -> action='{action}'")
+		log(f"[MAIN]: found main menu: title='{title}' href='{href}' -> action='{action}'", xbmc.LOGDEBUG)
 
 		list_item = xbmcgui.ListItem(label=display_name)
 		list_item.setArt({"thumb": ICON, "icon": ICON, "fanart": FANART})
@@ -613,8 +212,9 @@ def live_menu(url):
 				
 			list_item.setProperty("IsPlayable", "true")				
 			
-			# ✅ Required for Kodi Matrix
-			list_item.setInfo("video", {"title": title})
+			#list_item.setInfo("video", {"title": title}) # Required for Matrix
+			video_info_tag = list_item.getVideoInfoTag()
+			video_info_tag.setTitle(title)
 			list_item.setMimeType("application/vnd.apple.mpegurl")
 
 			log(f"[LIVE] Event: {title}")
@@ -658,7 +258,7 @@ def topics_menu(url):
 		if thumb:
 			list_item.setArt({"thumb": thumb, "icon": thumb, "fanart": thumb})
 
-		log(f"[TOPICS]: found menu: title='{title}' href='{href}'")
+		log(f"[TOPICS]: found topic menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
 		directory_items.append((get_url(action="videos", url=href), list_item, True))
 
 	if directory_items:
@@ -693,8 +293,6 @@ def video_menu(url):
 		# Duration (append to title in parentheses)
 		duration_tag = a.find("p", class_="font-family-mono")
 		if duration_tag:
-			#duration = duration_tag.get_text(strip=True)
-			#title = f"{title} ({duration})"
 
 			duration_str = duration_tag.get_text(strip=True)
 			duration = parse_duration(duration_str)
@@ -734,9 +332,13 @@ def video_menu(url):
 		if descriptions_enabled:
 			info["plot"] = description
 			info["plotoutline"] = description
-		list_item.setInfo("video", info)
+		#list_item.setInfo("video", info) # Required for Matrix
+		video_info_tag = list_item.getVideoInfoTag()
+		video_info_tag.setTitle(title)
+		video_info_tag.setPlot(description)
+		video_info_tag.setDuration(duration)
 
-		log(f"[VIDEO]: found menu: title='{title}' href='{href}'")
+		log(f"[VIDEO]: found video menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
 		directory_items.append((get_url(action="play", url=href), list_item, False))
 
 	if directory_items:
@@ -809,9 +411,12 @@ def series_menu(url):
 		if descriptions_enabled:
 			info["plot"] = description
 			info["plotoutline"] = description
-		list_item.setInfo("video", info)
+		#list_item.setInfo("video", info) # Required for Matrix
+		video_info_tag = list_item.getVideoInfoTag()
+		video_info_tag.setTitle(title)
+		video_info_tag.setPlot(description)
 
-		log(f"[SERIES]: found menu: title='{title}' href='{href}'")
+		log(f"[SERIES]: found series menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
 		directory_items.append((get_url(action="videos", url=href), list_item, True))
 
 	if directory_items:
@@ -819,150 +424,8 @@ def series_menu(url):
 		xbmcplugin.setContent(HANDLE, 'episodes')
 
 	xbmcplugin.endOfDirectory(HANDLE)
-
-
-
-def play_video(url):
-	use_inputstream = ADDON.getSettingBool("use_inputstream")
 	
-	"""Resolve and play a NASA+ video page."""
-	soup = fetch_page(url)
-
-	# Find the <source> tag with an HLS stream
-	source = soup.find("source", {"type": "application/x-mpegURL"})
-	if not source or not source.get("src"):
-		xbmcgui.Dialog().notification("NASA+ [PLAY VIDEO]", "No video source found", ICON, 3000, False)
-		return
-
-	stream_url = source["src"]
-
-	list_item = xbmcgui.ListItem(path=stream_url)
-	list_item.setProperty("IsPlayable", "true")
-	list_item.setProperty('metalchris.nasaplus', 'true')
 	
-	if use_inputstream:
-		# Enable inputstream.adaptive
-		log(f"[PLAYBACK] InputStream", xbmc.LOGINFO)
-		list_item.setProperty("inputstream", "inputstream.adaptive")
-		list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
-	else:
-		# --- FFMPEG (Kodi default player) ---
-		# Do nothing special — Kodi will use FFmpeg automatically
-		log(f"[PLAYBACK] FFMPEG", xbmc.LOGINFO)
-		pass
-
-	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
-
-
-def stream_video(url):
-	use_inputstream = ADDON.getSettingBool("use_inputstream")
-	
-	"""Fetch the live stream URL from a NASA+ event page."""
-	#html = fetch_page(url)  # make sure this returns raw HTML string
-
-	try:
-		html = fetch_page(url)
-	except Exception as e:
-		# 👇 Catch 404 or any fetch failure
-		log(f"[LIVE] fetch failed for {url}: {e}")
-
-		# Treat as ended event
-		xbmcgui.Dialog().notification(ADDON_NAME,"This event has ended.",ICON,3000,False)
-		return
-		
-	log(f"[LIVE] No Fetch Failure, Continuing...")
-		
-	date_div = html.find("div", class_="nasatv-event-date")
-
-	is_live = False
-	is_upcoming = False
-
-	if date_div and date_div.has_attr("data-event-timestamp"):
-		ts_raw = date_div["data-event-timestamp"].strip()
-
-		if ts_raw.isdigit():
-			event_ts = int(ts_raw)
-			import time
-			now = int(time.time())
-
-			if now < event_ts:
-				xbmcgui.Dialog().notification(ADDON_NAME,"This event has not yet started.",ICON,3000,False)		
-				log(f"[LIVE] Event Not Started.")
-				return		
-	
-        
-	"""Fetch the live stream URL from a NASA+ event page."""
-	#soup = fetch_page(url)
-	
-	#start_tag = soup.find("div", id="countdownclock")
-	#if start_tag:
-		#xbmcgui.Dialog().notification(ADDON_NAME,"This event has not yet started.",ICON,3000,False)
-		#return
-
-	video_tag = html.find("video", id="main-video")
-	if not video_tag:
-		xbmcgui.Dialog().notification(ADDON_NAME,"No Stream URL Found.",ICON,3000,False)
-		#return
-		return None
-
-	# Prefer the data-video-url attribute, fallback to <source src>
-	stream_url = video_tag.get("data-fallback-url")
-	if not stream_url:
-		source_tag = video_tag.find("source")
-		if source_tag and source_tag.get("src"):
-			stream_url = source_tag["src"]
-			
-	log(f"[VIDEO]: found stream: url='{stream_url}'")
-	
-	list_item = xbmcgui.ListItem()
-
-	list_item.setProperty("IsPlayable", "true")
-	list_item.setProperty('metalchris.nasaplus', 'true')
-
-	# Set path AFTER creation
-	list_item.setPath(stream_url)
-	
-	if use_inputstream:
-		# Enable inputstream.adaptive
-		log(f"[PLAYBACK] InputStream", xbmc.LOGINFO)
-		list_item.setProperty("inputstream", "inputstream.adaptive")
-		list_item.setProperty("inputstream.adaptive.manifest_type", "hls")
-	else:
-		# --- FFMPEG (Kodi default player) ---
-		# Do nothing special — Kodi will use FFmpeg automatically
-		log(f"[PLAYBACK] FFMPEG", xbmc.LOGINFO)
-		pass
-
-	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
-	
-
-def clear_cache():
-    try:
-        if xbmcvfs.exists(CACHE_FILE):
-            xbmcvfs.delete(CACHE_FILE)
-
-        # Optional: wipe entire cache directory instead
-        # if xbmcvfs.exists(CACHE_DIR):
-        #     shutil.rmtree(CACHE_DIR)
-        #     xbmcvfs.mkdirs(CACHE_DIR)
-
-        xbmcgui.Dialog().notification(
-            "NASA+",
-            "Cache cleared",
-            xbmcgui.NOTIFICATION_INFO,
-            3000
-        )
-
-    except Exception as e:
-        log(f"[CACHE] Clear failed: {e}")
-        xbmcgui.Dialog().notification(
-            "NASA+",
-            "Failed to clear cache",
-            xbmcgui.NOTIFICATION_ERROR,
-            3000
-        )
-
-
 # -------------------
 # Router
 # -------------------

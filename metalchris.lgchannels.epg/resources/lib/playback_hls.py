@@ -5,7 +5,7 @@ from resources.lib.uas import ua
 from resources.lib.logger import *
 from resources.lib.playback_utils import *
 
-def play_episode_hls(title, url, image, epg_window=None):
+def play_episode_hls(title, url, image, addon_info, epg_window=None):
 	"""
 	Play a video stream directly without using InputStream Adaptive.
 	"""
@@ -29,11 +29,14 @@ def play_episode_hls(title, url, image, epg_window=None):
 		li = xbmcgui.ListItem(label=title)
 		if image:
 			li.setArt({'icon': image, 'thumb': image})
-		li.setInfo("video", {"title": title})
+		li.setInfo("video", {"title": title, "plot": addon_info})
 		#li.setInfo("video", {"title": title, "plot": desc})
 		li.setProperty("IsPlayable", "true")
 
-		play_url = pre_play(url)
+		play_url = pre_play(url, addon_info)
+
+		xbmc.log(f"[PLAYBACK] Playing directly: {title} ({url})", xbmc.LOGINFO)
+		xbmc.Player().play(item=play_url, listitem=li)
 
 		# Close the EPG window if one was passed
 		#if epg_window:
@@ -55,10 +58,6 @@ def play_episode_hls(title, url, image, epg_window=None):
 			epg_window.setProperty("LAST_SELECTED_SLUG", slug)
 			epg_window.setProperty("LAST_SELECTED_INDEX", str(index))
 			log(f"[PLAYBACK_HLS] Last Selected Channel: {index} ({slug})", xbmc.LOGINFO)
-
-
-		xbmc.log(f"[PLAYBACK] Playing directly: {title} ({url})", xbmc.LOGINFO)
-		xbmc.Player().play(item=play_url, listitem=li)
 
 	except Exception as e:
 		xbmc.log(f"[PLAYBACK] play_episode failed: {e}", xbmc.LOGERROR)

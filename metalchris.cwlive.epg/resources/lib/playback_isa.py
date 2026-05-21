@@ -5,7 +5,10 @@ from resources.lib.uas import ua
 from resources.lib.logger import log
 
 
-def play_episode_isa(title, stream, image, captions, epg_window):
+def play_episode_isa(title, stream, image, addon_info, epg_window):
+	
+	xbmc.log(f"[PLAYBACK] addon_info: {addon_info}", xbmc.LOGINFO)
+	
 	try:
 		#title = ep.get("episode_title") or ep.get("title") or "Unknown"
 		#desc  = ep.get("episode_description") or ep.get("description") or ""
@@ -19,7 +22,12 @@ def play_episode_isa(title, stream, image, captions, epg_window):
 		li = xbmcgui.ListItem(label=title)
 		if image:
 			li.setArt({'icon': image, 'thumb': image})
-		li.setInfo("video", {"title": title})
+		li.setInfo("video", {"title": title,"plot": addon_info})	
+		
+		video_tag = li.getVideoInfoTag()
+			
+		xbmc.log(f"[PLAYBACK] addon_info: {video_tag.getPlot()}", xbmc.LOGINFO)
+		
 		li.setProperty("IsPlayable", "true")
 
 		# InputStream properties

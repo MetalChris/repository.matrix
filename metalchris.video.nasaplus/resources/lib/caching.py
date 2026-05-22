@@ -42,12 +42,19 @@ DESC_CACHE_TTLS = [
     999999999
 ]
 
+def get_setting_index(setting_id, default=0):
+    try:
+        value = ADDON.getSetting(setting_id)
+        return int(value) if value != "" else default
+    except Exception:
+        return default
+
 CACHE_TTL_PAGES = PAGE_CACHE_TTLS[
-    int(ADDON.getSetting("page_cache_ttl"))
+    get_setting_index("page_cache_ttl")
 ]
 
 CACHE_TTL_DESCRIPTIONS = DESC_CACHE_TTLS[
-    int(ADDON.getSetting("desc_cache_ttl"))
+    get_setting_index("desc_cache_ttl")
 ]
 
 # Cache setup
@@ -289,4 +296,3 @@ def clear_cache():
 			ICON,
 			3000
 		)
-

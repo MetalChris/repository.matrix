@@ -222,7 +222,13 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 			#log(f"[BUILD ITEMS] ListItem: {li(1)}", xbmc.LOGDEBUG)
 	log(f"[BUILD ITEMS] GENRE: {genre_filter}", xbmc.LOGINFO)
 	if SORT_ALPHA:
-		items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		#items.sort(key=lambda li: (li.getProperty('channel') or '').lower().removeprefix('the '))
+		items.sort(
+			key=lambda li: strip_prefix(
+				(li.getProperty('channel') or '').lower(),
+				'the '
+			)
+		)
 	log(f"[BUILD ITEMS] SORT_ALPHA: {SORT_ALPHA}", xbmc.LOGINFO)
 
 	log(f"[BUILD ITEMS] EPG built with: {kept} channels", xbmc.LOGINFO)
@@ -252,3 +258,11 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 
 	#return items, kept, title
 	return items, kept, title
+	
+def strip_prefix(text, prefix):
+    if text.startswith(prefix):
+        return text[len(prefix):]
+    return text
+
+
+

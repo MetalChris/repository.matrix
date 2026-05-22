@@ -33,6 +33,9 @@ SERIES_DESCRIPTION_FALLBACK = "No Description Available."
 # Helpers
 # -------------------	
 
+if ADDON.getSetting("first_run") == "true":
+    ADDON.openSettings()
+    ADDON.setSetting("first_run", "false")
 
 def normalize_url(url):
 	"""Convert relative URLs to absolute NASA+ URLs."""

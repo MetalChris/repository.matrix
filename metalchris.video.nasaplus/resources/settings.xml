@@ -2,6 +2,30 @@
     <category label="Playback">
         <setting id="use_inputstream" type="bool" label="Use inputstream.adaptive for playback" default="true" />
         <setting id="load_descriptions" type="bool" label="Load series and video descriptions (slower)" default="true" />
+        <setting id="first_run" type="bool" label="Hidden: first run" default="true" visible="false" />
+    </category>
+    <category label="Log Notifications">
+        <setting id="debug" type="bool" label="Enable debug logging" default="false" />
+    </category>
+    <category label="Cache">
+		<setting id="page_cache_ttl"
+         type="enum"
+         label="Page Cache Duration"
+         values="1 Hour|6 Hours|12 Hours|24 Hours|7 Days"
+         default="1" />
+         <setting id="desc_cache_ttl"
+         type="enum"
+         label="Description Cache Duration"
+         values="1 Day|7 Days|30 Days|90 Days|365 Days|31.7 Years"
+         default="2" />
+        <setting id="clear_cache" type="action" label="Clear Cache" 
+        action="RunPlugin(plugin://metalchris.video.nasaplus/?action=clear_cache)" />
+    </category>
+</settings>
+<settings>
+    <category label="Playback">
+        <setting id="use_inputstream" type="bool" label="Use inputstream.adaptive for playback" default="true" />
+        <setting id="load_descriptions" type="bool" label="Load series and video descriptions (slower)" default="true" />
     </category>
     <category label="Log Notifications">
         <setting id="debug" type="bool" label="Enable debug logging" default="false" />

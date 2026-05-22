@@ -8,7 +8,6 @@ import re
 
 from resources.lib.logger import *
 from resources.lib.convert_to_local import format_duration
-from resources.lib.get_items import *
 
 		
 def extra_meta(rating,duration):

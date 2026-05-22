@@ -733,7 +733,7 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.04.01" provider-name="MetalChris">
+<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.04.02" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -750,6 +750,7 @@ v4.2.7
         <summary lang="en">Add-on that displays a centered EPG panel for live channels from DistroTV.</summary>
         <description lang="en">Watch DistroTV’s live streaming channels with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming.</description>
         <platform>all</platform>
+        <news>Remove superfluous file from DistroTV EPG add-on.</news>
         <license>GPL(v2) or Later</license>
         <forum></forum>
         <website></website>
@@ -989,7 +990,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.04.01" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.04.02" provider-name="MetalChris">
     <extension point="xbmc.addon.repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -1001,7 +1002,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Update EPG add-ons with code fix for Context Menu glitch. Update LG Channels EPG with option in settings to start add-on in Favorites mode.</news>
+        <news>Remove superfluous file from DistroTV EPG add-on.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>

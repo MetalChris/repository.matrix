@@ -990,7 +990,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.04.02" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.04.03" provider-name="MetalChris">
     <extension point="xbmc.addon.repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -1002,7 +1002,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Remove superfluous file from DistroTV EPG add-on.</news>
+        <news>Update NASA+ add-on.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>

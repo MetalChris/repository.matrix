@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="plugin.video.cflplus" name="CFL+" version="2025.09.04" provider-name="MetalChris">
+<addon id="plugin.video.cflplus" name="CFL+" version="2026.05.01" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -8,17 +8,18 @@
     <import addon="script.module.html5lib" version="0.999.0"/>
     <import addon="script.module.mechanicalsoup" version="1.0.0+matrix.1"/>
     <import addon="script.module.requests" version="2.9.1"/>
+	<import addon="inputstream.adaptive" />
   </requires>
   <extension point="xbmc.python.pluginsource" library="addon.py">
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
     <summary lang="en">CFL+ is the new way for U.S. and International audiences to stream CFL games!</summary>
-    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2025 season, including the Grey Cup Playoffs and the Grey Cup championship will be available for viewers outside of North America.</description>
-    <disclaimer lang="en"></disclaimer>
+    <description lang="en">CFL+ will live stream all games not being broadcast on CBS Sports Network in the U.S., while the entirety of the 2026 season, including the Grey Cup Playoffs and the Grey Cup championship will be available for viewers outside of North America.</description>
+    <disclaimer lang="en">Not endorsed by, or affiliated with the CFL. Just a football fan.</disclaimer>
     <language></language>
     <platform>all</platform>
-    <news>Fix for Kodi Omega compatibility.</news>
+    <news>Update for 2026 season. Now requires inputstream.adaptive for playback.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>

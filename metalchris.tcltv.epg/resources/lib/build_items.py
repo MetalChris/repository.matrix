@@ -11,9 +11,10 @@ from resources.lib.utils_fetch import *
 from resources.lib.logger import log  # use custom logger
 from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
-#from resources.lib.favorites import list_favorites
+from resources.lib.favorites import list_favorites, add_favorite
 
 addon = xbmcaddon.Addon()
+ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
 GENRE_FILTER_PROP = "tcltv_epg_genre_filter"
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 MEDIA_PATH = os.path.join(ADDON_PATH, "resources", "media")
@@ -51,23 +52,32 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
-	xbmc.log(f"[build_items] fav_ids = {fav_ids}", xbmc.LOGDEBUG)
+	
+	log(f"[BUILD_ITEMS] Favorites type: {addon.getSetting('old_favorites')}", xbmc.LOGINFO)
 
-	xbmc.log(f"[build_items] TYPE = {type(data)} SAMPLE = {str(data)[:200]}", xbmc.LOGDEBUG)
+	if addon.getSetting("old_favorites") == "True":
+		fav_dict = list_favorites()
+		old_fav_ids = set(fav_dict.keys()) if fav_dict else set()
+	else:
+		old_fav_ids = set()
+	
+	log(f"[build_items] fav_ids = {fav_ids}", xbmc.LOGDEBUG)
+
+	log(f"[build_items] TYPE = {type(data)} SAMPLE = {str(data)[:200]}", xbmc.LOGDEBUG)
 
 	# --- Normalize incoming data shape ---
 	if isinstance(data, str):
 		try:
 			data = json.loads(data)
 		except Exception:
-			xbmc.log("[build_items] data was string but not JSON", xbmc.LOGERROR)
+			log("[build_items] data was string but not JSON", xbmc.LOGERROR)
 			return [], 0, ""
 
 	if isinstance(data, dict):
 		data = data.get("categories") or data.get("data") or data
 
 	if not isinstance(data, list):
-		xbmc.log(f"[build_items] Unsupported data type: {type(data)}", xbmc.LOGERROR)
+		log(f"[build_items] Unsupported data type: {type(data)}", xbmc.LOGERROR)
 		return [], 0, ""
 
 	categories = data  # <- SINGLE SOURCE OF TRUTH
@@ -100,7 +110,7 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 
 		for ch in channels:
 			channel_id = ch.get("id")
-			if ADDON.getSettingBool("favorites_mode"):
+			if fav_ids:
 				if channel_id not in fav_ids:
 					continue
 			title = ch.get("name")
@@ -173,6 +183,9 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 				continue
 
 			kept += 1
+			
+			if addon.getSetting("old_favorites") == "True" and channel_id in old_fav_ids:
+				add_favorite(channel_id, channel_id, title, logo, url)
 
 			li = xbmcgui.ListItem(label=title)
 
@@ -195,7 +208,7 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 			li.setProperty("desc", "desc")
 			li.setProperty("now_id", now_id)
 			li.setProperty("next_id", next_id)
-			#li.setProperty('addon_info', 'tcltv.' + str(slug))
+			li.setProperty('slug', str(channel_id))
 			li.setProperty('addon_info', 'tcltv.' + str(channel_id))
 			#li.setArt({"icon": logo})
 			#li.setInfo("video", {"title": title, "plot": now_desc})
@@ -227,7 +240,7 @@ def build_items(data, thumbs_map, category_map, epg_window, fav_ids=None):
 	in_favorites = ADDON.getSettingBool("favorites_mode")
 	log(f"[BUILD ITEMS] in_favorites: {in_favorites}", xbmc.LOGINFO)
 	#if epg_window.getProperty("FAVORITES_FILTER"):
-	if in_favorites:
+	if fav_ids:
 		title = f"TCLTV+ EPG - Favorites ({kept} Channels)"
 	elif genre_filter:
 		title = f"TCLTV+ EPG - {genre_filter.capitalize()} ({kept} Channels)"

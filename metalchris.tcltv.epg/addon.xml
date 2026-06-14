@@ -1,4 +1,4 @@
-<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.04.01" provider-name="MetalChris">
+<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.05.01" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
 		<import addon="xbmc.addon" version="20.0.0"/>
@@ -21,7 +21,6 @@
         <website></website>
         <email></email>
         <source></source>
-        <news>Code fix for glitch in Context Menu.</news>
         <assets>
             <icon>resources/media/icon.png</icon>
         </assets>

@@ -993,7 +993,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.05.04" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.05.05" provider-name="MetalChris">
     <extension point="xbmc.addon.repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>
@@ -1005,7 +1005,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
 		<summary>MetalChris' Kodi addons</summary>
 		<description>Support provided at forum.kodi.tv or via my github.  I will not provide support at TVaddons, or any other forum.  Please provide a full, unedited, debug log when requesting support.</description>
         <platform>all</platform>
-        <news>Update CFL+ add-on for 2026 season.</news>
+        <news>Update TCLTV+ add-on with fix for 'Start in Favorites' feature.</news>
         <assets>
             <icon>icon.png</icon>
         </assets>
@@ -1159,7 +1159,7 @@ v4.2.5
   </extension>
 </addon>
 
-<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.04.01" provider-name="MetalChris">
+<addon id="metalchris.tcltv.epg" name="TCL TV+ EPG" version="2026.05.01" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
 		<import addon="xbmc.addon" version="20.0.0"/>
@@ -1182,7 +1182,6 @@ v4.2.5
         <website></website>
         <email></email>
         <source></source>
-        <news>Code fix for glitch in Context Menu.</news>
         <assets>
             <icon>resources/media/icon.png</icon>
         </assets>

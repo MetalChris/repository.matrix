@@ -83,7 +83,8 @@ def handle_context_menu(epg_window, listitem):
 			chan_id = listitem.getProperty("channel_id")
 			chan_name = listitem.getProperty("channel")
 			logo = listitem.getProperty("thumb")  # optional
-			if add_favorite(chan_id, chan_name, logo):
+			url = listitem.getProperty("url")
+			if add_favorite(chan_id, chan_id, chan_name, logo, url):
 				xbmcgui.Dialog().notification(
 					"TCLTV+ EPG",
 					f"{chan_name} added to Favorites",

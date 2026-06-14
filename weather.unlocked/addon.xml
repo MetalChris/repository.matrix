@@ -13,10 +13,11 @@
 		<platform>all</platform>
 		<forum></forum>
 		<source></source>
-		<news>Updated to add hourly forecast info.</news>
+		<news>Weather Unlocked API shut down on June 30th 2026.</news>
 		<assets>
 			<icon>/resources/media/icon.png</icon>
 			<banner>/resources/media/fanart.jpg</banner>
 		</assets>
+		<broken>Weather Unlocked API shut down on June 30th 2026.</broken>
 	</extension>
 </addon>

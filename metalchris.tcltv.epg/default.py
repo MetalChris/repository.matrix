@@ -23,6 +23,7 @@ from resources.lib.actions import *
 from resources.lib.logger import *
 from resources.lib.first_run import run_first_run
 from resources.lib.monitor import PlayerMonitor
+from resources.lib.check_favorites import *
 
 ADDON = xbmcaddon.Addon()
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
@@ -48,6 +49,7 @@ local_string = xbmcaddon.Addon(id='metalchris.tcltv.epg').getLocalizedString
 
 log(f"Loaded addon id={ADDON_ID}, version={ADDON_VERSION}", xbmc.LOGINFO)
 
+check_favorites_format(ADDON_ID)
 
 today = time.strftime("%Y-%m-%d")
 
@@ -58,7 +60,7 @@ log('UTC Offset: ' + str(-time.timezone),xbmc.LOGINFO)
 offset = -time.timezone
 NOW = (round(time.time()) - offset)
 log('NOW_OFFSET: ' + str(NOW),xbmc.LOGINFO)
-log(('LG CHANNELS EPG 2025.10.01'),xbmc.LOGINFO)
+log(('TCLTV+ EPG'),xbmc.LOGINFO)
 
 HEADERS = {
 	'user-agent': ua,
@@ -165,7 +167,8 @@ def run():
 		win.clearProperty(GENRE_FILTER_PROP)
 	
 	# apply startup preference BEFORE first load
-	if addon.getSettingBool("startup_favorites"):		
+	if addon.getSettingBool("startup_favorites"):
+		xbmc.log(f"[DEFAULT] START IN FAVORITES", xbmc.LOGINFO)	
 		win.clearProperty(GENRE_FILTER_PROP)
 		addon.setSettingBool("favorites_mode", True)
 		fav_dict = list_favorites()

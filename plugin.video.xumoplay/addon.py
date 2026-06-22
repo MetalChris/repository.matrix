@@ -645,7 +645,6 @@ def vod_desc(url):
 
 #99
 def PLAY(name,url,captions):
-	listitem = xbmcgui.ListItem(path=url)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	if 'm3u8' in url:
 		content_type = 'hls'
@@ -655,21 +654,15 @@ def PLAY(name,url,captions):
 		xbmc.log('CONTENT_TYPE: ' + str(content_type),level=log_level)
 
 
-	lic_url = 'https://widevine-dash.ezdrm.com/proxy?pX=5FE38E&CustomData=%7B%22host%22%3A%22valencia-app-mds.xumo.com%22%2C%22deviceId%22%3A%22d183f919-6f19-42e7-8a9b-356a79b48831%22%2C%22clientVersion%22%3A%222.17.0%22%2C%22providerId%22%3A2565%2C%22assetId%22%3A%22XM0YAF26UZNG6X%22%2C%22token%22%3A%225ad11c90-38e1-4441-8d95-bcfceb1219af%22%7D'
-
-	response = s.post(lic_url)
-	xbmc.log('LIC_RESPONSE CODE: ' + str(response.status_code),level=log_level)
-	xbmc.log('LIC_RESPONSE LENGTH: ' + str(len(response.text)),level=log_level)
-	xbmc.log('LIC_RESPONSE HEADERS: ' + str(response.headers),level=log_level)
-	xbmc.log('LIC_RESPONSE: ' + str(response.text),level=log_level)
-	headers = response.headers
+	lic_url = 'https://widevine-dash.ezdrm.com/proxy?pX=5FE38E&CustomData={"host":"valencia-app-mds.xumo.com","deviceId":"d183f919-6f19-42e7-8a9b-356a79b48831","clientVersion":"2.17.0","providerId":2565,"assetId":"XM0P97SXC83QZN","token":"5ad11c90-38e1-4441-8d95-bcfceb1219af"}'  #'https://widevine-dash.ezdrm.com/proxy?pX=5FE38E&CustomData=%7B%22host%22%3A%22valencia-app-mds.xumo.com%22%2C%22deviceId%22%3A%22d183f919-6f19-42e7-8a9b-356a79b48831%22%2C%22clientVersion%22%3A%222.17.0%22%2C%22providerId%22%3A2565%2C%22assetId%22%3A%22XM0YAF26UZNG6X%22%2C%22token%22%3A%225ad11c90-38e1-4441-8d95-bcfceb1219af%22%7D'
 
 	referer = 'https://play.xumo.com/'
 
 	license_key = lic_url + '|User-Agent=' + ua + '&Referer=' + referer +'/&Origin=' + referer + '&Content-Type= |R{SSM}|'
-	#is_helper = inputstreamhelper.Helper('mpd', drm='widevine')
-	#if not is_helper.check_inputstream():
-		#sys.exit()
+		
+	response = requests.get(url, allow_redirects=True)
+	play_url = response.url
+	listitem = xbmcgui.ListItem(path=play_url)
 
 	listitem.setProperty('IsPlayable', 'true')
 	#if hls != 'false':
@@ -678,14 +671,17 @@ def PLAY(name,url,captions):
 	listitem.setProperty('inputstream', 'inputstream.adaptive')
 	listitem.setProperty('inputstream.adaptive.manifest_type', content_type)
 	listitem.setProperty('inputstream.adaptive.manifest_headers', f"User-Agent={ua}")
-	listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
-	listitem.setProperty('inputstream.adaptive.license_key', license_key)
-	listitem.setMimeType('application/dash+xml')
+	if content_type == 'mpd':
+		listitem.setProperty('inputstream.adaptive.license_type', 'com.widevine.alpha')
+		listitem.setProperty('inputstream.adaptive.license_key', license_key)
+		listitem.setMimeType('application/dash+xml')
+	else:
+		listitem.setMimeType('application/x-mpegURL')		
 	listitem.setContentLookup(False)
 	xbmc.log('### SETRESOLVEDURL ###',level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
 	xbmcplugin.setResolvedUrl(addon_handle, True, listitem)
-	xbmc.log('URL: ' + str(url), level=log_level)
+	xbmc.log('URL: ' + str(play_url), level=log_level)
 	sys.exit()
 	xbmcplugin.endOfDirectory(addon_handle)
 

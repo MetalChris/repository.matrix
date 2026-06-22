@@ -23,10 +23,12 @@ from resources.lib.refresh import *
 from resources.lib.actions import *
 from resources.lib.logger import *
 from resources.lib.first_run import run_first_run
+from resources.lib.check_favorites import *
 
 
 ADDON = xbmcaddon.Addon()
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
+ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
 SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
@@ -45,6 +47,7 @@ USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
 ICON = 'special://home/addons/metalchris.xumoplay.epg/resources/media/icon.png'
 
+check_favorites_format(ADDON_ID)
 
 class EPGPanel(xbmcgui.WindowXML):
 	def __init__(self, *args, **kwargs):
@@ -178,6 +181,7 @@ def run():
 			3000
 		)
 
+	log(f"[DEFAULT] FAVORITES MODE: {ADDON.getSettingBool('favorites_mode')}", xbmc.LOGINFO)
 	#listitems, kept, title = build_items(data, thumbs_map, desc_map, program_map, genre_map, win, fav_ids=None)
 	listitems, kept, title = build_items(data, thumbs_map, desc_map, program_map, genre_map, win, fav_ids=fav_ids if favorites_mode else None)
 

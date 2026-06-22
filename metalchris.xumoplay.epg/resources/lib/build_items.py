@@ -13,8 +13,10 @@ from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
 from resources.lib.get_items import *
 from resources.lib.write_channels import write_refresh_channels
+from resources.lib.favorites import list_favorites, add_favorite
 
 ADDON = xbmcaddon.Addon()
+ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
 GENRE_FILTER_PROP = "xumoplay_epg_genre_filter"
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
@@ -25,7 +27,7 @@ SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
 PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
 map_all_programs_path = os.path.join(CACHE_DIR, "map_all_programs.json")
 
-favorites_filter = ['592', '558', '578', '2118', '2110']
+#favorites_filter = ['592', '558', '578', '2118', '2110']
 
 def _matches_language(channel_lang, selected_lang):
 	"""Return True if selected_lang matches channel_lang.
@@ -82,6 +84,14 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 	log(f"[BUILD_ITEMS] data length: {len(channels)}", xbmc.LOGINFO)
 	log(f"[BUILD_ITEMS] Channel Keys: {list(channels.keys())}", xbmc.LOGINFO)
 	log(f"[BUILD_ITEMS] Channels type: {type(channels)}", xbmc.LOGINFO)
+	log(f"[BUILD_ITEMS] Favorites type: {addon.getSetting('old_favorites')}", xbmc.LOGINFO)
+	
+	if addon.getSetting("old_favorites") == "True":
+		fav_dict = list_favorites()
+		old_fav_ids = set(fav_dict.keys()) if fav_dict else set()
+	else:
+		old_fav_ids = set()
+	
 	if isinstance(channels, dict):
 		channels = channels.values()
 
@@ -148,10 +158,17 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 
 			kept += 1
 			
-			refresh_data[chan_id] = {
-				"name": title,
-				"logo": chan_id
-			}
+			if addon.getSetting("old_favorites") == "True" and chan_id in old_fav_ids:
+				add_favorite(slug, chan_id, title, logo, url)
+				
+
+			#refresh_data[chan_id] = {
+				#"slug": slug,
+				#"name": title,
+				#"logo": chan_id,
+				#"url": url,
+				#"addon_id": ADDON_ID
+			#}
 
 			li = xbmcgui.ListItem(label=title)
 
@@ -168,6 +185,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 			li.setProperty("channel_id", (channel_info["chan_id"]))
 			li.setProperty('url', url)
 			li.setProperty('addon_info', 'xumoplay.' + str(slug))
+			li.setProperty('slug', str(slug))
 			li.setProperty('IsPlayable', 'true')
 			li.setArt({"icon": logo})
 			li.setArt({"bg": "special://home/addons/metalchris.xumoplay.epg/resources/media/row_light.png"})
@@ -196,7 +214,7 @@ def build_items(data, thumbs_map, desc_map, program_map, genre_map, epg_window, 
 	# Set the window property so the UI can use it
 	epg_window.setProperty("EPG_TITLE", title)
 	
-	write_refresh_channels(refresh_data)
+	#write_refresh_channels(refresh_data)
 
 	return items, kept, title
 	

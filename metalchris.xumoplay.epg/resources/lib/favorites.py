@@ -6,7 +6,7 @@ import xbmcvfs
 import time
 from resources.lib.logger import log
 from resources.lib.utils_fetch import *
-from resources.lib.refresh import *
+#from resources.lib.refresh import *
 
 ADDON = xbmcaddon.Addon()
 ADDON_NAME = ADDON.getAddonInfo("name")
@@ -109,7 +109,7 @@ def _save_favorites(favs):
     except Exception as e:
         log(f"[FAVORITES] Failed to save favorites: {e}", xbmc.LOGERROR)
 
-def add_favorite(chan_id, chan_name, logo_path):
+def add_favorite(slug, chan_id, chan_name, logo_path, url):
     """
     Add a channel to favorites.json if not already present.
     """
@@ -131,21 +131,24 @@ def add_favorite(chan_id, chan_name, logo_path):
                 favorites = {}
 
         # Avoid duplicates
-        if chan_id in favorites:
-            log(f"[FAVORITES] Channel '{chan_name}' ({chan_id}) already in favorites", xbmc.LOGINFO)
+        if chan_id and slug in favorites:
+            log(f"[FAVORITES] Channel '{chan_name}' ({chan_id}) already in favorites", xbmc.LOGDEBUG)
             return False
 
         # Add new channel
         favorites[chan_id] = {
+			"slug": slug,
             "name": chan_name,
-            "logo": os.path.join(ADDON_DATA, "thumbs", f"{chan_id}.png")
+            "logo": os.path.join(ADDON_DATA, "thumbs", f"{chan_id}.webp"),
+            "url": url,
+            "addon_id": ADDON_ID
         }
 
         # Save updated file
         with xbmcvfs.File(FAV_FILE, "w") as f:
             f.write(json.dumps(favorites, indent=2))
 
-        log(f"[FAVORITES] Added channel '{chan_name}' ({chan_id}) to favorites", xbmc.LOGINFO)
+        log(f"[FAVORITES] Added channel '{chan_name}' ({chan_id}) to favorites", xbmc.LOGDEBUG)
         return True
 
     except Exception as e:

@@ -8,6 +8,8 @@ import os
 from xbmcaddon import Addon
 import shutil
 import requests
+import base64
+import zlib
 
 s = requests.Session()
 
@@ -122,8 +124,8 @@ def get_channel_thumbs():
 	"""Download channel thumbs only once."""
 	try:
 		# --- Setup paths ---
-		addon = xbmcaddon.Addon()
-		profile_path = xbmcvfs.translatePath(addon.getAddonInfo("profile"))
+		ADDON = xbmcaddon.Addon()
+		profile_path = xbmcvfs.translatePath(ADDON.getAddonInfo("profile"))
 		cache_file = os.path.join(profile_path, "cache", "epg.json")
 		thumbs_dir = os.path.join(profile_path, "thumbs")
 
@@ -340,7 +342,12 @@ def fetch_epg(url=None, ttl=None):
 		log('[UTILS FETCH][fetch_epg] FETCHING FROM: ' + str(url),xbmc.LOGDEBUG)
 		log('[UTILS FETCH][fetch_epg] RESPONSE CODE: ' + str(response.status_code),xbmc.LOGDEBUG)
 		log('[UTILS FETCH][fetch_epg] RESPONSE LENGTH: ' + str(len(response.text)),xbmc.LOGDEBUG)
-		data = json.loads(response.text)
+		
+		raw = base64.b64decode(response.text)
+		decompressed = zlib.decompress(raw)
+		text = decompressed.decode("utf-8")
+		
+		data = json.loads(text)
 		with xbmcvfs.File(cache_file, "w") as f:
 			f.write(json.dumps({"timestamp": now, "data": data}))
 		log("[UTILS FETCH][fetch_epg] Fetched and cached fresh EPG", xbmc.LOGINFO)

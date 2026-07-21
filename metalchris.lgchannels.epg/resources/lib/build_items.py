@@ -11,7 +11,7 @@ from resources.lib.utils_fetch import *
 from resources.lib.logger import log  # use custom logger
 from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
-#from resources.lib.favorites import list_favorites
+from resources.lib.favorites import list_favorites, add_favorite
 
 ADDON = xbmcaddon.Addon()
 GENRE_FILTER_PROP = "lgchannels_epg_genre_filter"
@@ -53,7 +53,13 @@ def _matches_language(channel_lang, selected_lang):
 
 #def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
-	
+	log(f"[BUILD_ITEMS] Favorites type: {ADDON.getSetting('old_favorites')}", xbmc.LOGINFO)
+
+	if ADDON.getSetting("old_favorites") == "True":
+		fav_dict = list_favorites()
+		old_fav_ids = set(fav_dict.keys()) if fav_dict else set()
+	else:
+		old_fav_ids = set()
 	    
 
 	with open(EPG_JSON, "r", encoding="utf-8") as f:
@@ -105,6 +111,8 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 		for count, item in enumerate(category['channels']):
 			#title = str(item['channelNumber']) + ' ' + item['channelName']
 			title = str(item['channelName'])
+			slug = str(item['channelNumber'])
+			chan_id = str(item['channelNumber'])
 
 			#if favorites_mode and fav_ids:
 			if fav_ids:
@@ -219,6 +227,10 @@ def build_items(data, thumbs_map, genre_map, epg_window, fav_ids=None):
 
 			#log(f"[BUILD ITEMS] Adding item: {li.getProperty('channel')}", xbmc.LOGDEBUG)
 			items.append(li)
+			
+			if ADDON.getSetting("old_favorites") == "True" and chan_id in old_fav_ids:
+				add_favorite(slug, chan_id, title, logo, url)
+			
 			#log(f"[BUILD ITEMS] ListItem: {li(1)}", xbmc.LOGDEBUG)
 	log(f"[BUILD ITEMS] GENRE: {genre_filter}", xbmc.LOGINFO)
 	if SORT_ALPHA:

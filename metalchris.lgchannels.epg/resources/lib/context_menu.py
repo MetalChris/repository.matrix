@@ -74,10 +74,12 @@ def handle_context_menu(epg_window, listitem):
 			xbmcgui.Dialog().textviewer(f"{channel} – {title}", description)
 
 		elif sel == "Add channel to Favorites":
+			slug = listitem.getProperty("channel_slug")
 			chan_id = listitem.getProperty("channel_id")
 			chan_name = listitem.getProperty("channel")
-			logo = listitem.getProperty("thumb")  # optional
-			if add_favorite(chan_id, chan_name, logo):
+			logo = listitem.getArt("icon")  # optional
+			url = listitem.getProperty("url")  # optional
+			if add_favorite(slug, chan_id, chan_name, logo, url):
 				xbmcgui.Dialog().notification(
 					"LG Channels EPG",
 					f"{chan_name} added to Favorites",

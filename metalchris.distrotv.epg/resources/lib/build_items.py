@@ -8,14 +8,17 @@ from resources.lib.utils_fetch import *
 from resources.lib.logger import log  # use custom logger
 from resources.lib.convert_to_local import *
 from resources.lib.refresh_addon_settings import sort_alpha  # global variable
+from resources.lib.favorites import list_favorites, add_favorite
 
 ADDON = xbmcaddon.Addon()
+ADDON_ID = xbmcaddon.Addon().getAddonInfo('id')
 GENRE_FILTER_PROP = "distro_epg_genre_filter"
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
 SORT_ALPHA = ADDON.getSettingBool("sort_alpha")
 ICON = 'special://home/addons/metalchris.localnow.epg/resources/media/icon.png'
+FEED_URL = "https://tv.jsrdn.com/epg/query.php?range=now,2h&id="
 
 
 def _matches_language(channel_lang, selected_lang):
@@ -42,6 +45,15 @@ def _matches_language(channel_lang, selected_lang):
 
 
 def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None):
+	log(f"[BUILD_ITEMS] Favorites type: {ADDON.getSetting('old_favorites')}", xbmc.LOGINFO)
+	
+	if ADDON.getSetting("old_favorites") == "True":
+		fav_dict = list_favorites()
+		old_fav_ids = set(fav_dict.keys()) if fav_dict else set()
+	else:
+		old_fav_ids = set()
+	log(f"[BUILD_ITEMS] Old Favorites: {old_fav_ids}", xbmc.LOGINFO)
+		
 	"""
 	Build Kodi ListItem objects from EPG `data`.
 	Optional fav_ids (list of string ids) will filter channels to only those IDs.
@@ -86,7 +98,9 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 					continue
 
 			channel_name = ch.get("title", f"Channel {chan_id}")
-			#log(f"[BUILD ITEMS] chan_id {chan_id}", xbmc.LOGINFO)
+			#log(f"[BUILD ITEMS] title: {title}", xbmc.LOGINFO)
+			slug = chan_id
+			#log(f"[BUILD ITEMS] slug {slug}", xbmc.LOGINFO)
 			slots = ch.get("slots", [])
 
 			# channel_lang pulled from genre_map (same as before)
@@ -110,6 +124,7 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 				continue
 
 			kept += 1
+			
 
 			now_title = slots[0].get("title", "No data") if slots else "No data"
 			next_title = slots[1].get("title", "") if len(slots) > 1 else "No data"
@@ -157,7 +172,9 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			li.setProperty("next_start_raw", next_start_raw)
 			li.setProperty("next_end_raw", next_end_raw)
 			li.setProperty("channel_id", str(chan_id))
-			li.setProperty("channel_slug", str(chan_id))
+			li.setProperty("channel_slug", slug)
+			li.setProperty("slug", slug)
+			li.setProperty("url", FEED_URL + slug)
 			li.setProperty('addon_info', 'distrotv.' + str(chan_id))
 			#log(f"[DistroTV EPG] Set slug={li.getProperty('channel_slug')} for {channel_name}", xbmc.LOGDEBUG)
 
@@ -183,10 +200,14 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 			li.setProperty("row_parity", parity)
 
 			items.append(li)
+			
+			if ADDON.getSetting("old_favorites") == "True" and chan_id in old_fav_ids:
+				add_favorite(slug, chan_id, channel_name, logo_url, FEED_URL)
 	
 		except Exception as e:
 			log(f"[BUILD ITEMS]Error building item for chan_id {chan_id}: {e}", xbmc.LOGERROR)
 			skipped += 1
+			kept -= 1
 
 	# apply alphabetical sort at the channel level if enabled
 	if sort_alpha:
@@ -224,6 +245,6 @@ def build_items(data, thumbs_map, desc_map, genre_map, epg_window, fav_ids=None)
 	return items, kept, title
 	
 def strip_prefix(text, prefix):
-    if text.startswith(prefix):
-        return text[len(prefix):]
-    return text
+	if text.startswith(prefix):
+		return text[len(prefix):]
+	return text

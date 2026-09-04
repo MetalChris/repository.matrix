@@ -1,4 +1,4 @@
-<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.04.02" provider-name="MetalChris">
+<addon id="metalchris.distrotv.epg" name="Distro TV EPG" version="2026.09.02" provider-name="MetalChris">
     <requires>
         <import addon="xbmc.python" version="3.0.0"/>
         <import addon="script.module.requests" version="2.9.1"/>
@@ -15,7 +15,7 @@
         <summary lang="en">Add-on that displays a centered EPG panel for live channels from DistroTV.</summary>
         <description lang="en">Watch DistroTV’s live streaming channels with free movies, TV shows and documentaries. Feed your insatiable curiosities, passions and pursuits of globally-minded viewers with a broad range of entertainment, news, sports, film and TV programming.</description>
         <platform>all</platform>
-        <news>Remove superfluous file from DistroTV EPG add-on.</news>
+        <news>The service has vanished and the website no longer exists.</news>
         <license>GPL(v2) or Later</license>
         <forum></forum>
         <website></website>
@@ -24,5 +24,6 @@
         <assets>
             <icon>resources/media/icon.png</icon>
         </assets>
+		<broken>This add-on has been discontinued.  The service has vanished and the website no longer exists.</broken>
     </extension>
 </addon>

@@ -90,18 +90,19 @@ def cfl(baseurl):
 	#xbmc.log('RESPONSE TEXT: ' + str(html), level=log_level)
 	soup = BeautifulSoup(html, 'html.parser')
 	#soup = response.soup
-	for anchor in soup.find_all("a"):
-		if not anchor.find('p', {'class':'line-clamp-2'}):
+	for anchor in soup.find_all("div", {"class":"relative z-10 flex w-full flex-col lg:container lg:flex-row lg:py-12 gap-2 lg:gap-5"}):
+		if not anchor.find('div', {'class':'lg:max-w-138.5'}):
 			continue
 		#xbmc.log('ANCHOR: ' + str(anchor), level=log_level)
-		title = anchor.find("p",{"class":"line-clamp-2"}).text.strip()
+		#title = anchor.find("div",{"class":"lg:max-w-138.5"}).text.strip()
+		title = anchor.find("h1").text.strip()
 		xbmc.log('TITLE: ' + str(title), level=log_level)
-		plot = 'PLOT' #anchor.find("div",{"class":"item-description"}).text.strip()
+		plot = anchor.find("p",{"class":"typography-lg-light"}).text.strip()
 		#img = anchor.find("div",{"class":"item-image"})#.text.strip()
 		image = anchor.find("img")["src"]#.text.strip()
 		xbmc.log('IMAGE: ' + str(image), level=log_level)
-		#if img is None:
-			#image = defaulticon
+		if image is None:
+			image = defaulticon
 			#xbmc.log('IMAGE: ' + str(image), level=log_level)
 		#else:
 			#image = (re.compile("\'(.+?)\'").findall(str(img))[0])
@@ -109,7 +110,7 @@ def cfl(baseurl):
 		xbmc.log('ANCHOR: ' + str(anchor)[:100], level=log_level)
 		game_url = 'https://cfl.ca' + re.compile('href="(.+?)"').findall(str(anchor))[0]
 		xbmc.log('URL: ' + str(game_url), level=log_level)
-		plot = get_plot(game_url)
+		#plot = get_plot(game_url)
 		xbmc.log('PLOT: ' + str(plot), level=log_level)
 		url = 'plugin://plugin.video.cflplus?mode=53&url=' + urllib_parse.quote_plus(game_url)
 		xbmc.log('URL: ' + str(url), level=log_level)
@@ -140,18 +141,84 @@ def get_stream(url):
 	#xbmc.log('JSON: ' + str(data), level=log_level)
 	if 'sources' in str(res.text):
 		m3u8 = (data['sources'][0]['src'])
+		offset = get_ts(m3u8)
+		xbmc.log('OFFSET: ' + str(offset), level=log_level)
 		#if quality != '4':
 			#m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
 		xbmc.log('M3U8: ' + str(m3u8), level=log_level)
-		PLAY(m3u8)
+		
+		PLAY(m3u8, offset)
 		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
 	else:
 		xbmc.log(('ACCESS_DENIED'), level=log_level)
 		xbmcgui.Dialog().ok(addonname, 'This game is not available in your area.')
 		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
+		
+		
+def get_ts(m3u8):	
+	xbmc.log(('GET_TS'), level=log_level)
+	from urllib.parse import urljoin
+
+	playlist = requests.get(m3u8, headers={'User-Agent': ua}).text
+
+	chunklist = None
+
+	for line in playlist.splitlines():
+		line = line.strip()
+		if line.startswith('chunklist-dvr_hls1080p'):
+			chunklist = urljoin(m3u8, line)
+			break
+
+	xbmc.log('CHUNKLIST: ' + str(chunklist), level=log_level)
+
+	if chunklist:
+		res = requests.get(chunklist, headers={'User-Agent': ua})
+		chunk_data = res.text
+
+		first_program_time = None
+		last_program_time = None
+
+		for line in chunk_data.splitlines():
+			line = line.strip()
+
+			if line.startswith('#EXT-X-PROGRAM-DATE-TIME:'):
+				program_time = line.split(':', 1)[1]
+
+				if first_program_time is None:
+					first_program_time = program_time
+
+				last_program_time = program_time
+
+		xbmc.log('FIRST PROGRAM TIME: ' + str(first_program_time), level=log_level)
+		xbmc.log('LAST PROGRAM TIME: ' + str(last_program_time), level=log_level)
+				
+		import time
+		import calendar
+
+		first_program_epoch = calendar.timegm(
+			time.strptime(first_program_time.replace('Z', '').split('.')[0], '%Y-%m-%dT%H:%M:%S')
+		)
+
+		last_program_epoch = calendar.timegm(
+			time.strptime(last_program_time.replace('Z', '').split('.')[0], '%Y-%m-%dT%H:%M:%S')
+		)
+
+		current_epoch = time.time()
+
+		if current_epoch - last_program_epoch <= 30:
+			offset = last_program_epoch - first_program_epoch
+		else:
+			offset = 0
+
+		xbmc.log('FIRST PROGRAM EPOCH: ' + str(first_program_epoch), level=log_level)
+		xbmc.log('LAST PROGRAM EPOCH: ' + str(last_program_epoch), level=log_level)
+		xbmc.log('CALCULATED OFFSET: ' + str(offset), level=log_level)
+
+		return offset
 
 #99
-def PLAY(url):
+def PLAY(url, offset):
+	xbmc.log('OFFSET: ' + str(offset), level=log_level)
 	listitem = xbmcgui.ListItem(path=url)
 	#xbmc.log('### SETRESOLVEDURL ###', level=log_level)
 	listitem.setProperty('IsPlayable', 'true')
@@ -162,6 +229,22 @@ def PLAY(url):
 	listitem.setMimeType('application/vnd.apple.mpegurl')
 	listitem.setContentLookup(False)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
+
+	xbmc.sleep(1000)
+
+	player = xbmc.Player()
+
+	for i in range(50):
+		if player.isPlaying() and player.getTotalTime() > 0:
+			break
+		xbmc.sleep(100)
+
+	if player.isPlaying() and player.getTotalTime() > 0:
+		xbmc.log(f"CFL offset = {offset}", xbmc.LOGINFO)
+		xbmc.log(f"CFL player time = {player.getTime()}", xbmc.LOGINFO)
+		xbmc.log(f"CFL player total = {player.getTotalTime()}", xbmc.LOGINFO)
+		player.seekTime(offset)
+	
 	xbmc.log('URL: ' + str(url), level=log_level)
 	xbmcplugin.endOfDirectory(pluginhandle)
 	

@@ -1,7 +1,7 @@
 #!/usr/bin/python
 #
 #
-# Written by MetalChris 09.01.2025
+# Written by MetalChris 09.02.2026
 # Released under GPL(v2 or later)
 
 from six.moves import urllib_parse
@@ -11,6 +11,11 @@ import bs4
 from bs4 import BeautifulSoup
 import mechanicalsoup
 import requests
+import time
+
+kickoff = 1781985617
+PRE_ROLL = 1800  # 30 minutes
+
 
 if sys.version_info >= (3, 4, 0):
 	import html
@@ -68,7 +73,7 @@ browser = mechanicalsoup.Browser(soup_config={'features': 'html.parser'})
 #browser.addheaders = [('Accept', 'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ')]
 
 browser.session.headers.update({
-	'Host': 'www.cfl.ca',
+	'Referer': 'https://cfl.ca/',
     'User-Agent': ua,
     'Accept': 'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ'
     # Add any other headers you need
@@ -82,26 +87,30 @@ def cfl(baseurl):
 	response = browser.get('https://www.cfl.ca/plus/')
 	html = response.text
 	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
+	#xbmc.log('RESPONSE TEXT: ' + str(html), level=log_level)
 	soup = BeautifulSoup(html, 'html.parser')
 	#soup = response.soup
 	for anchor in soup.find_all("a"):
-		if not anchor.find('div', {'class':'item-title'}):
+		if not anchor.find('p', {'class':'line-clamp-2'}):
 			continue
-		title = anchor.find("div",{"class":"item-title"}).text.strip()
+		#xbmc.log('ANCHOR: ' + str(anchor), level=log_level)
+		title = anchor.find("p",{"class":"line-clamp-2"}).text.strip()
 		xbmc.log('TITLE: ' + str(title), level=log_level)
-		plot = anchor.find("div",{"class":"item-description"}).text.strip()
-		xbmc.log('PLOT: ' + str(plot), level=log_level)
-		img = anchor.find("div",{"class":"item-image"})#.text.strip()
-		xbmc.log('IMAGE: ' + str(img), level=log_level)
-		if img is None:
-			image = defaulticon
-			xbmc.log('IMAGE: ' + str(image), level=log_level)
-		else:
-			image = (re.compile("\'(.+?)\'").findall(str(img))[0])
-			xbmc.log('IMAGE: ' + str(image), level=log_level)
+		plot = 'PLOT' #anchor.find("div",{"class":"item-description"}).text.strip()
+		#img = anchor.find("div",{"class":"item-image"})#.text.strip()
+		image = anchor.find("img")["src"]#.text.strip()
+		xbmc.log('IMAGE: ' + str(image), level=log_level)
+		#if img is None:
+			#image = defaulticon
+			#xbmc.log('IMAGE: ' + str(image), level=log_level)
+		#else:
+			#image = (re.compile("\'(.+?)\'").findall(str(img))[0])
+			#xbmc.log('IMAGE: ' + str(image), level=log_level)
 		xbmc.log('ANCHOR: ' + str(anchor)[:100], level=log_level)
-		game_url = re.compile('href="(.+?)"').findall(str(anchor))[0]
+		game_url = 'https://cfl.ca' + re.compile('href="(.+?)"').findall(str(anchor))[0]
 		xbmc.log('URL: ' + str(game_url), level=log_level)
+		plot = get_plot(game_url)
+		xbmc.log('PLOT: ' + str(plot), level=log_level)
 		url = 'plugin://plugin.video.cflplus?mode=53&url=' + urllib_parse.quote_plus(game_url)
 		xbmc.log('URL: ' + str(url), level=log_level)
 		li = xbmcgui.ListItem(title)
@@ -119,16 +128,16 @@ def get_stream(url):
 	response = browser.get(url)
 	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
 	html = response.text
-	videoId = (re.compile('videoId=(.+?)&amp').findall(str(html))[0])
+	videoId = (re.compile('videoId=(.+?)",').findall(str(html))[0])
 	xbmc.log('videoId: ' + str(videoId), level=log_level)
 	url = 'https://edge.api.brightcove.com/playback/v1/accounts/4401740954001/videos/' + str(videoId)
 	xbmc.log('URL: ' + str(url), level=log_level)
 	#browser.set_handle_robots( False )
 	res = requests.get(url, headers={'Accept':'application/json;pk=BCpkADawqM0dhxjC63Ux5MXyiMyIYB1S1bvk0iorISSaD1jFgWDyiv-JAcvE6XduNdDYxMdk_NTQWn91IQI9NLPkXd5UIw3cv49pcyJ5eW9QT0CWTrclSFHBHqSSyJ_9Ysgzc2v-Mw0wxNmZ'})
-	xbmc.log('STREAM RESPONSE: ' + str(res.text), level=log_level)
+	#xbmc.log('STREAM RESPONSE: ' + str(res.text), level=log_level)
 	data = res.json()
 	xbmc.log('JSON: ' + str(len(data)), level=log_level)
-	xbmc.log('JSON: ' + str(data), level=log_level)
+	#xbmc.log('JSON: ' + str(data), level=log_level)
 	if 'sources' in str(res.text):
 		m3u8 = (data['sources'][0]['src'])
 		#if quality != '4':
@@ -155,6 +164,14 @@ def PLAY(url):
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 	xbmc.log('URL: ' + str(url), level=log_level)
 	xbmcplugin.endOfDirectory(pluginhandle)
+	
+	
+def get_plot(url):
+	response = browser.get(url)
+	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
+	html = response.text	
+	plot = re.compile('description":"(.+?)",').findall(str(html))[0]
+	return plot
 
 
 def striphtml(data):
@@ -195,6 +212,8 @@ def get_params():
 				param[splitparams[0]] = splitparams[1]
 
 	return param
+	
+
 
 params = get_params()
 url = None

@@ -701,6 +701,28 @@ v4.2.7
   </extension>
 </addon>
 
+<addon id="metalchris.stirr.video" name="STIRR" version="2026.08.03" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+        <import addon="inputstream.adaptive"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+      <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>STIRR Kodi Add-on</summary>
+        <description>STIRR is a free ad-supported streaming television (FAST) platform that delivers live local news, linear channels, on-demand movies, and TV shows to viewers across the United States. STIRR requires no subscription, no credit card, and no account creation. </description>
+		<disclaimer lang="en">This add-on was created as a hobby project. Not endorsed by or affiliated with STIRR.</disclaimer>
+        <platform>all</platform>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>
+
 <addon id="plugin.video.cw" name="CW TV Network" version="2026.01.31" provider-name="MetalChris,QianyuLi">
   <requires>
     <import addon="xbmc.python" version="3.0.0"/>
@@ -877,7 +899,7 @@ v4.2.7
   </extension>
 </addon>
 
-<addon id="plugin.video.cflplus" name="CFL+" version="2026.09.03" provider-name="MetalChris">
+<addon id="plugin.video.cflplus" name="CFL+" version="2026.09.04" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.20.0"/> -->
     <import addon="script.module.beautifulsoup4" version="4.3.2"/>
@@ -897,7 +919,7 @@ v4.2.7
     <disclaimer lang="en">Not endorsed by, or affiliated with the CFL. Just a football fan.</disclaimer>
     <language></language>
     <platform>all</platform>
-    <news>Fixes for website changes. September 2026.</news>
+    <news>Fixes for website changes. October 2026.</news>
     <assets>
         <icon>resources/media/icon.png</icon>
         <fanart>resources/media/fanart.jpg</fanart>
@@ -994,7 +1016,7 @@ There’s finally a platform for your news, your opinion and your voice…its Re
   </extension>
 </addon>
 
-<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.09.03" provider-name="MetalChris">
+<addon id="repository.matrix" name="MetalChris' Matrix Repository" version="2026.09.04" provider-name="MetalChris">
     <extension point="xbmc.addon.repository">
 <dir>
         <info compressed="false">https://raw.github.com/MetalChris/repository.matrix/master/addons.xml</info>

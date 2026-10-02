@@ -43,6 +43,8 @@ sys.path.append(__resource__)
 
 from uas import *
 
+start_live = settings.getSetting(id="start_live")
+
 log_notice = settings.getSetting(id="log_notice")
 if log_notice != 'false':
 	log_level = xbmc.LOGNOTICE if PY2 else xbmc.LOGINFO
@@ -129,7 +131,7 @@ def get_stream(url):
 	response = browser.get(url)
 	xbmc.log('RESPONSE: ' + str(response.status_code), level=log_level)
 	html = response.text
-	videoId = (re.compile('videoId=(.+?)",').findall(str(html))[0])
+	videoId = (re.compile('videoId=(.+?)",').findall(str(html))[0]).split('"')[0]
 	xbmc.log('videoId: ' + str(videoId), level=log_level)
 	url = 'https://edge.api.brightcove.com/playback/v1/accounts/4401740954001/videos/' + str(videoId)
 	xbmc.log('URL: ' + str(url), level=log_level)
@@ -146,6 +148,13 @@ def get_stream(url):
 		#if quality != '4':
 			#m3u8 = (data['sources'][0]['src']).replace('playlist.m3u8', 'profile_' + str(quality) + '/chunklist.m3u8')
 		xbmc.log('M3U8: ' + str(m3u8), level=log_level)
+		if offset != 0:
+			dialog = xbmcgui.Dialog()
+			ret = dialog.contextmenu(['Start Live', 'Start at Beginning'])
+			xbmc.log('RET: ' + str(ret), level=log_level)
+
+			if ret == 1:
+				offset = 1500
 		
 		PLAY(m3u8, offset)
 		xbmcplugin.endOfDirectory(pluginhandle, cacheToDisc=True)
@@ -230,6 +239,8 @@ def PLAY(url, offset):
 	listitem.setContentLookup(False)
 	xbmcplugin.setResolvedUrl(int(sys.argv[1]), True, listitem)
 
+	#if start_live != 'false': 
+	xbmc.log(f"START LIVE", xbmc.LOGINFO)
 	xbmc.sleep(1000)
 
 	player = xbmc.Player()

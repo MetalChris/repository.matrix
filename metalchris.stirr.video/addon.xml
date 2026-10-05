@@ -1,0 +1,21 @@
+<addon id="metalchris.stirr.video" name="STIRR" version="2026.08.04" provider-name="MetalChris">
+    <requires>
+        <import addon="xbmc.python" version="3.0.0"/>
+        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.beautifulsoup4" version="4.3.2"/>
+        <import addon="inputstream.adaptive"/>
+    </requires>
+    <extension point="xbmc.python.pluginsource" library="default.py">
+      <provides>video</provides>
+    </extension>
+    <extension point="xbmc.addon.metadata">
+        <summary>STIRR Kodi Add-on</summary>
+        <description>STIRR is a free ad-supported streaming television (FAST) platform that delivers live local news, linear channels, on-demand movies, and TV shows to viewers across the United States. STIRR requires no subscription, no credit card, and no account creation. </description>
+		<disclaimer lang="en">This add-on was created as a hobby project. Not endorsed by or affiliated with STIRR.</disclaimer>
+        <platform>all</platform>
+        <assets>
+            <icon>resources/media/icon.png</icon>
+            <fanart>resources/media/fanart.jpg</fanart>
+        </assets>
+    </extension>
+</addon>

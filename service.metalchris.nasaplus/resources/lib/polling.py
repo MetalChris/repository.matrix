@@ -3,8 +3,9 @@ import xbmc
 
 from resources.lib.logger import *
 from resources.lib.nasa_api import is_live, get_schedule
-from resources.lib.notifications import notify
+from resources.lib.notifications import *
 from resources.lib.cache import save_cache
+from resources.lib.nasa_api import get_live_event
 
 class PollingManager:
 
@@ -17,10 +18,19 @@ class PollingManager:
 
 		if live and not self.service.was_live:
 			if self.service.notify_live_events:
-				notify("NASA+", "LIVE Event Streaming Now")
+				event = get_live_event()
+
+				if event:
+					notify_live_event(
+						"NASA+",
+						f"{event['title']} is now live. Start watching?",
+						event["url"],
+						event["title"],
+						event["image"]
+					)
 
 			self.service.was_live = live
-		
+			
 	def check_schedule(self):
 		events = get_schedule()
 		current_urls = set(event["url"] for event in events)

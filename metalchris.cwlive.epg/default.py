@@ -24,9 +24,11 @@ from resources.lib.actions import *
 from resources.lib.logger import *
 from resources.lib.first_run import run_first_run
 from resources.lib.monitor import *
+from resources.lib.check_favorites import *
 
 
-ADDON = xbmcaddon.Addon()
+#ADDON = xbmcaddon.Addon()
+ADDON = xbmcaddon.Addon(id="metalchris.cwlive.epg")
 ADDON_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('path'))
 USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 THUMBS_PATH = os.path.join(USERDATA_PATH, "thumbs")
@@ -45,6 +47,8 @@ USERDATA_PATH = xbmcvfs.translatePath(ADDON.getAddonInfo('profile'))
 PRE_EPG = os.path.join(USERDATA_PATH,"cache/desc_map_programs_logo.json")
 
 log(f"Loaded addon id={ADDON_ID}, version={ADDON_VERSION}", xbmc.LOGINFO)
+
+check_favorites_format(ADDON_ID)
 
 
 class EPGPanel(xbmcgui.WindowXML):

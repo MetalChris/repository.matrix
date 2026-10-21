@@ -90,8 +90,9 @@ def handle_context_menu(epg_window, listitem):
 		elif sel == "Add channel to Favorites":
 			chan_id = listitem.getProperty("channel_id")
 			chan_name = listitem.getProperty("channel")
+			url = listitem.getProperty("url")
 			logo = listitem.getProperty("thumb")  # optional
-			if add_favorite(chan_id, chan_name, logo):
+			if add_favorite(chan_id, chan_id, chan_name, logo, url):
 				xbmcgui.Dialog().notification(
 					"CW Live EPG",
 					f"{chan_name} added to Favorites",

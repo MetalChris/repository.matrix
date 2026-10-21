@@ -51,6 +51,50 @@ def fetch_schedule_html():
 	except Exception as e:
 		log(f"Schedule fetch error: {e}", xbmc.LOGERROR)
 		return ""
+		
+		
+def get_live_event():
+
+	html_data = fetch_schedule_html()
+
+	if not html_data:
+		return None
+
+	pattern = r'<article.*?class=".*?events-list.*?</article>'
+
+	matches = re.findall(pattern, html_data, re.DOTALL)
+
+	for m in matches:
+
+		if 'class="has-live"' not in m:
+			continue
+
+		title = re.findall(
+			r'class="nasatv-video-title".*?>(.+?)</a>',
+			m
+		)
+
+		url = re.findall(
+			r'href="(.+?)"',
+			m
+		)
+		
+		image = re.findall(r'background-image:url\((.+?)\)', m)
+
+		if not (title and url):
+			continue
+
+		event = {
+			"title": html.unescape(title[0].strip()),
+			"url": url[0].strip(),
+			"image": image[0].strip() if image else ""
+		}
+
+		log(f"Live Event: {event}", xbmc.LOGDEBUG)
+
+		return event
+
+	return None
 
 
 def parse_events(html_data):

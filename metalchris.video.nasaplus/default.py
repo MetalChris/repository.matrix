@@ -13,12 +13,16 @@ from resources.lib.convert_to_local import format_unix_time_kodi, parse_duration
 from resources.lib.caching import fmt_time, fmt_ttl, compute_hash, _cache_key, _cache_ensure_loaded, _cache_flush, cache_get, cache_set, cache_set_many, cache_get_with_meta, normalize_html, CACHE_TTL_PAGES, CACHE_TTL_DESCRIPTIONS, clear_cache
 from resources.lib.playback import *
 from resources.lib.fetching import *
+from resources.lib.write_videos import *
+from resources.lib.a_to_z import *
 
 ADDON      = xbmcaddon.Addon()
 ADDON_PATH = ADDON.getAddonInfo('path')
 ADDON_NAME = ADDON.getAddonInfo("name")
 ADDON_VERSION = ADDON.getAddonInfo("version")
 MEDIA_PATH = os.path.join(ADDON_PATH, "resources", "media")
+PROFILE_PATH = "special://userdata/addon_data/metalchris.video.nasaplus/"
+VIDEOS_FILE = PROFILE_PATH +  ADDON_ID + ".json"
 
 ICON   = os.path.join(MEDIA_PATH, "icon.png")
 FANART = os.path.join(MEDIA_PATH, "fanart.jpg")
@@ -29,13 +33,20 @@ HANDLE = int(sys.argv[1])
 
 SERIES_DESCRIPTION_FALLBACK = "No Description Available."
 
+#get_topics_url()
+#read_videos()
+
 # -------------------
 # Helpers
 # -------------------	
 
 if ADDON.getSetting("first_run") == "true":
-    ADDON.openSettings()
-    ADDON.setSetting("first_run", "false")
+	ADDON.openSettings()
+	ADDON.setSetting("first_run", "false")
+	
+if ADDON.getSetting("load_all_videos") == "true":
+	get_topics_url()
+	ADDON.setSetting("load_all_videos", "false")
 
 def normalize_url(url):
 	"""Convert relative URLs to absolute NASA+ URLs."""
@@ -102,6 +113,7 @@ def get_main_menu():
 			# fallback: slugify title a bit (replace spaces with underscores)
 			action = low_title.replace(" ", "_")
 			display_name = title
+			
 
 		log(f"[MAIN]: found main menu: title='{title}' href='{href}' -> action='{action}'", xbmc.LOGDEBUG)
 
@@ -110,6 +122,26 @@ def get_main_menu():
 		xbmcplugin.addDirectoryItem(
 			handle=HANDLE,
 			url=get_url(action=action, url=url),
+			listitem=list_item,
+			isFolder=True
+		)
+		
+	# ------------------------------------
+	# Add "All Videos" if master cache exists
+	# ------------------------------------
+
+	if xbmcvfs.exists(VIDEOS_FILE):
+
+		list_item = xbmcgui.ListItem(label="All Videos")
+		list_item.setArt({
+			"thumb": ICON,
+			"icon": ICON,
+			"fanart": FANART
+		})
+
+		xbmcplugin.addDirectoryItem(
+			handle=HANDLE,
+			url=get_url(action="allvideos"),
 			listitem=list_item,
 			isFolder=True
 		)
@@ -237,6 +269,7 @@ def topics_menu(url):
 	soup = fetch_page(url)
 	links = soup.find_all("a", class_="video-grid--link")
 	directory_items = []
+	topics = []
 
 	for a in links:
 		h4 = a.find("h4")
@@ -246,6 +279,8 @@ def topics_menu(url):
 		href = normalize_url(a.get("href"))
 		if not href:
 			continue
+
+		topics.append((title, href))
 
 		# Extract thumbnail from inline CSS
 		figure = a.find("figure")
@@ -261,8 +296,10 @@ def topics_menu(url):
 		if thumb:
 			list_item.setArt({"thumb": thumb, "icon": thumb, "fanart": thumb})
 
-		log(f"[TOPICS]: found topic menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
+		#log(f"[TOPICS]: found topic menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
 		directory_items.append((get_url(action="videos", url=href), list_item, True))
+		
+	log(f"[TOPICS]: found topics: {topics}", xbmc.LOGDEBUG)
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))
@@ -279,6 +316,7 @@ def video_menu(url):
 
 	seen = set()  # track URLs we've already added
 	items = []
+	video_data = {}
 
 	for a in videos:
 		href = normalize_url(a.get("href"))
@@ -324,6 +362,13 @@ def video_menu(url):
 		list_item = xbmcgui.ListItem(label=title, offscreen=True)
 		description = descriptions.get(href, "") or SERIES_DESCRIPTION_FALLBACK
 
+		video_data[title] = {
+			"description": description,
+			"url": href,
+			"thumb": thumb,
+			"duration": duration
+		}
+
 		if thumb:
 			list_item.setArt({"thumb": thumb, "icon": thumb, "poster": thumb, "fanart": thumb})
 
@@ -343,10 +388,12 @@ def video_menu(url):
 
 		log(f"[VIDEO]: found video menu: title='{title}' href='{href}'", xbmc.LOGDEBUG)
 		directory_items.append((get_url(action="play", url=href), list_item, False))
+		
 
 	if directory_items:
 		xbmcplugin.addDirectoryItems(HANDLE, directory_items, len(directory_items))
 		xbmcplugin.setContent(HANDLE, 'episodes')
+	#write_video_list(video_data)				
 
 	xbmcplugin.addSortMethod(HANDLE, xbmcplugin.SORT_METHOD_TITLE)
 	xbmcplugin.endOfDirectory(HANDLE)
@@ -450,7 +497,12 @@ def router(params):
 		elif action == "play":
 			play_video(url)
 		elif action == "stream":
-			stream_video(url)
+			url = params.get("url")
+			title = params.get("title")
+			image = params.get("image")
+			stream_video(url,title,image)
+		elif action == "allvideos":
+			read_videos()
 		if action == "clear_cache":
 			if xbmcgui.Dialog().yesno("NASA+", "Clear cached data?"):
 				clear_cache()

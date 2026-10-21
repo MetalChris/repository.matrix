@@ -22,6 +22,7 @@ class MonitorService:
 		self.notify_live_events = ADDON.getSettingBool("notify_live_events")
 		self.notify_schedule_events = ADDON.getSettingBool("notify_schedule_events")
 		self.polling = PollingManager(self)
+		self.cached_events = []
 		self.was_live = False
 		self.known_events = []
 		
@@ -49,22 +50,22 @@ class MonitorService:
 	def run(self):
 
 		log("Monitor Service Started", xbmc.LOGINFO)
-		notify("NASA+", "Monitor Service Started")
+		notify("NASA+ Service", "Monitor Service Started")
 
 		while not self.monitor.abortRequested():
 
 			now = time.time()
+			
+			# Schedule check (slow cadence)
+			if now - self.last_schedule_check >= self.schedule_interval:
+				self.polling.check_schedule()
+				self.last_schedule_check = now
 
 			if self.check_live_events:
 				# Always check live, but throttled
 				if now - self.last_live_check >= self.polling.get_live_interval():
 					self.polling.check_live()
 					self.last_live_check = now
-
-			# Schedule check (slow cadence)
-			if now - self.last_schedule_check >= self.schedule_interval:
-				self.polling.check_schedule()
-				self.last_schedule_check = now
 
 			# small sleep to prevent CPU spin
 			self.monitor.waitForAbort(5)

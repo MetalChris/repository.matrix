@@ -18,7 +18,7 @@ FANART = os.path.join(MEDIA_PATH, "fanart.jpg")
 
 HANDLE = int(sys.argv[1])
 
-def play_video(url):
+def play_video(url,title):
 	use_inputstream = ADDON.getSettingBool("use_inputstream")
 	
 	"""Resolve and play a NASA+ video page."""
@@ -50,7 +50,7 @@ def play_video(url):
 	xbmcplugin.setResolvedUrl(HANDLE, True, list_item)
 
 
-def stream_video(url):
+def stream_video(url,title,image):
 	use_inputstream = ADDON.getSettingBool("use_inputstream")
 	
 	"""Fetch the live stream URL from a NASA+ event page."""
@@ -104,7 +104,8 @@ def stream_video(url):
 			
 	log(f"[VIDEO]: found stream: url='{stream_url}'")
 	
-	list_item = xbmcgui.ListItem()
+	list_item = xbmcgui.ListItem(label=title)
+	list_item.setArt({'thumb': image, 'icon': image})
 
 	list_item.setProperty("IsPlayable", "true")
 	list_item.setProperty('metalchris.nasaplus', 'true')

@@ -495,7 +495,9 @@ def router(params):
 		elif action == "videos":
 			video_menu(url)
 		elif action == "play":
-			play_video(url)
+			url = params.get("url")
+			title = params.get("title")
+			play_video(url,title)
 		elif action == "stream":
 			url = params.get("url")
 			title = params.get("title")

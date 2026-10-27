@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="weather.pirate" name="Pirate Weather" version="2026.09.04" provider-name="MetalChris">
+<addon id="weather.pirate" name="Pirate Weather" version="2026.09.06" provider-name="MetalChris">
 	<requires>
 		<import addon="xbmc.python" version="3.0.0"/>
-        <import addon="script.module.requests" version="2.9.1"/>
+        <import addon="script.module.requests"/>
 	</requires>
 	<extension point="xbmc.python.weather" library="addon.py"/>
 	<extension point="xbmc.addon.metadata">
 		<summary lang="en">Current Conditions and Forecast from Pirate Weather</summary>
-		<description lang="en">Weather forecast provided by Pirate Weather.  Requires a free API key from VisualCrossing.com</description>
+		<description lang="en">Weather forecast provided by Pirate Weather.  Requires a free API key from pirateweather.net</description>
 		<disclaimer lang="en"></disclaimer>
 		<license>GPL 2 or later</license>
 		<language></language>

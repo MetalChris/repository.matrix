@@ -132,3 +132,24 @@ WEATHER_CODES = { 'chanceflurries'    : '41',
 
 def c_to_f(celsius: float) -> float:
     return round(celsius * 9 / 5 + 32)   
+
+
+def get_temp_unit():
+    """Returns 'F' or 'C' based on user's Kodi Regional setting."""
+    return "C" if "C" in xbmc.getRegion("tempunit") else "F"
+
+def format_temp(celsius):
+    unit = get_temp_unit()
+    if unit == "F":
+        return f"{round(celsius * 9/5 + 32)}°F"
+    return f"{round(celsius)}°C"   
+
+def get_speed_unit():
+    """Returns 'mph' or 'km/h'."""
+    return "km/h" if "km" in xbmc.getRegion("speedunit") else "mph"
+
+def format_speed(kmh):
+    unit = get_speed_unit()
+    if unit == "mph":
+        return f"{round(kmh * 0.621371)} {unit}"
+    return f"{round(kmh)} {unit}"   

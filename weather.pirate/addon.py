@@ -13,7 +13,7 @@
 # *  the Free Software Foundation, 675 Mass Ave, Cambridge, MA 02139, USA.
 # *  http://www.gnu.org/copyleft/gpl.html
 
-# Pirate Weather 10.23.2026
+# Pirate Weather 10.24.2026
 
 import os, sys, socket, urllib
 import xbmc, xbmcgui, xbmcaddon, xbmcvfs
@@ -91,9 +91,9 @@ def location(loc):
 
 def find_location(loc):
 	query = urllib.parse.quote(loc)
-	log('QUERY: ' + str(query),xbmc.LOGINFO)
+	log('QUERY: ' + str(query),xbmc.LOGDEBUG)
 	url = LOC_URL % query
-	log(f"URL: {url}",xbmc.LOGINFO)
+	log(f"URL: {url}",xbmc.LOGDEBUG)
 	headers = {'User-Agent':'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux i686; rv:44.0) Gecko/20100101 Firefox/50.0','Accept':'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8'}
 
 	response = s.get(url, headers=headers)
@@ -113,48 +113,23 @@ def parse_data(reply):
 	return data
 
 def forecast(loc,locid):
-	log(f"weather location: {locid}",xbmc.LOGDEBUG)
 	retry = 0
 	while (retry < 6) and (not xbmc.Monitor().abortRequested()):
-		query = get_weather(locid)
+		query = get_forecast(locid)
 		if query != '':
 			retry = 6
 		else:
 			retry += 1
 			xbmc.sleep(10000)
-			log('weather download failed',xbmc.LOGDEBUG)
-	log('forecast data: %s' % query,xbmc.LOGDEBUG)
-	retry = 0
-	while (retry < 6) and (not xbmc.Monitor().abortRequested()):
-		fquery = get_forecast(locid)
-		if fquery != '':
-			retry = 6
-		else:
-			retry += 1
-			xbmc.sleep(10000)
 			log('forecast download failed',xbmc.LOGDEBUG)
-	log('forecast data: %s' % fquery,xbmc.LOGDEBUG)
-	if fquery != '':
-		properties(query,fquery,loc,locid)
+	log('forecast data: %s' % query,xbmc.LOGDEBUG)
+	if query != '':
+		properties(query,loc,locid)
 	else:
 		clear()
 
-def get_weather(locid):
-	log(f"GET WEATHER",xbmc.LOGDEBUG)
-	url = API_URL + API_KEY + '/' + str(locid) + '?version=2&units=si&icon='
-	log(f"GET WEATHER URL: {url}",xbmc.LOGDEBUG)
-	try:
-		response = requests.get(url, timeout=15)
-		response.raise_for_status()
-		data = response.json()
-		log(f"RESPONSE: {response.status_code}",xbmc.LOGDEBUG)
-		#req.close()
-	except:
-		response = ''
-	return data
-
 def get_forecast(locid):
-	log('GET FORECAST',xbmc.LOGDEBUG)
+	log('GET FORECAST',xbmc.LOGINFO)
 	url = API_URL + API_KEY + '/' + str(locid) + '?version=2&units=si&icon='
 	log('GET FORECAST URL:' + str(url),xbmc.LOGDEBUG)
 	try:
@@ -191,7 +166,7 @@ def clear():
 		set_property('Daily%i.OutlookIcon' % count, 'na.png')
 		set_property('Day%i.FanartCode'  % count, 'na')
 
-def properties(data,fdata,loc,locid):
+def properties(data,loc,locid):
 	log('PROPERTIES',xbmc.LOGDEBUG)
 	weathercode = WEATHER_CODES[(data['currently']['icon'])]
 	log('LOC: ' + str(loc),xbmc.LOGDEBUG)
@@ -237,13 +212,14 @@ def properties(data,fdata,loc,locid):
 		set_property('Day%i.OutlookIcon' % day, '%s.png' % weathercode)
 		log('WEATHER_CODE: ' + str(weathercode),xbmc.LOGDEBUG)
 		log('ICON: ' + str(data['daily']['data'][day]['icon']),xbmc.LOGDEBUG)
-		set_property('Daily.%i.HighTemperature'    % (day + 1), str(c_to_f(data['daily']['data'][day]['temperatureHigh'])))
-		set_property('Daily.%i.LowTemperature'     % (day + 1), str(c_to_f(data['daily']['data'][day]['temperatureLow'])))
-		set_property('Day%i.HighTemp'    % day, str(c_to_f(data['daily']['data'][day]['temperatureHigh'])))
-		set_property('Day%i.LowTemp'     % day, str(c_to_f(data['daily']['data'][day]['temperatureLow'])))
+		set_property('Daily.%i.HighTemperature'    % (day + 1), str(format_temp(data['daily']['data'][day]['temperatureHigh'])))
+		set_property('Daily.%i.LowTemperature'     % (day + 1), str(format_temp(data['daily']['data'][day]['temperatureLow'])))
+		set_property('Day%i.HighTemp'    % day, str(format_temp(data['daily']['data'][day]['temperatureHigh'])))
+		set_property('Day%i.LowTemp'     % day, str(format_temp(data['daily']['data'][day]['temperatureLow'])))
 		set_property('Daily.%i.Outlook'     % (day + 1), str(data['daily']['data'][day]['summary']))
 		set_property('Day%i.Outlook'     % day, str(data['daily']['data'][day]['summary']))
-		set_property('Daily.%i.WindSpeed'     % (day + 1), str(round(data['daily']['data'][day]['windSpeed'])))
+		set_property('Daily.%i.WindSpeed'     % (day + 1), str(format_speed(data['daily']['data'][day]['windSpeed'])))
+		set_property('Daily.%i.WindGust'     % (day + 1), str(format_speed(data['daily']['data'][day]['windGust'])))
 		set_property('Daily.%i.WindDirection'     % (day + 1), degToCompass(data['daily']['data'][day]['windBearing']))
 		set_property('Daily.%i.Precipitation'     % (day + 1), str(round(data['hourly']['data'][day]['precipProbability'])) + '%')
 		sunrise = (data['daily']['data'][day]['sunriseTime'])
@@ -257,19 +233,20 @@ def properties(data,fdata,loc,locid):
 		WEATHER_WINDOW.setProperty('Refresh', '1')
 
 	for hour, item in enumerate(data['hourly']['data']):
-		title = format_unix_time_kodi(data['hourly']['data'][hour]['time']).split(' ')[-1]
+		title = format_unix_time_kodi(data['hourly']['data'][hour-1]['time']).split(' ')[-1]
 		if title != '00:00':
 			title = title.lstrip('0')
 		hdate = title.rsplit(' ')[0]
-		set_property('Hourly.%i.ShortDate'     % hour, format_unix_time_kodi(data['hourly']['data'][hour]['time']).split(' ')[0])
+		set_property('Hourly.%i.ShortDate'     % hour, format_unix_time_kodi(data['hourly']['data'][hour-1]['time']).split(' ')[0])
 		set_property('Hourly.%i.Time'     % hour, str(title))
-		set_property('Hourly.%i.Temperature'    % hour, str(c_to_f(data['hourly']['data'][hour]['temperature'])))
-		set_property('Hourly.%i.Outlook'     % hour, str(data['hourly']['data'][hour]['summary']))
-		set_property('Hourly.%i.WindSpeed'     % hour, str(round(data['hourly']['data'][hour]['windSpeed'])))
-		set_property('Hourly.%i.WindDirection'     % hour, degToCompass(data['hourly']['data'][hour]['windBearing']))
-		set_property('Hourly.%i.Humidity'     % hour, str(round(float(data['hourly']['data'][hour]['humidity']) * 100)) + '%')
-		set_property('Hourly.%i.Precipitation'     % hour, str(round(data['hourly']['data'][hour]['precipProbability'])) + '%')
-		weathercode = WEATHER_CODES[str(data['hourly']['data'][hour]['icon'])]
+		set_property('Hourly.%i.Temperature'    % hour, str(format_temp(data['hourly']['data'][hour-1]['temperature'])))
+		set_property('Hourly.%i.Outlook'     % hour, str(data['hourly']['data'][hour-1]['summary']))
+		set_property('Hourly.%i.WindGust'     % hour, str(format_speed(data['hourly']['data'][hour-1]['windGust'])))
+		set_property('Hourly.%i.WindSpeed'     % hour, str(format_speed(data['hourly']['data'][hour-1]['windSpeed'])))
+		set_property('Hourly.%i.WindDirection'     % hour, degToCompass(data['hourly']['data'][hour-1]['windBearing']))
+		set_property('Hourly.%i.Humidity'     % hour, str(round(float(data['hourly']['data'][hour-1]['humidity']) * 100)) + '%')
+		set_property('Hourly.%i.Precipitation'     % hour, str(round(data['hourly']['data'][hour-1]['precipProbability'])) + '%')
+		weathercode = WEATHER_CODES[str(data['hourly']['data'][hour-1]['icon'])]
 		set_property('Hourly.%i.OutlookIcon' % hour, '%s.png' %  weathercode)
 		set_property('Hourly.IsFetched', 'true')
 		
@@ -313,4 +290,4 @@ else:
 		clear()
 	refresh_locations()
 
-log('finished',xbmc.LOGDEBUG)
+log('finished',xbmc.LOGINFO)

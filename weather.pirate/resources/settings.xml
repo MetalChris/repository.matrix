@@ -13,10 +13,9 @@
 		<setting id="Location5id" type="text" visible="false"/>
 	</category>
 	<category label="32119">
-		<setting id='alert_textbox' type ="bool" label="32120" default="false"/>
-		<setting id='alert_notification' type ="bool" label="32121" default="false"/>
-		<setting id='alert_dialog' type ="bool" label="32123" default="false"/>
-		<setting id='alert_sound' type ="bool" label="32122" default="false"/>
+		<setting id='alert_notification' type ="enum" label="32128" lvalues="32120|32121|32127" default="0"/>   
+		<setting id='alert_sound' type ="bool" label="32122" default="true"/>
+		<setting id="reset_alerts" type="bool" label="32126" default="false" />   
 	</category>
 	<category label="32116">
 		<setting id="API_KEY" type="text" label="32115"/>

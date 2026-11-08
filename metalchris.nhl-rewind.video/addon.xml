@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<addon id="metalchris.nhl-rewind.video" name="NHL Rewind" version="2026.10.03" provider-name="MetalChris">
+<addon id="metalchris.nhl-rewind.video" name="NHL Rewind" version="2026.10.04" provider-name="MetalChris">
   <requires>
     <!-- <import addon="xbmc.python" version="2.1.0"/> -->
 	<import addon="script.module.requests" version="2.9.1"/>
@@ -11,9 +11,9 @@
     <provides>video</provides>
   </extension>
   <extension point="xbmc.addon.metadata">
-    <summary lang="en">NHL Radio</summary>
+    <summary lang="en">Watch condensed NHL games with NHL Rewind</summary>
     <description lang="en">Watch condensed NHL games. Condensed games are generally available within 1 hour after the game has concluded.  No subscription required.</description>
-    <disclaimer lang="en"></disclaimer>
+		<disclaimer lang="en">This add-on was created as a hobby project. Not endorsed by or affiliated with the NHL.</disclaimer>
     <language></language>
     <platform>all</platform>
     <license>GPL(v2 or later)</license>

@@ -40,6 +40,7 @@ __resource__   = xbmcvfs.translatePath( os.path.join( __cwd__, 'resources', 'lib
 sys.path.append(__resource__)
 
 from utilities import *
+from alerts import *
 
 LOC_URL          = 'https://nominatim.openstreetmap.org/search?addressdetails=1&q=%s&format=jsonv2'
 API_URL          = 'https://api.pirateweather.net/forecast/'
@@ -167,6 +168,29 @@ def clear():
 		set_property('Day%i.FanartCode'  % count, 'na')
 
 def properties(data,loc,locid):
+	if data.get('alerts'):
+		#log(f"ALERT: {data['alerts']}",xbmc.LOGINFO)
+		log(f"ALERT TITLE: {data['alerts'][0]['title']}",xbmc.LOGINFO)
+		#log(f"ALERT REGIONS: {data['alerts'][0]['regions']}",xbmc.LOGINFO)
+		sorted_regions = sorted(data['alerts'][0]['regions'], key=str.lower)
+		regions = ", ".join(sorted_regions)
+		log(f"ALERT REGIONS: {regions}",xbmc.LOGINFO)
+		log(f"ALERT DESCRIPTION: {data['alerts'][0]['description']}",xbmc.LOGINFO)
+		#xbmcgui.Dialog().textviewer(f"{data['alerts'][0]['title']}\n", f"REGIONS: {regions}\n\n{data['alerts'][0]['description']}")
+		alerts = data['alerts']
+	alerts = [{
+		'title': 'Tornado Warning',
+		'event': 'Tornado Warning',
+		'severity': 'Extreme',
+		'description': 'This is a test alert. If you are in the path of a tornado, take shelter immediately.',
+		'time': 1793516160,
+		'expires': 1793548800,
+		'regions': ["Caddo","Bossier","De Soto","Sabine","Red River","Bowie"]
+	}]
+	
+	check_and_display_alerts(alerts)
+
+			
 	log('PROPERTIES',xbmc.LOGDEBUG)
 	weathercode = WEATHER_CODES[(data['currently']['icon'])]
 	log('LOC: ' + str(loc),xbmc.LOGDEBUG)
@@ -233,7 +257,7 @@ def properties(data,loc,locid):
 		WEATHER_WINDOW.setProperty('Refresh', '1')
 
 	for hour, item in enumerate(data['hourly']['data']):
-		title = format_unix_time_kodi(data['hourly']['data'][hour-1]['time']).split(' ')[-1]
+		title = format_unix_time_kodi(data['hourly']['data'][hour-1]['time']).split(' ')[1]
 		if title != '00:00':
 			title = title.lstrip('0')
 		hdate = title.rsplit(' ')[0]

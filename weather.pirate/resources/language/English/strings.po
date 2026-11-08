@@ -59,11 +59,15 @@ msgid "Alerts"
 msgstr ""
 
 msgctxt "#32120"
-msgid "Textbox"
+msgid "Textbox (Shows full alert text)"
 msgstr ""
 
 msgctxt "#32121"
-msgid "Notification"
+msgid "Notification (Pop-up)"
+msgstr ""
+
+msgctxt "#32122"
+msgid "Alert Sound"
 msgstr ""
 
 msgctxt "#32123"
@@ -76,4 +80,16 @@ msgstr ""
 
 msgctxt "#32125"
 msgid "Location 5"
+msgstr ""
+
+msgctxt "#32126"
+msgid "Reset alert history (enable, then wait for next refresh)"
+msgstr ""
+
+msgctxt "#32127"
+msgid "None"
+msgstr ""
+
+msgctxt "#32128"
+msgid "Notification Type"
 msgstr ""

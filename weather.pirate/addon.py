@@ -178,6 +178,8 @@ def properties(data,loc,locid):
 		log(f"ALERT DESCRIPTION: {data['alerts'][0]['description']}",xbmc.LOGINFO)
 		#xbmcgui.Dialog().textviewer(f"{data['alerts'][0]['title']}\n", f"REGIONS: {regions}\n\n{data['alerts'][0]['description']}")
 		alerts = data['alerts']
+		
+	# Demo alert for testing notifications	
 	alerts = [{
 		'title': 'Tornado Warning',
 		'event': 'Tornado Warning',
@@ -202,7 +204,7 @@ def properties(data,loc,locid):
 	set_property('Current.Wind'          , str(data['currently']['windSpeed']))
 	set_property('Current.WindDirection' , bearing_to_direction(data['currently']['windBearing']))
 	set_property('Current.WindChill'     , str(data['currently']['apparentTemperature']))
-	set_property('Current.Humidity'      , str(data['currently']['humidity']).replace('0.',''))
+	set_property('Current.Humidity'      , str(round(float(data['currently']['humidity']) * 100)))
 	set_property('Current.Visibility'    , str(data['currently']['visibility']))
 	set_property('Current.Pressure'      , str(data['currently']['pressure']))
 	set_property('Current.FeelsLike'     , str(data['currently']['apparentTemperature']))

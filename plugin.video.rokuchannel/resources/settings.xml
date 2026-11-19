@@ -11,7 +11,7 @@
             <setting default="false" id='hls' type ="bool" label="32031"/>
         </category>
         <category label="Logging">
-            <setting default="false" id='log_notice' type ="bool" label="30000"/>
+            <setting default="false" id='debug_logging' type ="bool" label="30000"/>
             <setting default="false" id='first'/>
         </category>
 </settings>

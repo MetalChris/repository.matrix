@@ -112,11 +112,21 @@ def main_menu():
 
 
 def categories(apiUrl):
-	if is_cache_stale(addon_path_profile + 'api.json') != False:
-		log(f"Downloading from API... {apiUrl}",xbmc.LOGINFO)
-		with urllib.request.urlopen(apiUrl) as response, open(os.path.join(addon_path_profile, 'api.json'), 'wb') as out_file:
-			shutil.copyfileobj(response, out_file)
-	with open(os.path.join(addon_path_profile, 'api.json'), 'rb') as f:
+	cache_file = os.path.join(addon_path_profile, 'api.json')
+	if is_cache_stale(cache_file) != False:
+		log(f"Downloading from API... {apiUrl}", xbmc.LOGINFO)
+		req = urllib.request.Request(apiUrl, headers={'User-Agent': ua})
+		log(f"USER AGENT: {ua}", xbmc.LOGINFO)
+		with urllib.request.urlopen(req) as response:
+			log(f"RESPONSE CODE: {response.status}", xbmc.LOGINFO)
+			if response.status != 200:
+				raise Exception(f"API returned HTTP {response.status}")
+			body = response.read()
+			if not body:
+				raise Exception("API returned empty response")
+			with open(cache_file, 'wb') as out_file:
+				out_file.write(body)
+	with open(cache_file, 'rb') as f:
 		data = json.load(f)
 
 	cats = []
@@ -149,6 +159,8 @@ def channels(apiUrl, name):
 	with open(os.path.join(addon_path_profile, 'api.json'), 'rb') as f:
 		data = json.load(f)
 	for count, item in enumerate(data['collections']):
+		if 'title' not in item:
+			continue
 		if item['title'] == name:
 			log(('MATCH'),xbmc.LOGINFO)
 			log(('COUNT: ' + str(count)),xbmc.LOGINFO)
